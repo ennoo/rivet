@@ -38,7 +38,7 @@ func (handler RestTextHandler) ObtainValue() url.Values {
 }
 
 func (handler RestTextHandler) ObtainRemoteServer() string {
-	return handler.RestHandler.RemoteServer
+	return handler.RestHandler.remoteServer
 }
 
 func (handler RestTextHandler) ObtainHeader() http.Header {

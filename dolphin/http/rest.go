@@ -26,15 +26,10 @@ import (
 // RestHandler 处理请求发送和接收
 type RestHandler struct {
 	// 远程服务器地址,如 http://localhost:3030
-	RemoteServer string
+	remoteServer string
 	uri          string
 	param        interface{}
 	values       url.Values
-}
-
-type JSONRestHandler struct {
-	// 远程服务器地址,如 http://localhost:3030
-	RemoteServer string
 }
 
 // 从Header或者Cookie中获取到用户的access_token
