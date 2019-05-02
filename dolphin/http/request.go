@@ -58,9 +58,7 @@ type Handler interface {
 }
 
 func getFullUri(handler Handler) string {
-	url := filepath.Join(handler.ObtainRemoteServer(), "/", handler.ObtainUri())
-	url = filepath.ToSlash(url)
-	return url
+	return filepath.ToSlash(filepath.Join(handler.ObtainRemoteServer(), "/", handler.ObtainUri()))
 }
 
 func requestJson(method string, handler Handler) ([]byte, error) {
