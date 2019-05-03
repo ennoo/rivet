@@ -53,22 +53,21 @@ func consulRegister(consulUrl string, serviceName string) {
 	containerID := str.Trim(hosts[0])
 	log.Info("containerID = ", containerID)
 	restJsonHandler := request.RestJsonHandler{
-		Header:  nil,
-		Cookies: nil,
+		Param: Register{
+			ID:                ServiceID,
+			Name:              env.GetEnvDafult(env.ServiceName, serviceName),
+			Address:           containerID,
+			Port:              80,
+			EnableTagOverride: false,
+			Check: Check{
+				DeregisterCriticalServiceAfter: "1m",
+				HTTP:                           strings.Join([]string{"http://", containerID, "/health/check"}, ""),
+				Interval:                       "10s"}},
 		RestHandler: request.RestHandler{
 			RemoteServer: env.GetEnvDafult(env.ConsulUrl, consulUrl),
 			Uri:          "/v1/agent/service/register",
-			Param: Register{
-				ID:                ServiceID,
-				Name:              env.GetEnvDafult(env.ServiceName, serviceName),
-				Address:           containerID,
-				Port:              80,
-				EnableTagOverride: false,
-				Check: Check{
-					DeregisterCriticalServiceAfter: "1m",
-					HTTP:                           strings.Join([]string{"http://", containerID, "/health/check"}, ""),
-					Interval:                       "10s"}},
-			Values: nil}}
+			Header:       nil,
+			Cookies:      nil}}
 	body, err := restJsonHandler.Put()
 	if nil != err {
 		log.Error(err.Error())
