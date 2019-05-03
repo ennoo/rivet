@@ -12,14 +12,14 @@
  * limitations under the License.
  *
  */
-package http
+package response
 
 import (
 	"io/ioutil"
 	"net/http"
 )
 
-func response(req *http.Request) ([]byte, error) {
+func Response(req *http.Request) ([]byte, error) {
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
