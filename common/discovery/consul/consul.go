@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"github.com/ennoo/rivet/common/util/env"
 	"github.com/ennoo/rivet/common/util/file"
+	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/common/util/string"
 	"github.com/ennoo/rivet/dolphin/http/request"
 	"github.com/rs/xid"
-	"go.uber.org/zap"
 	"os"
 	"strings"
 )
@@ -35,7 +35,7 @@ var ServiceID = xid.New().String()
 // serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 func Enroll(consulUrl string, serviceName string) {
 	defer func() {
-		zap.S().Info("register consul start")
+		log.Info("register sul start")
 		if err := recover(); err != nil {
 			fmt.Println(err) // 这里的err其实就是panic传入的内容
 			os.Exit(0)
@@ -49,9 +49,9 @@ func consulRegister(consulUrl string, serviceName string) {
 	if nil != err {
 		panic(err)
 	}
-	zap.S().Info("serviceID = ", ServiceID)
+	log.Info("serviceID = ", ServiceID)
 	containerID := str.Trim(hosts[0])
-	zap.S().Info("containerID = ", containerID)
+	log.Info("containerID = ", containerID)
 	restJsonHandler := request.RestJsonHandler{
 		Header:  nil,
 		Cookies: nil,
@@ -74,7 +74,7 @@ func consulRegister(consulUrl string, serviceName string) {
 			Values: nil}}
 	body, err := restJsonHandler.Put()
 	if nil != err {
-		zap.S().Error(err.Error())
+		log.Error(err.Error())
 	}
-	zap.S().Info("register result = ", string(body))
+	log.Info("register result = ", string(body))
 }
