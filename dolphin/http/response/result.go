@@ -17,8 +17,8 @@ package response
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet/common/util/log"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -50,19 +50,6 @@ func Do(c *gin.Context, obj interface{}, f func() (interface{}, error)) {
 	exec(&res, c, err, result)
 }
 
-func DoNoData(c *gin.Context, obj interface{}, f func() error) {
-	res := Result{}
-	defer catchErr(c, &res)
-	if nil != obj {
-		if err := c.ShouldBindJSON(obj); err != nil {
-			res.failErr(err)
-			c.JSON(http.StatusOK, &res)
-			return
-		}
-	}
-	execWithNoData(&res, c, f())
-}
-
 //Success 默认成功返回
 func (result *Result) success(obj interface{}) {
 	result.Msg = "Success!"
@@ -85,21 +72,17 @@ func (result *Result) failErr(err error) {
 		result.ResultCode = vtype.ErrorCode
 	default:
 		result.ResultCode = Fail
-		zap.S().Error(err)
+		log.Error(err)
 		//result.Msg = ServiceException.ErrorMsg
 		result.Msg = err.Error()
 	}
 
 }
 
-func execWithNoData(res *Result, c *gin.Context, err error) {
-	exec(res, c, err, nil)
-}
-
 func exec(res *Result, c *gin.Context, err error, resObj interface{}) {
 	if err != nil {
 		res.fail(err.Error())
-		zap.S().Error(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, &res)
 		return
 	}
@@ -114,7 +97,7 @@ func catchErr(c *gin.Context, res *Result) {
 	if r := recover(); r != nil {
 		//fmt.Printf("捕获到的错误：%s\n", r)
 		res.fail(fmt.Sprintf("An error occurred:%v \n", r))
-		zap.S().Error(r)
+		log.Error(r)
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
