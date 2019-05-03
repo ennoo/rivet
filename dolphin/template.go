@@ -24,7 +24,20 @@ import (
 	"net/http"
 )
 
-func Get(context *gin.Context, remote string, uri string) {
+// 请求转发处理方案
+//
+// context：原请求上下文
+//
+// method：即将转发的请求方法
+//
+// remote：请求转发主体域名
+//
+// uri：请求转发主体方法路径
+//
+// callback：请求转发失败后回调降级策略
+//
+// callback *response.Result 请求转发降级后返回请求方结果对象
+func Trans(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
 	res := response.Result{}
 	req := context.Request
 	restTransHandler := request.RestTransHandler{
@@ -34,9 +47,31 @@ func Get(context *gin.Context, remote string, uri string) {
 			Body:         req.Body,
 			Header:       nil,
 			Cookies:      nil}}
-	body, err := restTransHandler.Get()
+	var body []byte
+	var err error
+
+	switch method {
+	case http.MethodGet:
+		body, err = restTransHandler.Get()
+	case http.MethodHead:
+		body, err = restTransHandler.Head()
+	case http.MethodPost:
+		body, err = restTransHandler.Post()
+	case http.MethodPut:
+		body, err = restTransHandler.Put()
+	case http.MethodPatch:
+		body, err = restTransHandler.Patch()
+	case http.MethodDelete:
+		body, err = restTransHandler.Delete()
+	case http.MethodConnect:
+		body, err = restTransHandler.Connect()
+	case http.MethodOptions:
+		body, err = restTransHandler.Options()
+	case http.MethodTrace:
+		body, err = restTransHandler.Trace()
+	}
 	if err != nil {
-		res.Fail(err.Error())
+		res.Callback(callback, err)
 	} else {
 		log.Debug("body = ", string(body))
 		err := json.Unmarshal(body, &res)

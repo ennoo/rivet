@@ -18,6 +18,7 @@ package response
 import (
 	"fmt"
 	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/common/util/string"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -71,6 +72,25 @@ func (result *Result) Success(obj interface{}) {
 func (result *Result) Fail(msg string) {
 	result.Msg = msg
 	result.ResultCode = Fail
+}
+
+// 返回结果对象介入降级操作方法
+func (result *Result) Callback(callback func() *Result, err error) {
+	resultCallBack := callback()
+	if str.IsNotEmpty(resultCallBack.ResultCode) {
+		log.Info("降级回调")
+		result.reSet(resultCallBack)
+	} else {
+		log.Info("放弃降级或降级策略有误")
+		result.ResultCode = Fail
+		result.Msg = err.Error()
+	}
+}
+
+func (result *Result) reSet(res *Result) {
+	result.ResultCode = res.ResultCode
+	result.Data = res.Data
+	result.Msg = res.Msg
 }
 
 // FailErr 携带error信息,如果是respError，则
