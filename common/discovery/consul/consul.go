@@ -17,7 +17,7 @@ package consul
 
 import (
 	"fmt"
-	"github.com/ennoo/rivet/common"
+	"github.com/ennoo/rivet/common/util/env"
 	"github.com/ennoo/rivet/common/util/file"
 	"github.com/ennoo/rivet/common/util/string"
 	"github.com/ennoo/rivet/dolphin/http/request"
@@ -67,12 +67,12 @@ func consulRegister(consulUrl string, serviceName string) {
 		RestHandler: request.RestHandler{
 			RemoteServer: strings.Join([]string{
 				"http://",
-				str.GetEnvDafult(common.ConsulUrl, consulUrl),
+				env.GetEnvDafult(env.ConsulUrl, consulUrl),
 				"/v1/agent/service/register"}, ""),
 			Uri: "",
 			Param: model.ConsulRegister{
 				ID:                ServiceID,
-				Name:              str.GetEnvDafult(common.ServiceName, serviceName),
+				Name:              env.GetEnvDafult(env.ServiceName, serviceName),
 				Address:           containerID,
 				Port:              80,
 				EnableTagOverride: false,
