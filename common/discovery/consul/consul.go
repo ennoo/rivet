@@ -12,7 +12,6 @@
  * limitations under the License.
  *
  */
-
 package consul
 
 import (
@@ -21,28 +20,20 @@ import (
 	"github.com/ennoo/rivet/common/util/file"
 	"github.com/ennoo/rivet/common/util/string"
 	"github.com/ennoo/rivet/dolphin/http/request"
-	"github.com/gin-gonic/gin"
 	"github.com/rs/xid"
 	"go.uber.org/zap"
 	"os"
 	"strings"
-	"viewhigh.com/dams/common/model"
 )
 
 var ServiceID = xid.New().String()
-
-func Health(r *gin.Engine) {
-	// 仓库相关路由设置
-	vRepo := r.Group("/health")
-	vRepo.GET("/check", health)
-}
 
 // 调用此方法注册 consul
 //
 // consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
 //
 // serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
-func ConsulRegister(consulUrl string, serviceName string) {
+func Enroll(consulUrl string, serviceName string) {
 	defer func() {
 		zap.S().Info("register consul start")
 		if err := recover(); err != nil {
@@ -70,13 +61,13 @@ func consulRegister(consulUrl string, serviceName string) {
 				env.GetEnvDafult(env.ConsulUrl, consulUrl),
 				"/v1/agent/service/register"}, ""),
 			Uri: "",
-			Param: model.ConsulRegister{
+			Param: Register{
 				ID:                ServiceID,
 				Name:              env.GetEnvDafult(env.ServiceName, serviceName),
 				Address:           containerID,
 				Port:              80,
 				EnableTagOverride: false,
-				Check: model.ConsulCheck{
+				Check: Check{
 					DeregisterCriticalServiceAfter: "1m",
 					HTTP:                           strings.Join([]string{"http://", containerID, "/health/check"}, ""),
 					Interval:                       "10s"}},
