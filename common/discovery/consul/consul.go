@@ -56,11 +56,8 @@ func consulRegister(consulUrl string, serviceName string) {
 		Header:  nil,
 		Cookies: nil,
 		RestHandler: request.RestHandler{
-			RemoteServer: strings.Join([]string{
-				"http://",
-				env.GetEnvDafult(env.ConsulUrl, consulUrl),
-				"/v1/agent/service/register"}, ""),
-			Uri: "",
+			RemoteServer: env.GetEnvDafult(env.ConsulUrl, consulUrl),
+			Uri:          "/v1/agent/service/register",
 			Param: Register{
 				ID:                ServiceID,
 				Name:              env.GetEnvDafult(env.ServiceName, serviceName),
