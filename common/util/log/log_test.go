@@ -13,28 +13,16 @@
  *
  */
 
-package main
+package log
 
 import (
-	"github.com/ennoo/rivet/dolphin/http/response"
-	"github.com/ennoo/rivet/rivet"
-	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"testing"
 )
 
-func main() {
-	engine := rivet.SetupRouter(true)
-	testRouter(engine)
-	rivet.Start(engine, "80")
-}
+func TestDebug(t *testing.T) {
+	InitLoggerWithLevel(DebugLevel)
 
-func testRouter(engine *gin.Engine) {
-	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet")
-	vRepo.GET("/test", test)
-}
-
-func test(engine *gin.Context) {
-	response.Do(engine, nil, func() (i interface{}, e error) {
-		return "test", nil
-	})
+	Debug("test = ", "test1")
+	zap.S().Debug("test = ", "test2")
 }
