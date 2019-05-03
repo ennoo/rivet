@@ -12,12 +12,13 @@
  * limitations under the License.
  *
  */
-package http
+package request
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/ennoo/rivet/common/log"
+	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/dolphin/http/response"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -57,10 +58,6 @@ type Handler interface {
 	ObtainCookies() []*http.Cookie
 }
 
-func getFullUri(handler Handler) string {
-	return filepath.ToSlash(filepath.Join(handler.ObtainRemoteServer(), "/", handler.ObtainUri()))
-}
-
 func requestJson(method string, handler Handler) ([]byte, error) {
 	// 将参数转化为json比特流
 	jsonByte, _ := json.Marshal(handler.ObtainParam())
@@ -71,7 +68,7 @@ func requestJson(method string, handler Handler) ([]byte, error) {
 	}
 	req.Cookies() = handler.ObtainCookies()
 	req.Header = handler.ObtainHeader()
-	return response(req)
+	return response.Response(req)
 }
 
 func requestText(method string, handler Handler) ([]byte, error) {
@@ -81,7 +78,7 @@ func requestText(method string, handler Handler) ([]byte, error) {
 	}
 	req.Cookies() = handler.ObtainCookies()
 	req.Header = handler.ObtainHeader()
-	return response(req)
+	return response.Response(req)
 }
 
 // Get 发送get请求
@@ -95,5 +92,9 @@ func get(handler Handler) (body []byte, err error) {
 	}
 	req.Cookies() = handler.ObtainCookies()
 	req.Header = handler.ObtainHeader()
-	return response(req)
+	return response.Response(req)
+}
+
+func getFullUri(handler Handler) string {
+	return filepath.ToSlash(filepath.Join(handler.ObtainRemoteServer(), "/", handler.ObtainUri()))
 }

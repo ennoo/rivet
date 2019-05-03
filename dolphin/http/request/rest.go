@@ -12,11 +12,11 @@
  * limitations under the License.
  *
  */
-package http
+package request
 
 import (
-	"github.com/ennoo/rivet/common/log"
-	"github.com/ennoo/rivet/common/string"
+	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/common/util/string"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
@@ -26,10 +26,10 @@ import (
 // RestHandler 处理请求发送和接收
 type RestHandler struct {
 	// 远程服务器地址,如 http://localhost:3030
-	remoteServer string
-	uri          string
-	param        interface{}
-	values       url.Values
+	RemoteServer string
+	Uri          string
+	Param        interface{}
+	Values       url.Values
 }
 
 // 从Header或者Cookie中获取到用户的access_token

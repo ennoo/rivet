@@ -12,7 +12,7 @@
  * limitations under the License.
  *
  */
-package http
+package request
 
 import (
 	"net/http"
@@ -25,28 +25,28 @@ type RestJsonHandler struct {
 	Cookies []*http.Cookie
 }
 
-func (handler RestJsonHandler) ObtainUri() string {
-	return handler.RestHandler.uri
+func (handler *RestJsonHandler) ObtainUri() string {
+	return handler.RestHandler.Uri
 }
 
-func (handler RestJsonHandler) ObtainParam() interface{} {
-	return handler.RestHandler.param
+func (handler *RestJsonHandler) ObtainParam() interface{} {
+	return handler.RestHandler.Param
 }
 
-func (handler RestJsonHandler) ObtainValue() url.Values {
+func (handler *RestJsonHandler) ObtainValue() url.Values {
 	return nil
 }
 
-func (handler RestJsonHandler) ObtainRemoteServer() string {
-	return handler.RestHandler.remoteServer
+func (handler *RestJsonHandler) ObtainRemoteServer() string {
+	return handler.RestHandler.RemoteServer
 }
 
-func (handler RestJsonHandler) ObtainHeader() http.Header {
+func (handler *RestJsonHandler) ObtainHeader() http.Header {
 	handler.Header.Add("Content-Type", "application/json")
 	return handler.Header
 }
 
-func (handler RestJsonHandler) ObtainCookies() []*http.Cookie {
+func (handler *RestJsonHandler) ObtainCookies() []*http.Cookie {
 	return handler.Cookies
 }
 
