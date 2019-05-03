@@ -20,7 +20,7 @@ import (
 	"github.com/ennoo/rivet/common/util/file"
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/common/util/string"
-	"github.com/ennoo/rivet/dolphin/http/request"
+	"github.com/ennoo/rivet/trans/http/request"
 	"github.com/rs/xid"
 	"os"
 	"strings"

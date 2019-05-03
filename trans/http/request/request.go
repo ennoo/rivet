@@ -15,7 +15,7 @@
 package request
 
 import (
-	"github.com/ennoo/rivet/dolphin/http/response"
+	"github.com/ennoo/rivet/trans/http/response"
 	"io"
 	"net/http"
 	"path/filepath"

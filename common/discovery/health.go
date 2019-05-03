@@ -15,7 +15,7 @@
 package discovery
 
 import (
-	"github.com/ennoo/rivet/dolphin/http/response"
+	"github.com/ennoo/rivet/trans/http/response"
 	"github.com/gin-gonic/gin"
 )
 

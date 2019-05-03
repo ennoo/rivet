@@ -23,6 +23,6 @@ import (
 func TestDebug(t *testing.T) {
 	InitLoggerWithLevel(DebugLevel)
 
-	Debug("test = ", "test1")
-	zap.S().Debug("test = ", "test2")
+	Debug("example = ", "test1")
+	zap.S().Debug("example = ", "test2")
 }

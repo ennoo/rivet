@@ -17,9 +17,9 @@ package main
 
 import (
 	"github.com/ennoo/rivet/common/util/log"
-	"github.com/ennoo/rivet/dolphin/http/response"
+	"github.com/ennoo/rivet/example/model"
 	"github.com/ennoo/rivet/rivet"
-	"github.com/ennoo/rivet/test/model"
+	"github.com/ennoo/rivet/trans/http/response"
 	"github.com/gin-gonic/gin"
 )
 

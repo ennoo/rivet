@@ -17,9 +17,9 @@ package main
 
 import (
 	"github.com/ennoo/rivet/common/util/log"
-	"github.com/ennoo/rivet/dolphin"
-	"github.com/ennoo/rivet/dolphin/http/response"
 	"github.com/ennoo/rivet/rivet"
+	"github.com/ennoo/rivet/trans"
+	"github.com/ennoo/rivet/trans/http/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -37,11 +37,11 @@ func testRouter1(engine *gin.Engine) {
 }
 
 func get1(context *gin.Context) {
-	dolphin.Trans(context, http.MethodGet, "http://localhost:8082", "rivet2/get")
+	trans.Call(context, http.MethodGet, "http://localhost:8082", "rivet2/get")
 }
 
 func post1(context *gin.Context) {
-	dolphin.TransCallback(context, http.MethodPost, "http://localhost:8082", "rivet2/post", func() *response.Result {
+	trans.Callback(context, http.MethodPost, "http://localhost:8082", "rivet2/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }

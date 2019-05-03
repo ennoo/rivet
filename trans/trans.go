@@ -13,13 +13,13 @@
  *
  */
 
-package dolphin
+package trans
 
 import (
 	"encoding/json"
 	"github.com/ennoo/rivet/common/util/log"
-	"github.com/ennoo/rivet/dolphin/http/request"
-	"github.com/ennoo/rivet/dolphin/http/response"
+	"github.com/ennoo/rivet/trans/http/request"
+	"github.com/ennoo/rivet/trans/http/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -33,8 +33,8 @@ import (
 // remote：请求转发主体域名
 //
 // uri：请求转发主体方法路径
-func Trans(context *gin.Context, method string, remote string, uri string) {
-	TransCallback(context, method, remote, uri, nil)
+func Call(context *gin.Context, method string, remote string, uri string) {
+	Callback(context, method, remote, uri, nil)
 }
 
 // 请求转发处理方案
@@ -50,7 +50,7 @@ func Trans(context *gin.Context, method string, remote string, uri string) {
 // callback：请求转发失败后回调降级策略
 //
 // callback *response.Result 请求转发降级后返回请求方结果对象
-func TransCallback(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
+func Callback(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
 	res := response.Result{}
 	req := context.Request
 	restTransHandler := request.RestTransHandler{
