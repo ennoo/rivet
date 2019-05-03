@@ -35,37 +35,37 @@ type Result struct {
 }
 
 //
-func Do(c *gin.Context, obj interface{}, f func() (interface{}, error)) {
+func Do(context *gin.Context, obj interface{}, f func() (interface{}, error)) {
 	res := Result{}
-	defer catchErr(c, &res)
+	defer catchErr(context, &res)
 	//var deployModel = new(model.DeployModel)
 	if nil != obj {
-		if err := c.ShouldBindJSON(obj); err != nil {
-			res.failErr(err)
-			c.JSON(http.StatusOK, &res)
+		if err := context.ShouldBindJSON(obj); err != nil {
+			res.FailErr(err)
+			context.JSON(http.StatusOK, &res)
 			return
 		}
 	}
 	result, err := f()
-	exec(&res, c, err, result)
+	exec(&res, context, err, result)
 }
 
 //Success 默认成功返回
-func (result *Result) success(obj interface{}) {
+func (result *Result) Success(obj interface{}) {
 	result.Msg = "Success!"
 	result.ResultCode = Success
 	result.Data = obj
 }
 
 // Fail 方法主要提供返回错误的json数据
-func (result *Result) fail(msg string) {
+func (result *Result) Fail(msg string) {
 	result.Msg = msg
 	result.ResultCode = Fail
 }
 
 // FailErr 携带error信息,如果是respError，则
 // 必然存在errorCode和msg，因此进行赋值。否则不赋值
-func (result *Result) failErr(err error) {
+func (result *Result) FailErr(err error) {
 	switch vtype := err.(type) {
 	case *RespError:
 		result.Msg = vtype.ErrorMsg
@@ -79,26 +79,26 @@ func (result *Result) failErr(err error) {
 
 }
 
-func exec(res *Result, c *gin.Context, err error, resObj interface{}) {
+func exec(res *Result, context *gin.Context, err error, resObj interface{}) {
 	if err != nil {
-		res.fail(err.Error())
+		res.Fail(err.Error())
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, &res)
+		context.JSON(http.StatusInternalServerError, &res)
 		return
 	}
 	if nil != resObj {
-		res.success(resObj)
+		res.Success(resObj)
 	}
-	c.JSON(http.StatusOK, &res)
+	context.JSON(http.StatusOK, &res)
 }
 
 //捕获所有异常信息并放入json到context，便于controller直接调用
-func catchErr(c *gin.Context, res *Result) {
+func catchErr(context *gin.Context, res *Result) {
 	if r := recover(); r != nil {
 		//fmt.Printf("捕获到的错误：%s\n", r)
-		res.fail(fmt.Sprintf("An error occurred:%v \n", r))
+		res.Fail(fmt.Sprintf("An error occurred:%v \n", r))
 		log.Error(r)
-		c.JSON(http.StatusInternalServerError, res)
+		context.JSON(http.StatusInternalServerError, res)
 		return
 	}
 }
