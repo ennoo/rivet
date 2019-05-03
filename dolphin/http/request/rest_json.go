@@ -22,7 +22,7 @@ import (
 type RestJsonHandler struct {
 	RestHandler
 	Header  http.Header
-	Cookies []*http.Cookie
+	Cookies []http.Cookie
 }
 
 func (handler *RestJsonHandler) ObtainUri() string {
@@ -46,7 +46,7 @@ func (handler *RestJsonHandler) ObtainHeader() http.Header {
 	return handler.Header
 }
 
-func (handler *RestJsonHandler) ObtainCookies() []*http.Cookie {
+func (handler *RestJsonHandler) ObtainCookies() []http.Cookie {
 	return handler.Cookies
 }
 

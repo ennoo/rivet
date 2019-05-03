@@ -55,7 +55,13 @@ type Handler interface {
 
 	ObtainHeader() http.Header
 
-	ObtainCookies() []*http.Cookie
+	ObtainCookies() []http.Cookie
+}
+
+func addCookies(request *http.Request, cookies []http.Cookie) {
+	for _, cookie := range cookies {
+		request.AddCookie(&cookie)
+	}
 }
 
 func requestJson(method string, handler Handler) ([]byte, error) {
@@ -66,7 +72,7 @@ func requestJson(method string, handler Handler) ([]byte, error) {
 	if nil != err {
 		return nil, err
 	}
-	req.Cookies() = handler.ObtainCookies()
+	addCookies(req, handler.ObtainCookies())
 	req.Header = handler.ObtainHeader()
 	return response.Response(req)
 }
@@ -76,7 +82,7 @@ func requestText(method string, handler Handler) ([]byte, error) {
 	if nil != err {
 		return nil, err
 	}
-	req.Cookies() = handler.ObtainCookies()
+	addCookies(req, handler.ObtainCookies())
 	req.Header = handler.ObtainHeader()
 	return response.Response(req)
 }
@@ -90,7 +96,7 @@ func get(handler Handler) (body []byte, err error) {
 	if nil != err {
 		return nil, err
 	}
-	req.Cookies() = handler.ObtainCookies()
+	addCookies(req, handler.ObtainCookies())
 	req.Header = handler.ObtainHeader()
 	return response.Response(req)
 }
