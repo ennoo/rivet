@@ -18,8 +18,8 @@ import (
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/common/util/string"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -28,8 +28,9 @@ type RestHandler struct {
 	// 远程服务器地址,如 http://localhost:3030
 	RemoteServer string
 	Uri          string
-	Param        interface{}
-	Values       url.Values
+	Body         io.ReadCloser
+	Header       http.Header
+	Cookies      []http.Cookie
 }
 
 // 从Header或者Cookie中获取到用户的access_token

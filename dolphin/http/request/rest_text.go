@@ -15,30 +15,27 @@
 package request
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"net/url"
 )
 
 type RestTextHandler struct {
 	RestHandler
-	Header  http.Header
-	Cookies []http.Cookie
+	Values url.Values
 }
 
 func (handler *RestTextHandler) ObtainUri() string {
 	return handler.RestHandler.Uri
 }
 
-func (handler *RestTextHandler) ObtainParam() interface{} {
-	return nil
-}
-
-func (handler *RestTextHandler) ObtainValue() url.Values {
-	return handler.Values
-}
-
 func (handler *RestTextHandler) ObtainRemoteServer() string {
-	return handler.RestHandler.RemoteServer
+	return handler.RemoteServer
+}
+
+func (handler *RestTextHandler) ObtainBody() io.Reader {
+	return bytes.NewBufferString(handler.Values.Encode())
 }
 
 func (handler *RestTextHandler) ObtainHeader() http.Header {
@@ -51,35 +48,35 @@ func (handler *RestTextHandler) ObtainCookies() []http.Cookie {
 }
 
 func (handler *RestTextHandler) Post() (body []byte, err error) {
-	return requestText(http.MethodPost, handler)
+	return request(http.MethodPost, handler)
 }
 
 func (handler *RestTextHandler) Put() (body []byte, err error) {
-	return requestText(http.MethodPut, handler)
+	return request(http.MethodPut, handler)
 }
 
 func (handler *RestTextHandler) Delete() (body []byte, err error) {
-	return requestText(http.MethodDelete, handler)
+	return request(http.MethodDelete, handler)
 }
 
 func (handler *RestTextHandler) Patch() (body []byte, err error) {
-	return requestText(http.MethodPatch, handler)
+	return request(http.MethodPatch, handler)
 }
 
 func (handler *RestTextHandler) Options() (body []byte, err error) {
-	return requestText(http.MethodOptions, handler)
+	return request(http.MethodOptions, handler)
 }
 
 func (handler *RestTextHandler) Head() (body []byte, err error) {
-	return requestText(http.MethodHead, handler)
+	return request(http.MethodHead, handler)
 }
 
 func (handler *RestTextHandler) Connect() (body []byte, err error) {
-	return requestText(http.MethodConnect, handler)
+	return request(http.MethodConnect, handler)
 }
 
 func (handler *RestTextHandler) Trace() (body []byte, err error) {
-	return requestText(http.MethodTrace, handler)
+	return request(http.MethodTrace, handler)
 }
 
 // Get 发送get请求

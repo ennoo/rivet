@@ -15,30 +15,28 @@
 package request
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"net/http"
-	"net/url"
 )
 
 type RestJsonHandler struct {
 	RestHandler
-	Header  http.Header
-	Cookies []http.Cookie
+	Param interface{}
 }
 
 func (handler *RestJsonHandler) ObtainUri() string {
-	return handler.RestHandler.Uri
-}
-
-func (handler *RestJsonHandler) ObtainParam() interface{} {
-	return handler.RestHandler.Param
-}
-
-func (handler *RestJsonHandler) ObtainValue() url.Values {
-	return nil
+	return handler.Uri
 }
 
 func (handler *RestJsonHandler) ObtainRemoteServer() string {
-	return handler.RestHandler.RemoteServer
+	return handler.RemoteServer
+}
+
+func (handler *RestJsonHandler) ObtainBody() io.Reader {
+	jsonByte, _ := json.Marshal(handler.Param)
+	return bytes.NewReader(jsonByte)
 }
 
 func (handler *RestJsonHandler) ObtainHeader() http.Header {
@@ -51,35 +49,35 @@ func (handler *RestJsonHandler) ObtainCookies() []http.Cookie {
 }
 
 func (handler *RestJsonHandler) Post() (body []byte, err error) {
-	return requestJson(http.MethodPost, handler)
+	return request(http.MethodPost, handler)
 }
 
 func (handler *RestJsonHandler) Put() (body []byte, err error) {
-	return requestJson(http.MethodPut, handler)
+	return request(http.MethodPut, handler)
 }
 
 func (handler *RestJsonHandler) Delete() (body []byte, err error) {
-	return requestJson(http.MethodDelete, handler)
+	return request(http.MethodDelete, handler)
 }
 
 func (handler *RestJsonHandler) Patch() (body []byte, err error) {
-	return requestJson(http.MethodPatch, handler)
+	return request(http.MethodPatch, handler)
 }
 
 func (handler *RestJsonHandler) Options() (body []byte, err error) {
-	return requestJson(http.MethodOptions, handler)
+	return request(http.MethodOptions, handler)
 }
 
 func (handler *RestJsonHandler) Head() (body []byte, err error) {
-	return requestJson(http.MethodHead, handler)
+	return request(http.MethodHead, handler)
 }
 
 func (handler *RestJsonHandler) Connect() (body []byte, err error) {
-	return requestJson(http.MethodConnect, handler)
+	return request(http.MethodConnect, handler)
 }
 
 func (handler *RestJsonHandler) Trace() (body []byte, err error) {
-	return requestJson(http.MethodTrace, handler)
+	return request(http.MethodTrace, handler)
 }
 
 // Get 发送get请求

@@ -15,13 +15,11 @@
 package request
 
 import (
-	"bytes"
-	"encoding/json"
-	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/dolphin/http/response"
+	"io"
 	"net/http"
-	"net/url"
 	"path/filepath"
+	"strings"
 )
 
 type Request interface {
@@ -47,11 +45,9 @@ type Request interface {
 type Handler interface {
 	ObtainUri() string
 
-	ObtainParam() interface{}
-
-	ObtainValue() url.Values
-
 	ObtainRemoteServer() string
+
+	ObtainBody() io.Reader
 
 	ObtainHeader() http.Header
 
@@ -64,21 +60,8 @@ func addCookies(request *http.Request, cookies []http.Cookie) {
 	}
 }
 
-func requestJson(method string, handler Handler) ([]byte, error) {
-	// 将参数转化为json比特流
-	jsonByte, _ := json.Marshal(handler.ObtainParam())
-	log.Debug("body:", string(jsonByte))
-	req, err := http.NewRequest(method, getFullUri(handler), bytes.NewReader(jsonByte))
-	if nil != err {
-		return nil, err
-	}
-	addCookies(req, handler.ObtainCookies())
-	req.Header = handler.ObtainHeader()
-	return response.Response(req)
-}
-
-func requestText(method string, handler Handler) ([]byte, error) {
-	req, err := http.NewRequest(method, getFullUri(handler), bytes.NewBufferString(handler.ObtainValue().Encode()))
+func request(method string, handler Handler) ([]byte, error) {
+	req, err := http.NewRequest(method, getFullUri(handler), handler.ObtainBody())
 	if nil != err {
 		return nil, err
 	}
@@ -89,9 +72,6 @@ func requestText(method string, handler Handler) ([]byte, error) {
 
 // Get 发送get请求
 func get(handler Handler) (body []byte, err error) {
-	// 将参数转化为json比特流
-	jsonByte, _ := json.Marshal(handler.ObtainParam())
-	log.Debug("body:", string(jsonByte))
 	req, err := http.NewRequest(http.MethodGet, getFullUri(handler), nil)
 	if nil != err {
 		return nil, err
@@ -102,5 +82,5 @@ func get(handler Handler) (body []byte, err error) {
 }
 
 func getFullUri(handler Handler) string {
-	return filepath.ToSlash(filepath.Join(handler.ObtainRemoteServer(), "/", handler.ObtainUri()))
+	return filepath.ToSlash(strings.Join([]string{handler.ObtainRemoteServer(), filepath.Join("/", handler.ObtainUri())}, ""))
 }
