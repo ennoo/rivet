@@ -34,8 +34,18 @@ type Result struct {
 	Data interface{} `json:"data"`
 }
 
+// 处理 request 请求
 //
-func Do(context *gin.Context, obj interface{}, f func() (interface{}, error)) {
+// context：请求上下文
+//
+// obj：请求中 body 中内容期望转换的对象并做空实例化，如 new(Type)
+//
+// objBlock：obj 对象的回调方法，最终调用 Do 函数的方法会接收到返回值
+//
+// objBlock interface{}：obj 对象的回调方法所返回的最终交由 response 输出的对象
+//
+// objBlock error：obj 对象的回调方法所返回的错误对象
+func Do(context *gin.Context, obj interface{}, objBlock func(value interface{}) (interface{}, error)) {
 	res := Result{}
 	defer catchErr(context, &res)
 	//var deployModel = new(model.DeployModel)
@@ -46,7 +56,7 @@ func Do(context *gin.Context, obj interface{}, f func() (interface{}, error)) {
 			return
 		}
 	}
-	result, err := f()
+	result, err := objBlock(obj)
 	exec(&res, context, err, result)
 }
 
@@ -79,6 +89,7 @@ func (result *Result) FailErr(err error) {
 
 }
 
+// 处理结果并给出对应返回策略
 func exec(res *Result, context *gin.Context, err error, resObj interface{}) {
 	if err != nil {
 		res.Fail(err.Error())
