@@ -37,11 +37,11 @@ func testRouter1(engine *gin.Engine) {
 }
 
 func get1(context *gin.Context) {
-	dolphin.Trans(context, http.MethodGet, "http://localhost:8082", "rivet2/get", nil)
+	dolphin.Trans(context, http.MethodGet, "http://localhost:8082", "rivet2/get")
 }
 
 func post1(context *gin.Context) {
-	dolphin.Trans(context, http.MethodPost, "http://localhost:8082", "rivet2/post", func() *response.Result {
+	dolphin.TransCallback(context, http.MethodPost, "http://localhost:8082", "rivet2/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }
