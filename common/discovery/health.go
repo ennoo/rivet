@@ -1,5 +1,5 @@
 /*
- * Coyright (c) 2019. ENNOO - All Rights Reserved.
+ * Copyright (c) 2019. ENNOO - All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,21 @@
  * limitations under the License.
  *
  */
-
-package consul
+package discovery
 
 import (
 	"github.com/ennoo/rivet/dolphin/http/response"
 	"github.com/gin-gonic/gin"
 )
 
-func health(c *gin.Context) {
-	response.DoNoData(c, nil, nil)
+func Health(engine *gin.Engine) {
+	// 仓库相关路由设置
+	vRepo := engine.Group("/health")
+	vRepo.GET("/check", health)
+}
+
+func health(engine *gin.Context) {
+	response.Do(engine, nil, func() (i interface{}, e error) {
+		return "status ok", nil
+	})
 }
