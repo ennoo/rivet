@@ -45,6 +45,18 @@
 			"revisionTime": "2019-04-24T07:51:23Z"
 		},
 		{
+			"checksumSHA1": "P1e3AR3oC4OKWfzbJ6kLCX/FRpo=",
+			"path": "github.com/rs/xid",
+			"revision": "ba6f703301d6c14cbc05faa3b512058f2304e16c",
+			"revisionTime": "2019-04-29T19:26:42Z"
+		},
+		{
+			"checksumSHA1": "ZwPtcZjrfrOLvm8ufw50Hmyl2NU=",
+			"path": "github.com/ugorji/go/codec",
+			"revision": "1d7ab5c50b36701116070c4c612259f93c262367",
+			"revisionTime": "2019-04-25T10:00:26Z"
+		},
+		{
 			"checksumSHA1": "LMxoZVoe/GQHHmTj6EMacYvvg5w=",
 			"path": "go.uber.org/atomic",
 			"revision": "df976f2515e274675050de7b3f42545de80594fd",
