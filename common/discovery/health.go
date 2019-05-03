@@ -26,7 +26,7 @@ func Health(engine *gin.Engine) {
 }
 
 func health(engine *gin.Context) {
-	response.Do(engine, nil, func() (i interface{}, e error) {
+	response.Do(engine, nil, func(value interface{}) (interface{}, error) {
 		return "status ok", nil
 	})
 }
