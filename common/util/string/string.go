@@ -16,7 +16,6 @@ package str
 
 import (
 	"math/rand"
-	"os"
 	"strings"
 	"time"
 )
@@ -93,30 +92,6 @@ func RandSeq(n int) string {
 // randSeq16 创建长度为16的随机字符串
 func RandSeq16() string {
 	return RandSeq(16)
-}
-
-// 获取环境变量 envName 的值
-//
-// envName 环境变量名称
-func GetEnv(envName string) string {
-	env := os.Getenv(envName)
-	if IsEmpty(env) {
-		return ""
-	}
-	return env
-}
-
-// 获取环境变量 envName 的值
-//
-// envName 环境变量名称
-//
-// defaultValue 环境变量为空时的默认值
-func GetEnvDafult(envName string, defaultValue string) string {
-	env := os.Getenv(envName)
-	if IsEmpty(env) {
-		return defaultValue
-	}
-	return env
 }
 
 func Trim(str string) string {
