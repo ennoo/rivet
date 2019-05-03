@@ -23,13 +23,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func init() {
-	// 初始化日志
-	log.InitLogger()
-	log.Info("controller init")
-}
-
 var useDiscovery = false
+var hc = false
+
+func Initialize(logLevel string, healthCheck bool) {
+	// 初始化日志
+	log.InitLoggerWithLevel(logLevel)
+	log.Info("controller init")
+	hc = healthCheck
+}
 
 // 启用指定的发现服务
 func UseDiscovery(component string, url string, serviceName string) {
@@ -44,10 +46,13 @@ func UseDiscovery(component string, url string, serviceName string) {
 }
 
 // setupRouter设置路由器相关选项
-func SetupRouter(healthCheck bool) *gin.Engine {
+func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	engine := gin.Default()
-	if healthCheck {
+	if hc {
 		discovery.Health(engine)
+	}
+	for _, route := range routes {
+		route(engine)
 	}
 	return engine
 }
