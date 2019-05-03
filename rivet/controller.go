@@ -26,6 +26,11 @@ import (
 var useDiscovery = false
 var hc = false
 
+// rivet 初始化方法，必须最先调用
+//
+// logLevel：日志等级，参考 github/rivet/common/util/log/log.go，一般调试用 DebugLevel，生产用 InfoLevel
+//
+// healthCheck：是否开启健康检查。开启后为 Get 请求，路径为 /health/check
 func Initialize(logLevel string, healthCheck bool) {
 	// 初始化日志
 	log.InitLoggerWithLevel(logLevel)
