@@ -20,19 +20,14 @@ import (
 
 var logger *zap.Logger
 
-func InitLoggerWithDebug() {
-	InitLoggerWithLevel("debug")
-}
-
-func InitLogger() {
-	InitLoggerWithLevel("info")
-}
+const (
+	DebugLevel = "debug"
+	InfoLevel  = "info"
+)
 
 func InitLoggerWithLevel(level string) {
-	var logger *zap.Logger
 	var err error
-
-	if level == "debug" {
+	if level == DebugLevel {
 		logger, err = zap.NewDevelopment()
 	} else {
 		logger, err = zap.NewProduction()
