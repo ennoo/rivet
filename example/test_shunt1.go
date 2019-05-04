@@ -31,7 +31,7 @@ import (
 var adds []*shunt.Service
 
 func main() {
-	rivet.Initialize(log.DebugLevel, true)
+	rivet.Initialize(log.DebugLevel, true, true)
 	addAddress()
 	rivet.Start(rivet.SetupRouter(testShunt1), "8083")
 }

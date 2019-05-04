@@ -25,7 +25,7 @@ import (
 )
 
 func main() {
-	rivet.Initialize(log.DebugLevel, true)
+	rivet.Initialize(log.DebugLevel, true, false)
 	rivet.Start(rivet.SetupRouter(testRouter1), "8081")
 }
 
