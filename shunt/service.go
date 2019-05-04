@@ -15,10 +15,23 @@
 
 package shunt
 
+type Balance struct {
+	Name    string  `json:"name"`
+	Service Service `json:"service"`
+}
+
+type Services struct {
+	Services []*Service `json:"services"`
+}
+
 // 服务器信息
 type Service struct {
-	Host string
-	Port int
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
+
+func (services *Services) Add(service Service) {
+	services.Services = append(services.Services, &service)
 }
 
 func NewAddress(host string, port int) *Service {
