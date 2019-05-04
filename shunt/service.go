@@ -16,22 +16,22 @@
 package shunt
 
 // 服务器信息
-type Address struct {
-	host string
-	port int
+type Service struct {
+	Host string
+	Port int
 }
 
-func NewAddress(host string, port int) *Address {
-	return &Address{
-		host: host,
-		port: port,
+func NewAddress(host string, port int) *Service {
+	return &Service{
+		Host: host,
+		Port: port,
 	}
 }
 
-func (a *Address) GetHost() string {
-	return a.host
+func (a *Service) GetHost() string {
+	return a.Host
 }
 
-func (a *Address) GetPort() int {
-	return a.port
+func (a *Service) GetPort() int {
+	return a.Port
 }

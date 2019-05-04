@@ -21,7 +21,7 @@ type Shunt struct {
 	allBalance map[string]Balance
 }
 
-var mgr = Shunt{
+var shunt = Shunt{
 	allBalance: make(map[string]Balance),
 }
 
@@ -30,17 +30,17 @@ func (p *Shunt) registerBalance(name string, b Balance) {
 }
 
 func RegisterBalance(name string, b Balance) {
-	mgr.registerBalance(name, b)
+	shunt.registerBalance(name, b)
 }
 
-func DoBalance(name string, adds []*Address) (add *Address, err error) {
-	balance, ok := mgr.allBalance[name]
+func DoBalance(name string, services []*Service) (add *Service, err error) {
+	balance, ok := shunt.allBalance[name]
 	if !ok {
 		err = fmt.Errorf("not fount %s", name)
 		fmt.Println("not found ", name)
 		return
 	}
-	add, err = balance.DoBalance(adds)
+	add, err = balance.DoBalance(services)
 	if err != nil {
 		err = fmt.Errorf(" %s erros", name)
 		return
