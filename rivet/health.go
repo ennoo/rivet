@@ -12,7 +12,7 @@
  * limitations under the License.
  *
  */
-package discovery
+package rivet
 
 import (
 	"github.com/ennoo/rivet/trans/http/response"

@@ -16,7 +16,7 @@
 package shunt
 
 // 负载均衡接口
-type Balance interface {
+type BalanceWay interface {
 	// 负载均衡算法
 	DoBalance([]*Service, ...string) (*Service, error)
 }

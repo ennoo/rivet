@@ -18,23 +18,23 @@ package shunt
 import "fmt"
 
 type Shunt struct {
-	allBalance map[string]Balance
+	allBalanceWay map[string]BalanceWay
 }
 
 var shunt = Shunt{
-	allBalance: make(map[string]Balance),
+	allBalanceWay: make(map[string]BalanceWay),
 }
 
-func (p *Shunt) registerBalance(name string, b Balance) {
-	p.allBalance[name] = b
+func (p *Shunt) registerBalance(name string, b BalanceWay) {
+	p.allBalanceWay[name] = b
 }
 
-func RegisterBalance(name string, b Balance) {
+func RegisterBalance(name string, b BalanceWay) {
 	shunt.registerBalance(name, b)
 }
 
 func DoBalance(name string, services []*Service) (add *Service, err error) {
-	balance, ok := shunt.allBalance[name]
+	balance, ok := shunt.allBalanceWay[name]
 	if !ok {
 		err = fmt.Errorf("not fount %s", name)
 		fmt.Println("not found ", name)

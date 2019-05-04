@@ -46,6 +46,8 @@ type Result struct {
 // objBlock interface{}：obj 对象的回调方法所返回的最终交由 response 输出的对象
 //
 // objBlock error：obj 对象的回调方法所返回的错误对象
+//
+// 如未出现err，且无可描述返回内容，则返回值可为 (nil, nil)
 func Do(context *gin.Context, obj interface{}, objBlock func(value interface{}) (interface{}, error)) {
 	res := Result{}
 	defer catchErr(context, &res)
