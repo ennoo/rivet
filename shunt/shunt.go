@@ -17,15 +17,15 @@ package shunt
 
 import "fmt"
 
-type BalanceMgr struct {
+type Shunt struct {
 	allBalance map[string]Balance
 }
 
-var mgr = BalanceMgr{
+var mgr = Shunt{
 	allBalance: make(map[string]Balance),
 }
 
-func (p *BalanceMgr) registerBalance(name string, b Balance) {
+func (p *Shunt) registerBalance(name string, b Balance) {
 	p.allBalance[name] = b
 }
 
@@ -33,14 +33,14 @@ func RegisterBalance(name string, b Balance) {
 	mgr.registerBalance(name, b)
 }
 
-func DoBalance(name string, insts []*Address) (inst *Address, err error) {
+func DoBalance(name string, adds []*Address) (add *Address, err error) {
 	balance, ok := mgr.allBalance[name]
 	if !ok {
 		err = fmt.Errorf("not fount %s", name)
 		fmt.Println("not found ", name)
 		return
 	}
-	inst, err = balance.DoBalance(insts)
+	add, err = balance.DoBalance(adds)
 	if err != nil {
 		err = fmt.Errorf(" %s erros", name)
 		return

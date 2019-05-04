@@ -28,16 +28,16 @@ func init() {
 type RandomBalance struct {
 }
 
-func (p *RandomBalance) DoBalance(insts []*Address, key ...string) (inst *Address, err error) {
-	if len(insts) == 0 {
+func (p *RandomBalance) DoBalance(adds []*Address, key ...string) (add *Address, err error) {
+	if len(adds) == 0 {
 		err = errors.New("no instance")
 		return
 	}
 
-	lens := len(insts)
+	lens := len(adds)
 
 	index := rand.Intn(lens)
-	inst = insts[index]
+	add = adds[index]
 
 	return
 }

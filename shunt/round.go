@@ -26,17 +26,17 @@ type RoundRobinBalance struct {
 	curIndex int
 }
 
-func (p *RoundRobinBalance) DoBalance(insts []*Address, key ...string) (inst *Address, err error) {
-	if len(insts) == 0 {
+func (p *RoundRobinBalance) DoBalance(adds []*Address, key ...string) (add *Address, err error) {
+	if len(adds) == 0 {
 		err = errors.New("no instance")
 		return
 	}
 
-	lens := len(insts)
+	lens := len(adds)
 	if p.curIndex >= lens {
 		p.curIndex = 0
 	}
-	inst = insts[p.curIndex]
+	add = adds[p.curIndex]
 	p.curIndex++
 	return
 }
