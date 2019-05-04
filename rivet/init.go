@@ -25,17 +25,19 @@ import (
 
 var useDiscovery = false
 var hc = false
+var st = false
 
 // rivet 初始化方法，必须最先调用
 //
 // logLevel：日志等级，参考 github/rivet/common/util/log/log.go，一般调试用 DebugLevel，生产用 InfoLevel
 //
 // healthCheck：是否开启健康检查。开启后为 Get 请求，路径为 /health/check
-func Initialize(logLevel string, healthCheck bool) {
+func Initialize(logLevel string, healthCheck bool, useShunt bool) {
 	// 初始化日志
 	log.InitLoggerWithLevel(logLevel)
 	log.Info("controller init")
 	hc = healthCheck
+	st = useShunt
 }
 
 // 启用指定的发现服务
@@ -54,7 +56,10 @@ func UseDiscovery(component string, url string, serviceName string) {
 func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	engine := gin.Default()
 	if hc {
-		discovery.Health(engine)
+		Health(engine)
+	}
+	if st {
+		Shunt(engine)
 	}
 	for _, route := range routes {
 		route(engine)
