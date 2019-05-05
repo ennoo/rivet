@@ -18,7 +18,6 @@ package rivet
 import (
 	"github.com/ennoo/rivet/common"
 	"github.com/ennoo/rivet/shunt"
-	"github.com/ennoo/rivet/trans/http/response"
 	"github.com/gin-gonic/gin"
 	"reflect"
 )
@@ -34,7 +33,7 @@ func Shunt(engine *gin.Engine) {
 }
 
 func addService(engine *gin.Context) {
-	response.Do(engine, new(shunt.Balance), func(value interface{}) (interface{}, error) {
+	Resp.Do(engine, new(shunt.Balance), func(value interface{}) (interface{}, error) {
 		result := reflect.ValueOf(value).Elem()
 		name := result.FieldByName("Name").String()
 		services := balance[name]
@@ -51,14 +50,14 @@ func addService(engine *gin.Context) {
 }
 
 func listService(engine *gin.Context) {
-	response.Do(engine, new(common.JsonString), func(value interface{}) (interface{}, error) {
+	Resp.Do(engine, new(common.JsonString), func(value interface{}) (interface{}, error) {
 		result := reflect.ValueOf(value).Elem()
 		return balance[result.FieldByName("Value").String()], nil
 	})
 }
 
 func listBalance(engine *gin.Context) {
-	response.Do(engine, nil, func(value interface{}) (interface{}, error) {
+	Resp.Do(engine, nil, func(value interface{}) (interface{}, error) {
 		shunts := make([]string, len(balance))
 		index := 0
 		for k := range balance {

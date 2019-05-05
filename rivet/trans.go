@@ -12,20 +12,15 @@
  * limitations under the License.
  *
  */
+
 package rivet
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/ennoo/rivet/trans/http/request"
+	"github.com/ennoo/rivet/trans/http/response"
 )
 
-func Health(engine *gin.Engine) {
-	// 仓库相关路由设置
-	vRepo := engine.Group("/health")
-	vRepo.GET("/check", health)
-}
-
-func health(engine *gin.Context) {
-	Resp.Do(engine, nil, func(value interface{}) (interface{}, error) {
-		return "status ok", nil
-	})
-}
+var (
+	Resp = response.Response{}
+	Req  = request.Request{}
+)

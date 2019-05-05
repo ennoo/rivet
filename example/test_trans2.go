@@ -19,7 +19,6 @@ import (
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/example/model"
 	"github.com/ennoo/rivet/rivet"
-	"github.com/ennoo/rivet/trans/http/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,13 +35,13 @@ func testRouter2(engine *gin.Engine) {
 }
 
 func get2(context *gin.Context) {
-	response.Do(context, nil, func(value interface{}) (interface{}, error) {
+	rivet.Resp.Do(context, nil, func(value interface{}) (interface{}, error) {
 		return "test2", nil
 	})
 }
 
 func post2(context *gin.Context) {
-	response.Do(context, new(model.Test), func(value interface{}) (interface{}, error) {
+	rivet.Resp.Do(context, new(model.Test), func(value interface{}) (interface{}, error) {
 		return value, nil
 	})
 }

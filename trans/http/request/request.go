@@ -15,72 +15,83 @@
 package request
 
 import (
+	"encoding/json"
+	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/trans/http/response"
-	"io"
+	"github.com/gin-gonic/gin"
 	"net/http"
-	"path/filepath"
-	"strings"
 )
 
-type Request interface {
-	Post() (body []byte, err error)
-
-	Put() (body []byte, err error)
-
-	Delete() (body []byte, err error)
-
-	Patch() (body []byte, err error)
-
-	Options() (body []byte, err error)
-
-	Head() (body []byte, err error)
-
-	Connect() (body []byte, err error)
-
-	Trace() (body []byte, err error)
-
-	Get() (body []byte, err error)
+type Request struct {
+	result response.Result
 }
 
-type Handler interface {
-	ObtainUri() string
-
-	ObtainRemoteServer() string
-
-	ObtainBody() io.Reader
-
-	ObtainHeader() http.Header
-
-	ObtainCookies() []http.Cookie
+// 请求转发处理方案
+//
+// context：原请求上下文
+//
+// method：即将转发的请求方法
+//
+// remote：请求转发主体域名
+//
+// uri：请求转发主体方法路径
+func (request *Request) Call(context *gin.Context, method string, remote string, uri string) {
+	request.Callback(context, method, remote, uri, nil)
 }
 
-func addCookies(request *http.Request, cookies []http.Cookie) {
-	for _, cookie := range cookies {
-		request.AddCookie(&cookie)
+// 请求转发处理方案
+//
+// context：原请求上下文
+//
+// method：即将转发的请求方法
+//
+// remote：请求转发主体域名
+//
+// uri：请求转发主体方法路径
+//
+// callback：请求转发失败后回调降级策略
+//
+// callback *response.Result 请求转发降级后返回请求方结果对象
+func (request *Request) Callback(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
+	req := context.Request
+	restTransHandler := RestTransHandler{
+		RestHandler: RestHandler{
+			RemoteServer: remote,
+			Uri:          uri,
+			Body:         req.Body,
+			Header:       nil,
+			Cookies:      nil}}
+	var body []byte
+	var err error
+
+	switch method {
+	case http.MethodGet:
+		body, err = restTransHandler.Get()
+	case http.MethodHead:
+		body, err = restTransHandler.Head()
+	case http.MethodPost:
+		body, err = restTransHandler.Post()
+	case http.MethodPut:
+		body, err = restTransHandler.Put()
+	case http.MethodPatch:
+		body, err = restTransHandler.Patch()
+	case http.MethodDelete:
+		body, err = restTransHandler.Delete()
+	case http.MethodConnect:
+		body, err = restTransHandler.Connect()
+	case http.MethodOptions:
+		body, err = restTransHandler.Options()
+	case http.MethodTrace:
+		body, err = restTransHandler.Trace()
 	}
-}
-
-func request(method string, handler Handler) ([]byte, error) {
-	req, err := http.NewRequest(method, getFullUri(handler), handler.ObtainBody())
-	if nil != err {
-		return nil, err
+	if err != nil {
+		request.result.Callback(callback, err)
+	} else {
+		log.Debug("body = ", string(body))
+		err := json.Unmarshal(body, &request.result)
+		if nil != err {
+			request.result.Fail(err.Error())
+		}
 	}
-	addCookies(req, handler.ObtainCookies())
-	req.Header = handler.ObtainHeader()
-	return response.Response(req)
-}
-
-// Get 发送get请求
-func get(handler Handler) (body []byte, err error) {
-	req, err := http.NewRequest(http.MethodGet, getFullUri(handler), nil)
-	if nil != err {
-		return nil, err
-	}
-	addCookies(req, handler.ObtainCookies())
-	req.Header = handler.ObtainHeader()
-	return response.Response(req)
-}
-
-func getFullUri(handler Handler) string {
-	return filepath.ToSlash(strings.Join([]string{handler.ObtainRemoteServer(), filepath.Join("/", handler.ObtainUri())}, ""))
+	context.JSON(http.StatusOK, request.result)
 }

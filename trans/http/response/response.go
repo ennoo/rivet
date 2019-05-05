@@ -15,21 +15,52 @@
 package response
 
 import (
-	"io/ioutil"
+	"github.com/ennoo/rivet/common/util/log"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func Response(req *http.Request) ([]byte, error) {
-	resp, err := http.DefaultClient.Do(req)
+type Response struct {
+	result Result
+}
 
-	if err != nil {
-		return nil, err
+// 处理 request 请求
+//
+// context：请求上下文
+//
+// obj：请求中 body 中内容期望转换的对象并做空实例化，如 new(Type)
+//
+// objBlock：obj 对象的回调方法，最终调用 Do 函数的方法会接收到返回值
+//
+// objBlock interface{}：obj 对象的回调方法所返回的最终交由 response 输出的对象
+//
+// objBlock error：obj 对象的回调方法所返回的错误对象
+//
+// 如未出现err，且无可描述返回内容，则返回值可为 (nil, nil)
+func (response *Response) Do(context *gin.Context, obj interface{}, objBlock func(value interface{}) (interface{}, error)) {
+	defer catchErr(context, &response.result)
+	//var deployModel = new(model.DeployModel)
+	if nil != obj {
+		if err := context.ShouldBindJSON(obj); err != nil {
+			response.result.FailErr(err)
+			context.JSON(http.StatusOK, &response.result)
+			return
+		}
 	}
+	result, err := objBlock(obj)
+	exec(&response.result, context, err, result)
+}
 
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+// 处理结果并给出对应返回策略
+func exec(res *Result, context *gin.Context, err error, resObj interface{}) {
 	if err != nil {
-		return nil, err
+		res.Fail(err.Error())
+		log.Error(err)
+		context.JSON(http.StatusInternalServerError, &res)
+		return
 	}
-	return body, err
+	if nil != resObj {
+		res.Success(resObj)
+	}
+	context.JSON(http.StatusOK, &res)
 }

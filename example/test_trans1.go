@@ -18,7 +18,6 @@ package main
 import (
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/rivet"
-	"github.com/ennoo/rivet/trans"
 	"github.com/ennoo/rivet/trans/http/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -37,11 +36,11 @@ func testRouter1(engine *gin.Engine) {
 }
 
 func get1(context *gin.Context) {
-	trans.Call(context, http.MethodGet, "http://localhost:8082", "rivet2/get")
+	rivet.Req.Call(context, http.MethodGet, "http://localhost:8082", "rivet2/get")
 }
 
 func post1(context *gin.Context) {
-	trans.Callback(context, http.MethodPost, "http://localhost:8082", "rivet2/post", func() *response.Result {
+	rivet.Req.Callback(context, http.MethodPost, "http://localhost:8082", "rivet2/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }
