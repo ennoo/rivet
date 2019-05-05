@@ -17,7 +17,7 @@ package request
 import (
 	"encoding/json"
 	"github.com/ennoo/rivet/common/util/log"
-	"github.com/ennoo/rivet/trans/http/response"
+	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

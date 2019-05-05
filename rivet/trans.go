@@ -16,8 +16,8 @@
 package rivet
 
 import (
-	"github.com/ennoo/rivet/trans/http/request"
-	"github.com/ennoo/rivet/trans/http/response"
+	"github.com/ennoo/rivet/trans/request"
+	"github.com/ennoo/rivet/trans/response"
 )
 
 var (
