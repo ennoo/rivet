@@ -16,10 +16,10 @@
 package rivet
 
 import (
-	"github.com/ennoo/rivet/common/discovery"
-	"github.com/ennoo/rivet/common/discovery/consul"
 	"github.com/ennoo/rivet/common/util/env"
 	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/discovery"
+	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/gin-gonic/gin"
 )
 
