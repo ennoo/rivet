@@ -69,7 +69,7 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 
 func Start(engine *gin.Engine, defaultPort string) {
 	log.Info("listening port bind")
-	err := engine.Run(":" + env.GetEnvDafult(env.PortEnv, defaultPort))
+	err := engine.Run(":" + env.GetEnvDefault(env.PortEnv, defaultPort))
 	if nil != err {
 		log.Info("exit because {}", err)
 	}

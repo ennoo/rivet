@@ -24,21 +24,13 @@ const (
 	ServiceName = "SERVICE_NAME"
 	PortEnv     = "PORT"
 	ConsulUrl   = "CONSUL_URL"
-	DBUrl       = "DB_URL"
-	DBName      = "DB_USER"
-	DBUser      = "DB_USER"
-	DBPass      = "DB_PASS"
 )
 
 // 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 func GetEnv(envName string) string {
-	env := os.Getenv(envName)
-	if str.IsEmpty(env) {
-		return ""
-	}
-	return env
+	return os.Getenv(envName)
 }
 
 // 获取环境变量 envName 的值
@@ -46,8 +38,8 @@ func GetEnv(envName string) string {
 // envName 环境变量名称
 //
 // defaultValue 环境变量为空时的默认值
-func GetEnvDafult(envName string, defaultValue string) string {
-	env := os.Getenv(envName)
+func GetEnvDefault(envName string, defaultValue string) string {
+	env := GetEnv(envName)
 	if str.IsEmpty(env) {
 		return defaultValue
 	}

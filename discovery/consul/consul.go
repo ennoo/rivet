@@ -55,7 +55,7 @@ func consulRegister(consulUrl string, serviceName string) {
 	restJsonHandler := request.RestJsonHandler{
 		Param: Register{
 			ID:                ServiceID,
-			Name:              env.GetEnvDafult(env.ServiceName, serviceName),
+			Name:              env.GetEnvDefault(env.ServiceName, serviceName),
 			Address:           containerID,
 			Port:              80,
 			EnableTagOverride: false,
@@ -64,7 +64,7 @@ func consulRegister(consulUrl string, serviceName string) {
 				HTTP:                           strings.Join([]string{"http://", containerID, "/health/check"}, ""),
 				Interval:                       "10s"}},
 		RestHandler: request.RestHandler{
-			RemoteServer: env.GetEnvDafult(env.ConsulUrl, consulUrl),
+			RemoteServer: env.GetEnvDefault(env.ConsulUrl, consulUrl),
 			Uri:          "/v1/agent/service/register",
 			Header:       nil,
 			Cookies:      nil}}
