@@ -26,12 +26,17 @@ type Services struct {
 
 // 服务器信息
 type Service struct {
+	Id   string `json:"id"`
 	Host string `json:"host"`
 	Port int    `json:"port"`
 }
 
 func (services *Services) Add(service Service) {
 	services.Services = append(services.Services, &service)
+}
+
+func (services *Services) Remove(position int) {
+	services.Services = append(services.Services[:position], services.Services[position+1:]...)
 }
 
 func NewAddress(host string, port int) *Service {

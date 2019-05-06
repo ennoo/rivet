@@ -95,10 +95,16 @@ func (result *Result) SayFail(context *gin.Context, msg string) {
 //捕获所有异常信息并放入json到context，便于controller直接调用
 func catchErr(context *gin.Context, res *Result) {
 	if r := recover(); r != nil {
-		//fmt.Printf("捕获到的错误：%s\n", r)
-		res.Fail(fmt.Sprintf("An error occurred:%v \n", r))
-		log.Error(r)
-		context.JSON(http.StatusInternalServerError, res)
+		value, ok := r.(Exception)
+		if ok {
+			res.Fail(value.Msg)
+			log.Error(r)
+			context.JSON(value.code, res)
+		} else {
+			res.Fail(fmt.Sprintf("An error occurred:%v \n", r))
+			log.Error(r)
+			context.JSON(http.StatusInternalServerError, res)
+		}
 		return
 	}
 }
