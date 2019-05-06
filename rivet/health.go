@@ -15,6 +15,7 @@
 package rivet
 
 import (
+	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,8 +25,8 @@ func Health(engine *gin.Engine) {
 	vRepo.GET("/check", health)
 }
 
-func health(engine *gin.Context) {
-	Resp.Do(engine, nil, func(value interface{}) (interface{}, error) {
-		return "status ok", nil
+func health(context *gin.Context) {
+	Resp.Do(context, func(result *response.Result) {
+		result.SaySuccess(context, "status ok")
 	})
 }

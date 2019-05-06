@@ -16,10 +16,9 @@
 package rivet
 
 import (
-	"github.com/ennoo/rivet/common"
 	"github.com/ennoo/rivet/shunt"
+	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
-	"reflect"
 )
 
 var balance = make(map[string]*shunt.Services)
@@ -32,38 +31,38 @@ func Shunt(engine *gin.Engine) {
 	vRepo.POST("/service/list", listService)
 }
 
-func addService(engine *gin.Context) {
-	Resp.Do(engine, new(shunt.Balance), func(value interface{}) (interface{}, error) {
-		result := reflect.ValueOf(value).Elem()
-		name := result.FieldByName("Name").String()
-		services := balance[name]
-		if nil == services {
-			services = &shunt.Services{}
-			balance[name] = services
-		}
-		service := shunt.Service{
-			Host: result.FieldByName("Service").FieldByName("Host").String(),
-			Port: int(result.FieldByName("Service").FieldByName("Port").Int())}
-		services.Add(service)
-		return nil, nil
+func addService(context *gin.Context) {
+	Resp.Do(context, func(result *response.Result) {
+		//result := reflect.ValueOf(value).Elem()
+		//name := result.FieldByName("Name").String()
+		//services := balance[name]
+		//if nil == services {
+		//	services = &shunt.Services{}
+		//	balance[name] = services
+		//}
+		//service := shunt.Service{
+		//	Host: result.FieldByName("Service").FieldByName("Host").String(),
+		//	Port: int(result.FieldByName("Service").FieldByName("Port").Int())}
+		//services.Add(service)
+		//return nil, nil
 	})
 }
 
-func listService(engine *gin.Context) {
-	Resp.Do(engine, new(common.JsonString), func(value interface{}) (interface{}, error) {
-		result := reflect.ValueOf(value).Elem()
-		return balance[result.FieldByName("Value").String()], nil
+func listService(context *gin.Context) {
+	Resp.Do(context, func(result *response.Result) {
+		//result := reflect.ValueOf(value).Elem()
+		//return balance[result.FieldByName("Value").String()], nil
 	})
 }
 
-func listBalance(engine *gin.Context) {
-	Resp.Do(engine, nil, func(value interface{}) (interface{}, error) {
-		shunts := make([]string, len(balance))
-		index := 0
-		for k := range balance {
-			shunts[index] = k
-			index++
-		}
-		return shunts, nil
+func listBalance(context *gin.Context) {
+	Resp.Do(context, func(result *response.Result) {
+		//shunts := make([]string, len(balance))
+		//index := 0
+		//for k := range balance {
+		//	shunts[index] = k
+		//	index++
+		//}
+		//return shunts, nil
 	})
 }

@@ -20,6 +20,7 @@ import (
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/shunt"
+	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 	"math/rand"
 	"os"
@@ -69,8 +70,8 @@ func testShunt1(engine *gin.Engine) {
 }
 
 func shunt1(context *gin.Context) {
-	rivet.Resp.Do(context, nil, func(value interface{}) (interface{}, error) {
+	rivet.Resp.Do(context, func(result *response.Result) {
 		b()
-		return "test2", nil
+		result.SaySuccess(context, "test2")
 	})
 }

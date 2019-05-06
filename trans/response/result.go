@@ -82,6 +82,16 @@ func (result *Result) FailErr(err error) {
 
 }
 
+func (result *Result) SaySuccess(context *gin.Context, obj interface{}) {
+	result.Success(obj)
+	context.JSON(http.StatusOK, &result)
+}
+
+func (result *Result) SayFail(context *gin.Context, msg string) {
+	result.Fail(msg)
+	context.JSON(http.StatusOK, &result)
+}
+
 //捕获所有异常信息并放入json到context，便于controller直接调用
 func catchErr(context *gin.Context, res *Result) {
 	if r := recover(); r != nil {

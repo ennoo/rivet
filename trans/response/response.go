@@ -15,9 +15,7 @@
 package response
 
 import (
-	"github.com/ennoo/rivet/common/util/log"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type Response struct {
@@ -37,30 +35,7 @@ type Response struct {
 // objBlock error：obj 对象的回调方法所返回的错误对象
 //
 // 如未出现err，且无可描述返回内容，则返回值可为 (nil, nil)
-func (response *Response) Do(context *gin.Context, obj interface{}, objBlock func(value interface{}) (interface{}, error)) {
+func (response *Response) Do(context *gin.Context, objBlock func(result *Result)) {
 	defer catchErr(context, &response.result)
-	//var deployModel = new(model.DeployModel)
-	if nil != obj {
-		if err := context.ShouldBindJSON(obj); err != nil {
-			response.result.FailErr(err)
-			context.JSON(http.StatusOK, &response.result)
-			return
-		}
-	}
-	result, err := objBlock(obj)
-	exec(&response.result, context, err, result)
-}
-
-// 处理结果并给出对应返回策略
-func exec(res *Result, context *gin.Context, err error, resObj interface{}) {
-	if err != nil {
-		res.Fail(err.Error())
-		log.Error(err)
-		context.JSON(http.StatusInternalServerError, &res)
-		return
-	}
-	if nil != resObj {
-		res.Success(resObj)
-	}
-	context.JSON(http.StatusOK, &res)
+	objBlock(&response.result)
 }
