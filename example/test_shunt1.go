@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/rivet"
+	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
@@ -28,7 +29,7 @@ import (
 	"time"
 )
 
-var adds []*shunt.Service
+var adds []*server.Service
 
 func main() {
 	rivet.Initialize(log.DebugLevel, true, true)
@@ -40,7 +41,7 @@ func addAddress() {
 	for i := 0; i < 10; i++ {
 		host := fmt.Sprintf("192.168.%d.%d", rand.Intn(255), rand.Intn(255))
 		port, _ := strconv.Atoi(fmt.Sprintf("880%d", i))
-		one := shunt.NewAddress(host, port)
+		one := server.NewAddress(host, port)
 		adds = append(adds, one)
 	}
 }

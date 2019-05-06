@@ -17,6 +17,7 @@ package shunt
 
 import (
 	"errors"
+	"github.com/ennoo/rivet/server"
 	"math/rand"
 )
 
@@ -28,7 +29,7 @@ func init() {
 type RandomBalance struct {
 }
 
-func (p *RandomBalance) DoBalance(services []*Service, key ...string) (add *Service, err error) {
+func (p *RandomBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
 	if len(services) == 0 {
 		err = errors.New("no instance")
 		return

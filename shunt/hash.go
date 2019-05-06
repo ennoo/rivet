@@ -17,6 +17,7 @@ package shunt
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet/server"
 	"hash/crc32"
 	"math/rand"
 )
@@ -30,7 +31,7 @@ type HashBalance struct {
 	key string
 }
 
-func (p *HashBalance) DoBalance(services []*Service, key ...string) (add *Service, err error) {
+func (p *HashBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
 	defKey := fmt.Sprintf("%d", rand.Int())
 	if len(key) > 0 {
 		defKey = key[0]

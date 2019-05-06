@@ -13,18 +13,21 @@
  *
  */
 
-package rivet
+package server
 
 import (
-	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
-var balances = make(map[string]*shunt.Services)
+var (
+	Resp     = response.Response{}
+	balances = make(map[string]*Services)
+)
 
-func Shunt(engine *gin.Engine) {
+// Server 服务器管理服务路由
+func Server(engine *gin.Engine) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/shunt")
 	vRepo.GET("/balance/list", listBalance)
@@ -36,14 +39,14 @@ func Shunt(engine *gin.Engine) {
 
 func addService(context *gin.Context) {
 	Resp.Do(context, func(result *response.Result) {
-		balance := new(shunt.Balance)
+		balance := new(Balance)
 		if err := context.ShouldBindJSON(balance); err != nil {
 			result.SayFail(context, err.Error())
 		}
 		name := balance.Name
 		services := balances[name]
 		if nil == services {
-			services = &shunt.Services{}
+			services = &Services{}
 			balances[name] = services
 		}
 		services.Add(balance.Service)
@@ -81,7 +84,7 @@ func listService(context *gin.Context) {
 		if nil != balances[serviceName] {
 			result.SaySuccess(context, balances[serviceName].Services)
 		} else {
-			result.SaySuccess(context, []shunt.Service{})
+			result.SaySuccess(context, []Service{})
 		}
 	})
 }

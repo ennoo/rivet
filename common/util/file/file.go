@@ -42,7 +42,6 @@ func DirectoryCreate(paths ...string) (err error) {
 		err := os.MkdirAll(dirName, os.ModePerm)
 		if err != nil {
 			panic(err)
-			return err
 		}
 		zap.S().Debug("Create path success :" + dirName)
 	}

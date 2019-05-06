@@ -15,7 +15,10 @@
 
 package shunt
 
-import "errors"
+import (
+	"errors"
+	"github.com/ennoo/rivet/server"
+)
 
 // 负载均衡接口轮询实现
 func init() {
@@ -26,7 +29,7 @@ type RoundRobinBalance struct {
 	curIndex int
 }
 
-func (p *RoundRobinBalance) DoBalance(services []*Service, key ...string) (add *Service, err error) {
+func (p *RoundRobinBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
 	if len(services) == 0 {
 		err = errors.New("no instance")
 		return

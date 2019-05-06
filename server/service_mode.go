@@ -13,8 +13,9 @@
  *
  */
 
-package shunt
+package server
 
+// Balance 服务器新增对象
 type Balance struct {
 	Name    string  `json:"name"`
 	Service Service `json:"service"`
@@ -24,7 +25,7 @@ type Services struct {
 	Services []*Service `json:"services"`
 }
 
-// 服务器信息
+// Service 服务器信息
 type Service struct {
 	Id   string `json:"id"`
 	Host string `json:"host"`

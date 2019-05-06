@@ -15,7 +15,10 @@
 
 package shunt
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/ennoo/rivet/server"
+)
 
 type Shunt struct {
 	allBalanceWay map[string]BalanceWay
@@ -33,7 +36,7 @@ func RegisterBalance(name string, b BalanceWay) {
 	shunt.registerBalance(name, b)
 }
 
-func DoBalance(name string, services []*Service) (add *Service, err error) {
+func DoBalance(name string, services []*server.Service) (add *server.Service, err error) {
 	balance, ok := shunt.allBalanceWay[name]
 	if !ok {
 		err = fmt.Errorf("not fount %s", name)

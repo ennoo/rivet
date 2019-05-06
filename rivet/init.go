@@ -20,6 +20,7 @@ import (
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/discovery/consul"
+	"github.com/ennoo/rivet/server"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,6 +28,8 @@ var useDiscovery = false
 var hc = false
 var st = false
 
+// Initialize
+//
 // rivet 初始化方法，必须最先调用
 //
 // logLevel：日志等级，参考 github/rivet/common/util/log/log.go，一般调试用 DebugLevel，生产用 InfoLevel
@@ -40,7 +43,7 @@ func Initialize(logLevel string, healthCheck bool, useShunt bool) {
 	st = useShunt
 }
 
-// 启用指定的发现服务
+// UseDiscovery 启用指定的发现服务
 func UseDiscovery(component string, url string, serviceName string) {
 	switch component {
 	case discovery.ComponentConsul:
@@ -52,14 +55,14 @@ func UseDiscovery(component string, url string, serviceName string) {
 	}
 }
 
-// setupRouter设置路由器相关选项
+// SetupRouter 设置路由器相关选项
 func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	engine := gin.Default()
 	if hc {
 		Health(engine)
 	}
 	if st {
-		Shunt(engine)
+		server.Server(engine)
 	}
 	for _, route := range routes {
 		route(engine)
@@ -67,6 +70,7 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	return engine
 }
 
+// Start 开始启用 rivet
 func Start(engine *gin.Engine, defaultPort string) {
 	log.Info("listening port bind")
 	err := engine.Run(":" + env.GetEnvDefault(env.PortEnv, defaultPort))

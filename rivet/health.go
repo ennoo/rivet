@@ -19,6 +19,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Health 健康检查服务路由
 func Health(engine *gin.Engine) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/health")
