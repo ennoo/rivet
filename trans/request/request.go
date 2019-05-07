@@ -23,11 +23,12 @@ import (
 	"net/http"
 )
 
+// Request 提供实例化调用请求方法，并内置返回策略
 type Request struct {
 	result response.Result
 }
 
-// 请求转发处理方案
+// Call 请求转发处理方案
 //
 // context：原请求上下文
 //
@@ -40,7 +41,7 @@ func (request *Request) Call(context *gin.Context, method string, remote string,
 	request.Callback(context, method, remote, uri, nil)
 }
 
-// 请求转发处理方案
+// Callback 请求转发处理方案
 //
 // context：原请求上下文
 //

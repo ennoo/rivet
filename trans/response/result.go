@@ -24,10 +24,13 @@ import (
 )
 
 const (
+	// Success 请求返回成功码
 	Success = "200"
-	Fail    = "9999"
+	// Fail 请求返回失败码
+	Fail = "9999"
 )
 
+// Result 请求返回对象实体
 type Result struct {
 	ResultCode string `json:"code"`
 	Msg        string `json:"msg"`
@@ -35,7 +38,7 @@ type Result struct {
 	Data interface{} `json:"data"`
 }
 
-//Success 默认成功返回
+// Success 默认成功返回
 func (result *Result) Success(obj interface{}) {
 	result.Msg = "Success!"
 	result.ResultCode = Success
@@ -48,7 +51,7 @@ func (result *Result) Fail(msg string) {
 	result.ResultCode = Fail
 }
 
-// 返回结果对象介入降级操作方法
+// Callback 返回结果对象介入降级操作方法
 func (result *Result) Callback(callback func() *Result, err error) {
 	if nil == callback || str.IsEmpty(callback().ResultCode) {
 		log.Info("放弃降级或降级策略有误")
@@ -82,17 +85,19 @@ func (result *Result) FailErr(err error) {
 
 }
 
+// SaySuccess response 返回请求成功对象
 func (result *Result) SaySuccess(context *gin.Context, obj interface{}) {
 	result.Success(obj)
 	context.JSON(http.StatusOK, &result)
 }
 
+// SayFail response 返回请求失败对象
 func (result *Result) SayFail(context *gin.Context, msg string) {
 	result.Fail(msg)
 	context.JSON(http.StatusOK, &result)
 }
 
-//捕获所有异常信息并放入json到context，便于controller直接调用
+// catchErr 捕获所有异常信息并放入json到context，便于controller直接调用
 func catchErr(context *gin.Context, res *Result) {
 	if r := recover(); r != nil {
 		value, ok := r.(Exception)

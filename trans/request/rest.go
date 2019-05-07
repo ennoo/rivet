@@ -31,7 +31,6 @@ import (
 
 // RestHandler 处理请求发送内容
 type RestHandler struct {
-	// 远程服务器地址,如 http://localhost:3030
 	RemoteServer string
 	Uri          string
 	Body         io.ReadCloser
@@ -41,35 +40,49 @@ type RestHandler struct {
 
 // Rest http 请求方法接口
 type Rest interface {
+	// Post 发起 Post 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Post() (body []byte, err error)
 
+	// Put 发起 Put 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Put() (body []byte, err error)
 
+	// Delete 发起 Delete 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Delete() (body []byte, err error)
 
+	// Patch 发起 Patch 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Patch() (body []byte, err error)
 
+	// Options 发起 Options 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Options() (body []byte, err error)
 
+	// Head 发起 Head 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Head() (body []byte, err error)
 
+	// Connect 发起 Connect 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Connect() (body []byte, err error)
 
+	// Trace 发起 Trace 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Trace() (body []byte, err error)
 
+	// Get 发起 Get 请求，body 为请求后的返回内容，err 指出请求出错原因
 	Get() (body []byte, err error)
 }
 
 // Handler http 处理请求发送内容接口
 type Handler interface {
-	ObtainUri() string
-
+	// ObtainRemoteServer 获取本次 http 请求服务根路径 如：localhost:8080
 	ObtainRemoteServer() string
 
+	// ObtainUri 获取本次 http 请求服务方法路径 如：/user/login
+	ObtainUri() string
+
+	// ObtainBody 获取本次 http 请求 body io
 	ObtainBody() io.Reader
 
+	// ObtainHeader 获取本次 http 请求 header
 	ObtainHeader() http.Header
 
+	// ObtainCookies 获取本次 http 请求 cookies
 	ObtainCookies() []http.Cookie
 }
 

@@ -21,6 +21,7 @@ type Balance struct {
 	Service Service `json:"service"`
 }
 
+// Service 服务器对象集合
 type Services struct {
 	Services []*Service `json:"services"`
 }
@@ -32,25 +33,30 @@ type Service struct {
 	Port int    `json:"port"`
 }
 
+// Add Service 服务器对象集合内新增
 func (services *Services) Add(service Service) {
 	services.Services = append(services.Services, &service)
 }
 
+// Remove Service 服务器对象集合内移除
 func (services *Services) Remove(position int) {
 	services.Services = append(services.Services[:position], services.Services[position+1:]...)
 }
 
-func NewAddress(host string, port int) *Service {
+// NewService 服务器对象新建
+func NewService(host string, port int) *Service {
 	return &Service{
 		Host: host,
 		Port: port,
 	}
 }
 
+// GetHost 获取服务器信息地址
 func (a *Service) GetHost() string {
 	return a.Host
 }
 
+// GetPort 获取服务器信息端口号
 func (a *Service) GetPort() int {
 	return a.Port
 }

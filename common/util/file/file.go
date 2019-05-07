@@ -12,6 +12,7 @@
  * limitations under the License.
  *
  */
+
 package file
 
 import (
@@ -21,6 +22,7 @@ import (
 	"os"
 )
 
+// PathExists 判断路径是否存在
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -32,7 +34,7 @@ func PathExists(path string) (bool, error) {
 	return false, err
 }
 
-// 创建指定目录
+// DirectoryCreate 创建指定目录
 // paths代表待创建的目录的路径,可以同时创建多个路径。
 // ignoreExist代表是否忽略已存在的目录，如果为true，则代表忽略。即如果目录已存在也不会报错。
 // 如果该值为false，则如果指定目录已存在，将会报错。
@@ -48,6 +50,7 @@ func DirectoryCreate(paths ...string) (err error) {
 	return err
 }
 
+// ReadFileByLine 从文件中逐行读取并返回字符串数组
 func ReadFileByLine(filePath string) ([]string, error) {
 	fileIn, fileInErr := os.Open(filePath)
 	if fileInErr != nil {

@@ -17,31 +17,6 @@ package response
 
 import (
 	"fmt"
-	"net/http"
-)
-
-var (
-	// 通用模块
-	CommonModel = "02"
-	// 仓库管理模块
-	DockerModel = "03"
-
-	// Rest调用模块
-	RestModel = "04"
-
-	SystemCommonException = NewRespErr("0", "System exception")
-
-	ParamException   = NewRespErr(CommonModel+"00001", "Param exception")
-	ServiceException = NewRespErr(CommonModel+"00002", "Service exception,try again later or contact the administrator")
-
-	//rest调用模块
-	RestResponseErr = NewRespErr(RestModel+"00001", "接口调用失败，返回错误信息")
-
-	//	Docker模块
-	SwarmServiceNameNotExist = NewRespErr(DockerModel+"00001", "Service name [%s] not exist")
-
-	// service的依赖链可能出现了环路
-	SwarmServiceDependsonCircle = NewRespErr(DockerModel+"00002", "Service depends on may be referenced with a circle! ")
 )
 
 type RespError struct {
@@ -52,22 +27,14 @@ type RespError struct {
 	HttpStatusCode int
 }
 
+// Error 实现error接口，自定义error
 func (resErr *RespError) Error() string {
 	return fmt.Sprintf("%s,error code is:%s", resErr.ErrorMsg, resErr.ErrorCode)
 }
 
-// 添加参数
+// FormatMsg 添加参数
 func (resErr *RespError) FormatMsg(args ...interface{}) *RespError {
 	newMsg := fmt.Sprintf(resErr.ErrorMsg, args...)
 	resErr.ErrorMsg = newMsg
 	return resErr
-}
-
-func NewRespErr(errCode string, errMsg string) *RespError {
-	return &RespError{
-		ErrorCode: errCode,
-		ErrorMsg:  errMsg,
-		// 默认正常
-		HttpStatusCode: http.StatusOK,
-	}
 }

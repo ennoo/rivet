@@ -21,19 +21,22 @@ import (
 )
 
 const (
+	// ServiceName 当前启动服务名
 	ServiceName = "SERVICE_NAME"
-	PortEnv     = "PORT"
-	ConsulUrl   = "CONSUL_URL"
+	// PortEnv 当前服务启动端口号
+	PortEnv = "PORT"
+	// ConsulUrl 当前服务注册的 consul 地址
+	ConsulUrl = "CONSUL_URL"
 )
 
-// 获取环境变量 envName 的值
+// GetEnv 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 func GetEnv(envName string) string {
 	return os.Getenv(envName)
 }
 
-// 获取环境变量 envName 的值
+// GetEnvDefault 获取环境变量 envName 的值
 //
 // envName 环境变量名称
 //

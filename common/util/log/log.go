@@ -12,6 +12,7 @@
  * limitations under the License.
  *
  */
+
 package log
 
 import (
@@ -21,11 +22,14 @@ import (
 var logger *zap.Logger
 
 const (
+	// DebugLevel 日志级别为 debug
 	DebugLevel = "debug"
-	InfoLevel  = "info"
+	// InfoLevel 日志级别为 info
+	InfoLevel = "info"
 )
 
-func InitLoggerWithLevel(level string) {
+// Initialize 初始化日志组件并指定日志级别
+func Initialize(level string) {
 	var err error
 	if level == DebugLevel {
 		logger, err = zap.NewDevelopment()

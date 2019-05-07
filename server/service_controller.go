@@ -22,6 +22,7 @@ import (
 )
 
 var (
+	// Resp 提供实例化调用 Do 方法，并内置返回策略
 	Resp     = response.Response{}
 	balances = make(map[string]*Services)
 )

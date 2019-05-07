@@ -20,63 +20,77 @@ import (
 	"net/http"
 )
 
+// RestTransHandler 处理请求转发发送内容
 type RestTransHandler struct {
 	RestHandler
 }
 
-func (handler *RestTransHandler) ObtainUri() string {
-	return handler.RestHandler.Uri
-}
-
+// ObtainRemoteServer 获取本次 http 请求服务根路径 如：localhost:8080
 func (handler *RestTransHandler) ObtainRemoteServer() string {
 	return handler.RemoteServer
 }
 
+// ObtainUri 获取本次 http 请求服务方法路径 如：/user/login
+func (handler *RestTransHandler) ObtainUri() string {
+	return handler.RestHandler.Uri
+}
+
+// ObtainBody 获取本次 http 请求 body io
 func (handler *RestTransHandler) ObtainBody() io.Reader {
 	return handler.Body
 }
 
+// ObtainHeader 获取本次 http 请求 header
 func (handler *RestTransHandler) ObtainHeader() http.Header {
 	return handler.Header
 }
 
+// ObtainCookies 获取本次 http 请求 cookies
 func (handler *RestTransHandler) ObtainCookies() []http.Cookie {
 	return handler.Cookies
 }
 
+// Post 发起 Post 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Post() (body []byte, err error) {
 	return request(http.MethodPost, handler)
 }
 
+// Put 发起 Put 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Put() (body []byte, err error) {
 	return request(http.MethodPut, handler)
 }
 
+// Delete 发起 Delete 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Delete() (body []byte, err error) {
 	return request(http.MethodDelete, handler)
 }
 
+// Patch 发起 Patch 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Patch() (body []byte, err error) {
 	return request(http.MethodPatch, handler)
 }
 
+// Options 发起 Options 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Options() (body []byte, err error) {
 	return request(http.MethodOptions, handler)
 }
 
+// Head 发起 Head 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Head() (body []byte, err error) {
 	return request(http.MethodHead, handler)
 }
 
+// Connect 发起 Connect 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Connect() (body []byte, err error) {
 	return request(http.MethodConnect, handler)
 }
 
+// Trace 发起 Trace 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Trace() (body []byte, err error) {
 	return request(http.MethodTrace, handler)
 }
 
-// Get 发送get请求
+// Get 发起 Get 请求，body 为请求后的返回内容，err 指出请求出错原因
 func (handler *RestTransHandler) Get() (body []byte, err error) {
 	return get(handler)
 }

@@ -20,6 +20,7 @@ import (
 	"github.com/ennoo/rivet/server"
 )
 
+// Shunt 分流器负载方式对象
 type Shunt struct {
 	allBalanceWay map[string]BalanceWay
 }
@@ -32,10 +33,12 @@ func (p *Shunt) registerBalance(name string, b BalanceWay) {
 	p.allBalanceWay[name] = b
 }
 
+// RegisterBalance 注册新的负载方式
 func RegisterBalance(name string, b BalanceWay) {
 	shunt.registerBalance(name, b)
 }
 
+// DoBalance 开启负载
 func DoBalance(name string, services []*server.Service) (add *server.Service, err error) {
 	balance, ok := shunt.allBalanceWay[name]
 	if !ok {

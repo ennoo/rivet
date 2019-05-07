@@ -41,7 +41,7 @@ func addAddress() {
 	for i := 0; i < 10; i++ {
 		host := fmt.Sprintf("192.168.%d.%d", rand.Intn(255), rand.Intn(255))
 		port, _ := strconv.Atoi(fmt.Sprintf("880%d", i))
-		one := server.NewAddress(host, port)
+		one := server.NewService(host, port)
 		adds = append(adds, one)
 	}
 }
