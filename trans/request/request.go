@@ -67,7 +67,8 @@ func (request *Request) Callback(context *gin.Context, method string, remote str
 			request.result.Fail(err.Error())
 			context.JSON(http.StatusOK, request.result)
 		} else {
-			remoteNew := strings.Join([]string{add.Host, strconv.Itoa(add.Port)}, ":")
+			// todo 请求协议判定
+			remoteNew := strings.Join([]string{"http://", add.Host, ":", strconv.Itoa(add.Port)}, "")
 			request.call(context, method, remoteNew, uri, callback)
 		}
 	} else {

@@ -35,7 +35,16 @@ type Service struct {
 
 // Add Service 服务器对象集合内新增
 func (services *Services) Add(service Service) {
-	services.Services = append(services.Services, &service)
+	add := true
+	for index := range services.Services {
+		if services.Services[index].Id == service.Id {
+			services.Services[index] = &service
+			add = false
+		}
+	}
+	if add {
+		services.Services = append(services.Services, &service)
+	}
 }
 
 // Remove Service 服务器对象集合内移除
