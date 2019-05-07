@@ -21,7 +21,7 @@ type Balance struct {
 	Service Service `json:"service"`
 }
 
-// Service 服务器对象集合
+// Services 服务器对象集合
 type Services struct {
 	Services []*Service `json:"services"`
 }

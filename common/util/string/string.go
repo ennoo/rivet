@@ -50,8 +50,7 @@ func ParseToStr(mp map[string]string) string {
 	return values
 }
 
-// Convert
-// 下划线转换，首字母小写变大写，
+// Convert 下划线转换，首字母小写变大写，
 // 下划线去掉并将下划线后的首字母大写
 func Convert(oriString string) string {
 	cb := []byte(oriString)

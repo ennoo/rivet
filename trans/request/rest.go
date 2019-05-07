@@ -13,9 +13,6 @@
  *
  */
 
-// Package request
-//
-// http 请求策略包
 package request
 
 import (

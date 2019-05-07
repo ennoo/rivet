@@ -19,6 +19,7 @@ import (
 	"fmt"
 )
 
+// RespError 自定义 error 对象
 type RespError struct {
 	ErrorCode string
 	ErrorMsg  string
