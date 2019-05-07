@@ -22,11 +22,11 @@ import (
 
 // RoundRobinBalance 负载均衡 round 策略实体
 type RoundRobinBalance struct {
-	position int
+	Position int
 }
 
 // Run 负载均衡 round 策略实现
-func (round *RoundRobinBalance) run(serviceName string, key ...string) (add *server.Service, err error) {
+func (round *RoundRobinBalance) Run(serviceName string) (add *server.Service, err error) {
 	services := server.ServiceGroup[serviceName].Services
 	if len(services) == 0 {
 		err = errors.New("no instance")
@@ -34,10 +34,10 @@ func (round *RoundRobinBalance) run(serviceName string, key ...string) (add *ser
 	}
 
 	lens := len(services)
-	if round.position >= lens {
-		round.position = 0
+	if round.Position >= lens {
+		round.Position = 0
 	}
-	add = services[round.position]
-	round.position++
+	add = services[round.Position]
+	round.Position++
 	return
 }

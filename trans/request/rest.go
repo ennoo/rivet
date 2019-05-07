@@ -29,7 +29,7 @@ import (
 // RestHandler 处理请求发送内容
 type RestHandler struct {
 	RemoteServer string
-	Uri          string
+	URI          string
 	Body         io.ReadCloser
 	Header       http.Header
 	Cookies      []http.Cookie
@@ -70,8 +70,8 @@ type Handler interface {
 	// ObtainRemoteServer 获取本次 http 请求服务根路径 如：localhost:8080
 	ObtainRemoteServer() string
 
-	// ObtainUri 获取本次 http 请求服务方法路径 如：/user/login
-	ObtainUri() string
+	// ObtainURI 获取本次 http 请求服务方法路径 如：/user/login
+	ObtainURI() string
 
 	// ObtainBody 获取本次 http 请求 body io
 	ObtainBody() io.Reader
@@ -90,7 +90,7 @@ func addCookies(request *http.Request, cookies []http.Cookie) {
 }
 
 func request(method string, handler Handler) ([]byte, error) {
-	req, err := http.NewRequest(method, getFullUri(handler), handler.ObtainBody())
+	req, err := http.NewRequest(method, getFullURI(handler), handler.ObtainBody())
 	if nil != err {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func request(method string, handler Handler) ([]byte, error) {
 
 // Get 发送get请求
 func get(handler Handler) (body []byte, err error) {
-	req, err := http.NewRequest(http.MethodGet, getFullUri(handler), nil)
+	req, err := http.NewRequest(http.MethodGet, getFullURI(handler), nil)
 	if nil != err {
 		return nil, err
 	}
@@ -125,8 +125,8 @@ func exec(req *http.Request) ([]byte, error) {
 	return body, err
 }
 
-func getFullUri(handler Handler) string {
-	return filepath.ToSlash(strings.Join([]string{handler.ObtainRemoteServer(), filepath.Join("/", handler.ObtainUri())}, ""))
+func getFullURI(handler Handler) string {
+	return filepath.ToSlash(strings.Join([]string{handler.ObtainRemoteServer(), filepath.Join("/", handler.ObtainURI())}, ""))
 }
 
 // GetAccessTokenFromReq 从Header或者Cookie中获取到用户的access_token
@@ -151,7 +151,7 @@ func GetAccessTokenFromReq(c *gin.Context) (token string) {
 // GetCookieByName 忽略大小写，找到指定的cookie
 func GetCookieByName(cookies []*http.Cookie, cookieName string) *http.Cookie {
 	for _, cookie := range cookies {
-		if strings.ToLower(cookie.Name) == strings.ToLower(cookieName) {
+		if strings.EqualFold(cookie.Name, cookieName) {
 			return cookie
 		}
 	}

@@ -33,7 +33,9 @@ var adds []*server.Service
 
 func main() {
 	rivet.Initialize(log.DebugLevel, true, true, true)
-	rivet.Shunt.Register("test", &shunt.RoundRobinBalance{})
+	rivet.Shunt.Register("test", &shunt.RoundRobinBalance{Position: 0})
+	rivet.Shunt.Register("test1", &shunt.RandomBalance{})
+	rivet.Shunt.Register("test2", &shunt.HashBalance{Key: []string{}})
 	//addAddress()
 	rivet.Start(rivet.SetupRouter(testShunt1), "8083")
 }
@@ -70,7 +72,7 @@ func testShunt1(engine *gin.Engine) {
 func shunt3(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		rivet.Shunt.Register(serviceName, &shunt.RoundRobinBalance{})
+		rivet.Shunt.Register(serviceName, &shunt.RoundRobinBalance{Position: 0})
 		b(serviceName)
 		result.SaySuccess(context, "test2")
 	})

@@ -59,7 +59,7 @@ func rmService(context *gin.Context) {
 	resp := response.Response{}
 	resp.Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		serviceId := context.Param("serviceId")
+		serviceID := context.Param("serviceId")
 		if nil == ServiceGroup[serviceName] {
 			panic(response.ExpNotExist.Fit(strings.Join([]string{"service", serviceName}, " ")))
 		}
@@ -67,15 +67,15 @@ func rmService(context *gin.Context) {
 		service := ServiceGroup[serviceName]
 		services := service.Services
 		for i := 0; i < len(services); i++ {
-			if serviceId == services[i].Id {
+			if serviceID == services[i].ID {
 				have = true
 				service.Remove(i)
 			}
 		}
 		if have {
-			result.SaySuccess(context, strings.Join([]string{"remove service", serviceName, "id =", serviceId, "success"}, " "))
+			result.SaySuccess(context, strings.Join([]string{"remove service", serviceName, "id =", serviceID, "success"}, " "))
 		} else {
-			panic(response.ExpNotExist.Fit(strings.Join([]string{"service", serviceName, "id =", serviceId}, " ")))
+			panic(response.ExpNotExist.Fit(strings.Join([]string{"service", serviceName, "id =", serviceID}, " ")))
 		}
 	})
 }

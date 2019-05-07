@@ -24,7 +24,7 @@ import (
 type Way interface {
 
 	// Run 负载均衡算法
-	run(string, ...string) (*server.Service, error)
+	Run(string) (*server.Service, error)
 }
 
 // Shunt 负载入口对象
@@ -39,7 +39,7 @@ func (s *Shunt) Register(serviceName string, way Way) {
 	shunt.allWay[serviceName] = way
 }
 
-// Run 开启负载
+// RunShunt 开启负载
 func RunShunt(serviceName string) (*server.Service, error) {
 	way, ok := shunt.allWay[serviceName]
 	if !ok {
@@ -47,7 +47,7 @@ func RunShunt(serviceName string) (*server.Service, error) {
 		fmt.Println("not found ", serviceName)
 		return nil, err
 	}
-	service, err := way.run(serviceName)
+	service, err := way.Run(serviceName)
 	if err != nil {
 		err = fmt.Errorf(" %s erros", serviceName)
 		return nil, err

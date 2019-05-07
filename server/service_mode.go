@@ -28,7 +28,7 @@ type Services struct {
 
 // Service 服务器信息
 type Service struct {
-	Id   string `json:"id"`
+	ID   string `json:"id"`
 	Host string `json:"host"`
 	Port int    `json:"port"`
 }
@@ -37,7 +37,7 @@ type Service struct {
 func (services *Services) Add(service Service) {
 	add := true
 	for index := range services.Services {
-		if services.Services[index].Id == service.Id {
+		if services.Services[index].ID == service.ID {
 			services.Services[index] = &service
 			add = false
 		}

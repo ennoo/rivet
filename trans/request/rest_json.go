@@ -22,80 +22,80 @@ import (
 	"net/http"
 )
 
-// RestJsonHandler 处理 json 请求发送内容
-type RestJsonHandler struct {
+// RestJSONHandler 处理 json 请求发送内容
+type RestJSONHandler struct {
 	RestHandler
 	Param interface{}
 }
 
 // ObtainRemoteServer 获取本次 http 请求服务根路径 如：localhost:8080
-func (handler *RestJsonHandler) ObtainRemoteServer() string {
+func (handler *RestJSONHandler) ObtainRemoteServer() string {
 	return handler.RemoteServer
 }
 
-// ObtainUri 获取本次 http 请求服务方法路径 如：/user/login
-func (handler *RestJsonHandler) ObtainUri() string {
-	return handler.Uri
+// ObtainURI 获取本次 http 请求服务方法路径 如：/user/login
+func (handler *RestJSONHandler) ObtainURI() string {
+	return handler.URI
 }
 
 // ObtainBody 获取本次 http 请求 body io
-func (handler *RestJsonHandler) ObtainBody() io.Reader {
+func (handler *RestJSONHandler) ObtainBody() io.Reader {
 	jsonByte, _ := json.Marshal(handler.Param)
 	return bytes.NewReader(jsonByte)
 }
 
 // ObtainHeader 获取本次 http 请求 header
-func (handler *RestJsonHandler) ObtainHeader() http.Header {
+func (handler *RestJSONHandler) ObtainHeader() http.Header {
 	handler.Header.Add("Content-Type", "application/json")
 	return handler.Header
 }
 
 // ObtainCookies 获取本次 http 请求 cookies
-func (handler *RestJsonHandler) ObtainCookies() []http.Cookie {
+func (handler *RestJSONHandler) ObtainCookies() []http.Cookie {
 	return handler.Cookies
 }
 
 // Post 发起 Post 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Post() (body []byte, err error) {
+func (handler *RestJSONHandler) Post() (body []byte, err error) {
 	return request(http.MethodPost, handler)
 }
 
 // Put 发起 Put 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Put() (body []byte, err error) {
+func (handler *RestJSONHandler) Put() (body []byte, err error) {
 	return request(http.MethodPut, handler)
 }
 
 // Delete 发起 Delete 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Delete() (body []byte, err error) {
+func (handler *RestJSONHandler) Delete() (body []byte, err error) {
 	return request(http.MethodDelete, handler)
 }
 
 // Patch 发起 Patch 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Patch() (body []byte, err error) {
+func (handler *RestJSONHandler) Patch() (body []byte, err error) {
 	return request(http.MethodPatch, handler)
 }
 
 // Options 发起 Options 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Options() (body []byte, err error) {
+func (handler *RestJSONHandler) Options() (body []byte, err error) {
 	return request(http.MethodOptions, handler)
 }
 
 // Head 发起 Head 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Head() (body []byte, err error) {
+func (handler *RestJSONHandler) Head() (body []byte, err error) {
 	return request(http.MethodHead, handler)
 }
 
 // Connect 发起 Connect 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Connect() (body []byte, err error) {
+func (handler *RestJSONHandler) Connect() (body []byte, err error) {
 	return request(http.MethodConnect, handler)
 }
 
 // Trace 发起 Trace 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Trace() (body []byte, err error) {
+func (handler *RestJSONHandler) Trace() (body []byte, err error) {
 	return request(http.MethodTrace, handler)
 }
 
 // Get 发起 Get 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestJsonHandler) Get() (body []byte, err error) {
+func (handler *RestJSONHandler) Get() (body []byte, err error) {
 	return get(handler)
 }

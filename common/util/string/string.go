@@ -33,10 +33,7 @@ func IsEmpty(s string) bool {
 
 // IsNotEmpty 和 IsEmpty 的语义相反
 func IsNotEmpty(s string) bool {
-	if len(s) == 0 {
-		return false
-	}
-	return true
+	return len(s) != 0
 }
 
 // ParseToStr 将map中的键值对输出成querystring形式

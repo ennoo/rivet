@@ -1,9 +1,15 @@
 language: go
 
+before_install:
+  - go get golang.org/x/lint/golint
+  - go get honnef.co/go/tools/cmd/staticcheck
+  - go get github.com/client9/misspell/cmd/misspell
+
+script:
+  - make check
+  - make test
+
 go:
   - 1.11.x
   - 1.12.x
   - master
-
-script:
-  - go test ./...

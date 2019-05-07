@@ -26,7 +26,7 @@ import (
 	"strings"
 )
 
-// 是否开启负载均衡
+// LB 是否开启负载均衡
 var LB = false
 
 // Request 提供实例化调用请求方法，并内置返回策略
@@ -94,7 +94,7 @@ func (request *Request) call(context *gin.Context, method string, remote string,
 	restTransHandler := RestTransHandler{
 		RestHandler: RestHandler{
 			RemoteServer: remote,
-			Uri:          uri,
+			URI:          uri,
 			Body:         req.Body,
 			Header:       nil,
 			Cookies:      nil}}

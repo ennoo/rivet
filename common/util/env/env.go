@@ -25,8 +25,8 @@ const (
 	ServiceName = "SERVICE_NAME"
 	// PortEnv 当前服务启动端口号
 	PortEnv = "PORT"
-	// ConsulUrl 当前服务注册的 consul 地址
-	ConsulUrl = "CONSUL_URL"
+	// ConsulURL 当前服务注册的 consul 地址
+	ConsulURL = "CONSUL_URL"
 )
 
 // GetEnv 获取环境变量 envName 的值

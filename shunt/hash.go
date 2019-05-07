@@ -24,15 +24,15 @@ import (
 
 // HashBalance 负载均衡 hash 策略实体
 type HashBalance struct {
-	key string
+	Key []string
 }
 
 // Run 负载均衡 round 策略实现
-func (p *HashBalance) run(serviceName string, key ...string) (add *server.Service, err error) {
+func (hash *HashBalance) Run(serviceName string) (add *server.Service, err error) {
 	services := server.ServiceGroup[serviceName].Services
 	defKey := fmt.Sprintf("%d", rand.Int())
-	if len(key) > 0 {
-		defKey = key[0]
+	if len(hash.Key) > 0 {
+		defKey = hash.Key[0]
 	}
 
 	lens := len(services)

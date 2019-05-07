@@ -24,8 +24,8 @@ type RespError struct {
 	ErrorCode string
 	ErrorMsg  string
 
-	// http的错误编码
-	HttpStatusCode int
+	// HTTPStatusCode http的错误编码
+	HTTPStatusCode int
 }
 
 // Error 实现error接口，自定义error

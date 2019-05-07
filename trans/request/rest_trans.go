@@ -30,9 +30,9 @@ func (handler *RestTransHandler) ObtainRemoteServer() string {
 	return handler.RemoteServer
 }
 
-// ObtainUri 获取本次 http 请求服务方法路径 如：/user/login
-func (handler *RestTransHandler) ObtainUri() string {
-	return handler.RestHandler.Uri
+// ObtainURI 获取本次 http 请求服务方法路径 如：/user/login
+func (handler *RestTransHandler) ObtainURI() string {
+	return handler.RestHandler.URI
 }
 
 // ObtainBody 获取本次 http 请求 body io
