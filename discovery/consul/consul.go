@@ -12,6 +12,8 @@
  * limitations under the License.
  *
  */
+
+// Package consul 支持包
 package consul
 
 import (
@@ -20,15 +22,13 @@ import (
 	"github.com/ennoo/rivet/common/util/file"
 	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/common/util/string"
+	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/trans/request"
-	"github.com/rs/xid"
 	"os"
 	"strings"
 )
 
-var ServiceID = xid.New().String()
-
-// 调用此方法注册 consul
+// Enroll 调用此方法注册 consul
 //
 // consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
 //
@@ -49,12 +49,12 @@ func consulRegister(consulUrl string, serviceName string) {
 	if nil != err {
 		panic(err)
 	}
-	log.Info("serviceID = ", ServiceID)
+	log.Info("serviceID = ", discovery.ServiceID)
 	containerID := str.Trim(hosts[0])
 	log.Info("containerID = ", containerID)
 	restJsonHandler := request.RestJsonHandler{
 		Param: Register{
-			ID:                ServiceID,
+			ID:                discovery.ServiceID,
 			Name:              env.GetEnvDefault(env.ServiceName, serviceName),
 			Address:           containerID,
 			Port:              80,

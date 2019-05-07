@@ -17,7 +17,7 @@ package shunt
 
 import "github.com/ennoo/rivet/server"
 
-// 负载均衡接口
+// BalanceWay 负载均衡接口
 type BalanceWay interface {
 	// 负载均衡算法
 	DoBalance([]*server.Service, ...string) (*server.Service, error)

@@ -12,17 +12,20 @@
  * limitations under the License.
  *
  */
+
+// Package response 处理接受请求后的返回策略
 package response
 
 import (
 	"github.com/gin-gonic/gin"
 )
 
+// Response 提供实例化调用 Do 方法，并内置返回策略
 type Response struct {
 	result Result
 }
 
-// 处理 request 请求
+// Do 处理 request 请求
 //
 // context：请求上下文
 //

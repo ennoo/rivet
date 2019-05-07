@@ -15,6 +15,7 @@
 
 package consul
 
+// Register consul 注册实体
 type Register struct {
 	ID                string `json:"ID"`
 	Name              string `json:"Name"`
@@ -24,6 +25,7 @@ type Register struct {
 	Check             Check  `json:"Check"`
 }
 
+// Check consul 注册实体中健康检查实体
 type Check struct {
 	DeregisterCriticalServiceAfter string `json:"DeregisterCriticalServiceAfter"`
 	HTTP                           string `json:"HTTP"`

@@ -15,7 +15,12 @@
 
 package discovery
 
+import "github.com/rs/xid"
+
 // Common Discovery Component.
 const (
 	ComponentConsul = "consul"
 )
+
+// ServiceID 服务注册 consul 唯一 id
+var ServiceID = xid.New().String()

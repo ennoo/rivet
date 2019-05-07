@@ -25,10 +25,12 @@ func init() {
 	RegisterBalance("round", &RoundRobinBalance{})
 }
 
+// RoundRobinBalance 负载均衡 round 策略实体
 type RoundRobinBalance struct {
 	curIndex int
 }
 
+// DoBalance 负载均衡 round 策略实现
 func (p *RoundRobinBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
 	if len(services) == 0 {
 		err = errors.New("no instance")

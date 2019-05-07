@@ -12,6 +12,10 @@
  * limitations under the License.
  *
  */
+
+// Package request
+//
+// http 请求策略包
 package request
 
 import (
@@ -25,7 +29,7 @@ import (
 	"strings"
 )
 
-// RestHandler 处理请求发送和接收
+// RestHandler 处理请求发送内容
 type RestHandler struct {
 	// 远程服务器地址,如 http://localhost:3030
 	RemoteServer string
@@ -35,6 +39,7 @@ type RestHandler struct {
 	Cookies      []http.Cookie
 }
 
+// Rest http 请求方法接口
 type Rest interface {
 	Post() (body []byte, err error)
 
@@ -55,6 +60,7 @@ type Rest interface {
 	Get() (body []byte, err error)
 }
 
+// Handler http 处理请求发送内容接口
 type Handler interface {
 	ObtainUri() string
 
@@ -113,7 +119,7 @@ func getFullUri(handler Handler) string {
 	return filepath.ToSlash(strings.Join([]string{handler.ObtainRemoteServer(), filepath.Join("/", handler.ObtainUri())}, ""))
 }
 
-// 从Header或者Cookie中获取到用户的access_token
+// GetAccessTokenFromReq 从Header或者Cookie中获取到用户的access_token
 func GetAccessTokenFromReq(c *gin.Context) (token string) {
 	var err error
 
@@ -132,7 +138,7 @@ func GetAccessTokenFromReq(c *gin.Context) (token string) {
 	return token
 }
 
-// 忽略大小写，找到指定的cookie
+// GetCookieByName 忽略大小写，找到指定的cookie
 func GetCookieByName(cookies []*http.Cookie, cookieName string) *http.Cookie {
 	for _, cookie := range cookies {
 		if strings.ToLower(cookie.Name) == strings.ToLower(cookieName) {

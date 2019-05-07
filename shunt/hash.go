@@ -27,10 +27,12 @@ func init() {
 	RegisterBalance("hash", &HashBalance{})
 }
 
+// HashBalance 负载均衡 hash 策略实体
 type HashBalance struct {
 	key string
 }
 
+// DoBalance 负载均衡 hash 策略实现
 func (p *HashBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
 	defKey := fmt.Sprintf("%d", rand.Int())
 	if len(key) > 0 {

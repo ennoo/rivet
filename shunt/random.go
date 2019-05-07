@@ -26,9 +26,11 @@ func init() {
 	RegisterBalance("random", &RandomBalance{})
 }
 
+// RandomBalance 负载均衡 random 策略实体
 type RandomBalance struct {
 }
 
+// DoBalance 负载均衡 random 策略实现
 func (p *RandomBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
 	if len(services) == 0 {
 		err = errors.New("no instance")
