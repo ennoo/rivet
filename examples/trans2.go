@@ -17,7 +17,7 @@ package main
 
 import (
 	"github.com/ennoo/rivet/common/util/log"
-	"github.com/ennoo/rivet/example/model"
+	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"

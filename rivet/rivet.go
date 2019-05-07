@@ -19,18 +19,30 @@ import (
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
+	"sync"
+)
+
+var (
+	resp = sync.Pool{
+		New: func() interface{} {
+			return &response.Response{}
+		},
+	}
+	req = sync.Pool{
+		New: func() interface{} {
+			return &request.Request{}
+		},
+	}
+	// Shunt 负载入口对象
+	Shunt = shunt.Shunt{}
 )
 
 // Response 提供实例化调用 Do 方法，并内置返回策略
 func Response() *response.Response {
-	return &response.Response{}
+	return resp.Get().(*response.Response)
 }
 
 // Request 提供实例化调用请求方法，并内置返回策略
 func Request() *request.Request {
-	return &request.Request{}
-}
-
-func Shunt() *shunt.Shunt {
-	return &shunt.Shunt{}
+	return req.Get().(*request.Request)
 }

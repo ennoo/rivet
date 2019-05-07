@@ -62,7 +62,7 @@ func (request *Request) Call(context *gin.Context, method string, remote string,
 // callback *response.Result 请求转发降级后返回请求方结果对象
 func (request *Request) Callback(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
 	if LB {
-		add, err := shunt.RunBalance(remote)
+		add, err := shunt.RunShunt(remote)
 		if nil != err {
 			request.result.Fail(err.Error())
 			context.JSON(http.StatusOK, request.result)

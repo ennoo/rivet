@@ -27,8 +27,8 @@ type HashBalance struct {
 	key string
 }
 
-// RunBalance 负载均衡 round 策略实现
-func (p *HashBalance) RunBalance(serviceName string, key ...string) (add *server.Service, err error) {
+// Run 负载均衡 round 策略实现
+func (p *HashBalance) run(serviceName string, key ...string) (add *server.Service, err error) {
 	services := server.ServiceGroup[serviceName].Services
 	defKey := fmt.Sprintf("%d", rand.Int())
 	if len(key) > 0 {

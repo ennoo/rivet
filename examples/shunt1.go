@@ -33,7 +33,7 @@ var adds []*server.Service
 
 func main() {
 	rivet.Initialize(log.DebugLevel, true, true, true)
-	rivet.Shunt().RegisterBalance("test", &shunt.RoundRobinBalance{})
+	rivet.Shunt.Register("test", &shunt.RoundRobinBalance{})
 	//addAddress()
 	rivet.Start(rivet.SetupRouter(testShunt1), "8083")
 }
@@ -49,7 +49,7 @@ func addAddress() {
 
 func b(serviceName string) {
 	for {
-		add, err := shunt.RunBalance(serviceName)
+		add, err := shunt.RunShunt(serviceName)
 		if err != nil {
 			fmt.Println("do balance err")
 			time.Sleep(time.Second)
@@ -70,7 +70,7 @@ func testShunt1(engine *gin.Engine) {
 func shunt3(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		rivet.Shunt().RegisterBalance(serviceName, &shunt.RoundRobinBalance{})
+		rivet.Shunt.Register(serviceName, &shunt.RoundRobinBalance{})
 		b(serviceName)
 		result.SaySuccess(context, "test2")
 	})

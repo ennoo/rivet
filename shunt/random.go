@@ -25,8 +25,8 @@ import (
 type RandomBalance struct {
 }
 
-// RunBalance 负载均衡 round 策略实现
-func (p *RandomBalance) RunBalance(serviceName string, key ...string) (add *server.Service, err error) {
+// Run 负载均衡 round 策略实现
+func (p *RandomBalance) run(serviceName string, key ...string) (add *server.Service, err error) {
 	services := server.ServiceGroup[serviceName].Services
 	if len(services) == 0 {
 		err = errors.New("no instance")
