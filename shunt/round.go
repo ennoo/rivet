@@ -20,18 +20,14 @@ import (
 	"github.com/ennoo/rivet/server"
 )
 
-// 负载均衡接口轮询实现
-func init() {
-	RegisterBalance("round", &RoundRobinBalance{})
-}
-
 // RoundRobinBalance 负载均衡 round 策略实体
 type RoundRobinBalance struct {
 	curIndex int
 }
 
-// DoBalance 负载均衡 round 策略实现
-func (p *RoundRobinBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
+// RunBalance 负载均衡 round 策略实现
+func (p *RoundRobinBalance) RunBalance(serviceName string, key ...string) (add *server.Service, err error) {
+	services := server.ServiceGroup[serviceName].Services
 	if len(services) == 0 {
 		err = errors.New("no instance")
 		return

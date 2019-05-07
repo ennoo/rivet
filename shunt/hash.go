@@ -22,18 +22,14 @@ import (
 	"math/rand"
 )
 
-// 负载均衡接口Hash实现
-func init() {
-	RegisterBalance("hash", &HashBalance{})
-}
-
 // HashBalance 负载均衡 hash 策略实体
 type HashBalance struct {
 	key string
 }
 
-// DoBalance 负载均衡 hash 策略实现
-func (p *HashBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
+// RunBalance 负载均衡 round 策略实现
+func (p *HashBalance) RunBalance(serviceName string, key ...string) (add *server.Service, err error) {
+	services := server.ServiceGroup[serviceName].Services
 	defKey := fmt.Sprintf("%d", rand.Int())
 	if len(key) > 0 {
 		defKey = key[0]
@@ -48,5 +44,4 @@ func (p *HashBalance) DoBalance(services []*server.Service, key ...string) (add 
 	index := int(hashVal) % lens
 	add = services[index]
 	return
-
 }

@@ -20,35 +20,29 @@ import (
 	"github.com/ennoo/rivet/server"
 )
 
-// Shunt 分流器负载方式对象
+// Shunt 负载入口
 type Shunt struct {
 	allBalanceWay map[string]BalanceWay
 }
 
-var shunt = Shunt{
-	allBalanceWay: make(map[string]BalanceWay),
-}
-
-func (p *Shunt) registerBalance(name string, b BalanceWay) {
-	p.allBalanceWay[name] = b
-}
+var shunt = Shunt{allBalanceWay: make(map[string]BalanceWay)}
 
 // RegisterBalance 注册新的负载方式
-func RegisterBalance(name string, b BalanceWay) {
-	shunt.registerBalance(name, b)
+func (s *Shunt) RegisterBalance(serviceName string, way BalanceWay) {
+	shunt.allBalanceWay[serviceName] = way
 }
 
-// DoBalance 开启负载
-func DoBalance(name string, services []*server.Service) (add *server.Service, err error) {
-	balance, ok := shunt.allBalanceWay[name]
+// RunBalance 开启负载
+func RunBalance(serviceName string) (add *server.Service, err error) {
+	balance, ok := shunt.allBalanceWay[serviceName]
 	if !ok {
-		err = fmt.Errorf("not fount %s", name)
-		fmt.Println("not found ", name)
+		err = fmt.Errorf("not fount %s", serviceName)
+		fmt.Println("not found ", serviceName)
 		return
 	}
-	add, err = balance.DoBalance(services)
+	add, err = balance.RunBalance(serviceName)
 	if err != nil {
-		err = fmt.Errorf(" %s erros", name)
+		err = fmt.Errorf(" %s erros", serviceName)
 		return
 	}
 	return

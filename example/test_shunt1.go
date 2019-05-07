@@ -24,7 +24,7 @@ import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 	"math/rand"
-	"os"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -32,8 +32,9 @@ import (
 var adds []*server.Service
 
 func main() {
-	rivet.Initialize(log.DebugLevel, true, true)
-	addAddress()
+	rivet.Initialize(log.DebugLevel, true, true, true)
+	rivet.Shunt().RegisterBalance("test", &shunt.RoundRobinBalance{})
+	//addAddress()
 	rivet.Start(rivet.SetupRouter(testShunt1), "8083")
 }
 
@@ -46,14 +47,9 @@ func addAddress() {
 	}
 }
 
-func b() {
-	var name = "hash"
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
-
+func b(serviceName string) {
 	for {
-		add, err := shunt.DoBalance(name, adds)
+		add, err := shunt.RunBalance(serviceName)
 		if err != nil {
 			fmt.Println("do balance err")
 			time.Sleep(time.Second)
@@ -67,12 +63,21 @@ func b() {
 func testShunt1(engine *gin.Engine) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/rivet3")
-	vRepo.GET("/shunt", shunt1)
+	vRepo.GET("/shunt/:serviceName", shunt3)
+	vRepo.POST("/shunt", shunt4)
 }
 
-func shunt1(context *gin.Context) {
-	rivet.Resp.Do(context, func(result *response.Result) {
-		b()
+func shunt3(context *gin.Context) {
+	rivet.Response().Do(context, func(result *response.Result) {
+		serviceName := context.Param("serviceName")
+		rivet.Shunt().RegisterBalance(serviceName, &shunt.RoundRobinBalance{})
+		b(serviceName)
 		result.SaySuccess(context, "test2")
+	})
+}
+
+func shunt4(context *gin.Context) {
+	rivet.Request().Callback(context, http.MethodPost, "test", "rivet/shunt", func() *response.Result {
+		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }

@@ -28,7 +28,7 @@ func Health(engine *gin.Engine) {
 }
 
 func health(context *gin.Context) {
-	Resp.Do(context, func(result *response.Result) {
+	Response().Do(context, func(result *response.Result) {
 		result.SaySuccess(context, "status ok")
 	})
 }

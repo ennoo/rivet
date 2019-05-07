@@ -22,48 +22,49 @@ import (
 )
 
 var (
-	// Resp 提供实例化调用 Do 方法，并内置返回策略
-	Resp     = response.Response{}
-	balances = make(map[string]*Services)
+	// ServiceGroup 全局服务器群组
+	ServiceGroup = make(map[string]*Services)
 )
 
 // Server 服务器管理服务路由
 func Server(engine *gin.Engine) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/shunt")
-	vRepo.GET("/balance/list", listBalance)
-	vRepo.DELETE("/balance/rm/:serviceName", rmBalance)
-	vRepo.GET("/service/list/:serviceName", listService)
-	vRepo.POST("/service/add", addService)
-	vRepo.DELETE("/service/rm/:serviceName/:serviceId", rmService)
+	vRepo := engine.Group("/service")
+	vRepo.GET("/group/list", listGroup)
+	vRepo.DELETE("/group/rm/:serviceName", rmGroup)
+	vRepo.GET("/list/:serviceName", listService)
+	vRepo.POST("/add", addService)
+	vRepo.DELETE("/rm/:serviceName/:serviceId", rmService)
 }
 
 func addService(context *gin.Context) {
-	Resp.Do(context, func(result *response.Result) {
-		balance := new(Balance)
-		if err := context.ShouldBindJSON(balance); err != nil {
+	resp := response.Response{}
+	resp.Do(context, func(result *response.Result) {
+		serviceReq := new(ServiceReq)
+		if err := context.ShouldBindJSON(serviceReq); err != nil {
 			result.SayFail(context, err.Error())
 		}
-		name := balance.Name
-		services := balances[name]
+		name := serviceReq.Name
+		services := ServiceGroup[name]
 		if nil == services {
 			services = &Services{}
-			balances[name] = services
+			ServiceGroup[name] = services
 		}
-		services.Add(balance.Service)
+		services.Add(serviceReq.Service)
 		result.SaySuccess(context, "add service success")
 	})
 }
 
 func rmService(context *gin.Context) {
-	Resp.Do(context, func(result *response.Result) {
+	resp := response.Response{}
+	resp.Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
 		serviceId := context.Param("serviceId")
-		if nil == balances[serviceName] {
+		if nil == ServiceGroup[serviceName] {
 			panic(response.ExpNotExist.Fit(strings.Join([]string{"service", serviceName}, " ")))
 		}
 		have := false
-		service := balances[serviceName]
+		service := ServiceGroup[serviceName]
 		services := service.Services
 		for i := 0; i < len(services); i++ {
 			if serviceId == services[i].Id {
@@ -80,32 +81,35 @@ func rmService(context *gin.Context) {
 }
 
 func listService(context *gin.Context) {
-	Resp.Do(context, func(result *response.Result) {
+	resp := response.Response{}
+	resp.Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		if nil != balances[serviceName] {
-			result.SaySuccess(context, balances[serviceName].Services)
+		if nil != ServiceGroup[serviceName] {
+			result.SaySuccess(context, ServiceGroup[serviceName].Services)
 		} else {
 			result.SaySuccess(context, []Service{})
 		}
 	})
 }
 
-func rmBalance(context *gin.Context) {
-	Resp.Do(context, func(result *response.Result) {
+func rmGroup(context *gin.Context) {
+	resp := response.Response{}
+	resp.Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		if nil == balances[serviceName] {
+		if nil == ServiceGroup[serviceName] {
 			panic(response.ExpNotExist.Fit(strings.Join([]string{"service", serviceName}, " ")))
 		}
-		delete(balances, serviceName)
+		delete(ServiceGroup, serviceName)
 		result.SaySuccess(context, strings.Join([]string{"remove ", serviceName, " balance success"}, ""))
 	})
 }
 
-func listBalance(context *gin.Context) {
-	Resp.Do(context, func(result *response.Result) {
-		shunts := make([]string, len(balances))
+func listGroup(context *gin.Context) {
+	resp := response.Response{}
+	resp.Do(context, func(result *response.Result) {
+		shunts := make([]string, len(ServiceGroup))
 		index := 0
-		for k := range balances {
+		for k := range ServiceGroup {
 			shunts[index] = k
 			index++
 		}

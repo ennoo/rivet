@@ -18,10 +18,16 @@ package request
 import (
 	"encoding/json"
 	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+	"strings"
 )
+
+// 是否开启负载均衡
+var LB = false
 
 // Request 提供实例化调用请求方法，并内置返回策略
 type Request struct {
@@ -38,7 +44,7 @@ type Request struct {
 //
 // uri：请求转发主体方法路径
 func (request *Request) Call(context *gin.Context, method string, remote string, uri string) {
-	request.Callback(context, method, remote, uri, nil)
+	request.call(context, method, remote, uri, nil)
 }
 
 // Callback 请求转发处理方案
@@ -55,6 +61,34 @@ func (request *Request) Call(context *gin.Context, method string, remote string,
 //
 // callback *response.Result 请求转发降级后返回请求方结果对象
 func (request *Request) Callback(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
+	if LB {
+		add, err := shunt.RunBalance(remote)
+		if nil != err {
+			request.result.Fail(err.Error())
+			context.JSON(http.StatusOK, request.result)
+		} else {
+			remoteNew := strings.Join([]string{add.Host, strconv.Itoa(add.Port)}, ":")
+			request.call(context, method, remoteNew, uri, callback)
+		}
+	} else {
+		request.call(context, method, remote, uri, callback)
+	}
+}
+
+// call 请求转发处理方案
+//
+// context：原请求上下文
+//
+// method：即将转发的请求方法
+//
+// remote：请求转发主体域名
+//
+// uri：请求转发主体方法路径
+//
+// callback：请求转发失败后回调降级策略
+//
+// callback *response.Result 请求转发降级后返回请求方结果对象
+func (request *Request) call(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
 	req := context.Request
 	restTransHandler := RestTransHandler{
 		RestHandler: RestHandler{

@@ -19,6 +19,7 @@ import "github.com/ennoo/rivet/server"
 
 // BalanceWay 负载均衡接口
 type BalanceWay interface {
-	// 负载均衡算法
-	DoBalance([]*server.Service, ...string) (*server.Service, error)
+
+	// RunBalance 负载均衡算法
+	RunBalance(string, ...string) (*server.Service, error)
 }

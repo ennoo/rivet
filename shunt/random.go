@@ -21,17 +21,13 @@ import (
 	"math/rand"
 )
 
-// 负载均衡接口随机实现
-func init() {
-	RegisterBalance("random", &RandomBalance{})
-}
-
 // RandomBalance 负载均衡 random 策略实体
 type RandomBalance struct {
 }
 
-// DoBalance 负载均衡 random 策略实现
-func (p *RandomBalance) DoBalance(services []*server.Service, key ...string) (add *server.Service, err error) {
+// RunBalance 负载均衡 round 策略实现
+func (p *RandomBalance) RunBalance(serviceName string, key ...string) (add *server.Service, err error) {
+	services := server.ServiceGroup[serviceName].Services
 	if len(services) == 0 {
 		err = errors.New("no instance")
 		return
@@ -41,6 +37,5 @@ func (p *RandomBalance) DoBalance(services []*server.Service, key ...string) (ad
 
 	index := rand.Intn(lens)
 	add = services[index]
-
 	return
 }

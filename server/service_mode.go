@@ -15,8 +15,8 @@
 
 package server
 
-// Balance 服务器新增对象
-type Balance struct {
+// ServiceReq 服务器新增请求对象
+type ServiceReq struct {
 	Name    string  `json:"name"`
 	Service Service `json:"service"`
 }

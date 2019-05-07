@@ -24,29 +24,41 @@ import (
 )
 
 func main() {
-	rivet.Initialize(log.DebugLevel, true, false)
+	rivet.Initialize(log.DebugLevel, true, false, false)
 	rivet.Start(rivet.SetupRouter(testRouter2), "8082")
 }
 
 func testRouter2(engine *gin.Engine) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet2")
+	vRepo := engine.Group("/rivet")
 	vRepo.GET("/get", get2)
 	vRepo.POST("/post", post2)
+	vRepo.POST("/shunt", shunt2)
 }
 
 func get2(context *gin.Context) {
-	rivet.Resp.Do(context, func(result *response.Result) {
+	rivet.Response().Do(context, func(result *response.Result) {
 		result.SaySuccess(context, "get21")
 	})
 }
 
 func post2(context *gin.Context) {
-	rivet.Resp.Do(context, func(result *response.Result) {
+	rivet.Response().Do(context, func(result *response.Result) {
 		var test = new(model.Test)
 		if err := context.ShouldBindJSON(test); err != nil {
 			result.SayFail(context, err.Error())
 		}
+		result.SaySuccess(context, test)
+	})
+}
+
+func shunt2(context *gin.Context) {
+	rivet.Response().Do(context, func(result *response.Result) {
+		var test = new(model.Test)
+		if err := context.ShouldBindJSON(test); err != nil {
+			result.SayFail(context, err.Error())
+		}
+		test.Name = "trans2"
 		result.SaySuccess(context, test)
 	})
 }

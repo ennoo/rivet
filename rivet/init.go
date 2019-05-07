@@ -21,24 +21,30 @@ import (
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/ennoo/rivet/server"
+	"github.com/ennoo/rivet/trans/request"
 	"github.com/gin-gonic/gin"
 )
 
 var useDiscovery = false
 var hc = false
-var st = false
+var sm = false
 
 // Initialize rivet 初始化方法，必须最先调用
 //
 // logLevel：日志等级，参考 github/rivet/common/util/log/log.go，一般调试用 DebugLevel，生产用 InfoLevel
 //
 // healthCheck：是否开启健康检查。开启后为 Get 请求，路径为 /health/check
-func Initialize(logLevel string, healthCheck bool, useShunt bool) {
+//
+// serverManager：是否开启外界服务管理功能
+//
+// loadBalance：是否开启负载均衡
+func Initialize(logLevel string, healthCheck bool, serverManager bool, loadBalance bool) {
 	// 初始化日志
 	log.Initialize(logLevel)
 	log.Info("controller init")
 	hc = healthCheck
-	st = useShunt
+	sm = serverManager
+	request.LB = loadBalance
 }
 
 // UseDiscovery 启用指定的发现服务
@@ -59,7 +65,7 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	if hc {
 		Health(engine)
 	}
-	if st {
+	if sm {
 		server.Server(engine)
 	}
 	for _, route := range routes {

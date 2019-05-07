@@ -17,6 +17,7 @@ package main
 
 import (
 	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/example/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
@@ -24,23 +25,35 @@ import (
 )
 
 func main() {
-	rivet.Initialize(log.DebugLevel, true, false)
+	rivet.Initialize(log.DebugLevel, true, false, false)
 	rivet.Start(rivet.SetupRouter(testRouter1), "8081")
 }
 
 func testRouter1(engine *gin.Engine) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet1")
+	vRepo := engine.Group("/rivet")
 	vRepo.GET("/get", get1)
 	vRepo.POST("/post", post1)
+	vRepo.POST("/shunt", shunt1)
 }
 
 func get1(context *gin.Context) {
-	rivet.Req.Call(context, http.MethodGet, "http://localhost:8082", "rivet2/get")
+	rivet.Request().Call(context, http.MethodGet, "http://localhost:8082", "rivet/get")
 }
 
 func post1(context *gin.Context) {
-	rivet.Req.Callback(context, http.MethodPost, "http://localhost:8082", "rivet2/post", func() *response.Result {
+	rivet.Request().Callback(context, http.MethodPost, "http://localhost:8082", "rivet/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
+	})
+}
+
+func shunt1(context *gin.Context) {
+	rivet.Response().Do(context, func(result *response.Result) {
+		var test = new(model.Test)
+		if err := context.ShouldBindJSON(test); err != nil {
+			result.SayFail(context, err.Error())
+		}
+		test.Name = "trans1"
+		result.SaySuccess(context, test)
 	})
 }

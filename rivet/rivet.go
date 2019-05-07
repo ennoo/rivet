@@ -16,13 +16,21 @@
 package rivet
 
 import (
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
 )
 
-var (
-	// Resp 提供实例化调用 Do 方法，并内置返回策略
-	Resp = response.Response{}
-	// Req 提供实例化调用请求方法，并内置返回策略
-	Req = request.Request{}
-)
+// Response 提供实例化调用 Do 方法，并内置返回策略
+func Response() *response.Response {
+	return &response.Response{}
+}
+
+// Request 提供实例化调用请求方法，并内置返回策略
+func Request() *request.Request {
+	return &request.Request{}
+}
+
+func Shunt() *shunt.Shunt {
+	return &shunt.Shunt{}
+}
