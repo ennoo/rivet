@@ -26,5 +26,7 @@ func TestGetEnv(t *testing.T) {
 }
 
 func TestGetEnvDefault(t *testing.T) {
+	_ = os.Setenv("HELLO", "hello")
+	fmt.Println("HELLO =", GetEnvDefault("HELLO", "my"))
 	fmt.Println("WORLD =", GetEnvDefault("WORLD", "god"))
 }
