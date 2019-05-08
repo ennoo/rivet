@@ -37,7 +37,7 @@ const:
 
 veralls:
 	@echo "goveralls"
-	goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
+	goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $(COVERALLS_TOKEN)
 
 test:
 	go test -v -cover $(PKGSWITHOUTEXAMPLES)
