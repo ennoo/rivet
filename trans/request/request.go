@@ -132,8 +132,8 @@ func done(context *gin.Context, request *Request, body []byte, err error, callba
 		request.result.Callback(callback, err)
 	} else {
 		log.Trans.Debug("body = " + string(body))
-		err := json.Unmarshal(body, &request.result)
-		if nil != err {
+
+		if err := json.Unmarshal(body, &request.result); nil != err {
 			request.result.Fail(err.Error())
 		}
 	}
