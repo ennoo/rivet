@@ -36,17 +36,6 @@ func IsNotEmpty(s string) bool {
 	return len(s) != 0
 }
 
-// ParseToStr 将map中的键值对输出成querystring形式
-func ParseToStr(mp map[string]string) string {
-	values := ""
-	for key, val := range mp {
-		values += "&" + key + "=" + val
-	}
-	temp := values[1:]
-	values = "?" + temp
-	return values
-}
-
 // Convert 下划线转换，首字母小写变大写，
 // 下划线去掉并将下划线后的首字母大写
 func Convert(oriString string) string {
