@@ -1,8 +1,5 @@
-PKGSWITHEXAMPLES := $(shell go list ./...)
 PKGSWITHOUTEXAMPLES := $(shell go list ./... | grep -v 'examples/')
-TXT_FILES := $(shell find * -type f -not -path 'vendor/**')
-TESTFLAG=-race -cover
-Type := $(shell find . -name "*.go" -not -path "./vendor/*" -not -path ".git/*" -print0 | xargs -0)
+GO_FILES := $(shell find . -name "*.go" -not -path "./vendor/*" -not -path ".git/*" -print0 | xargs -0)
 COVERALLS_TOKEN := ff2BrkJczedGPzmKWFaOBClvTZrJ2b67e
 
 check: overalls vet lint misspell staticcheck cyclo const veralls
@@ -21,7 +18,7 @@ lint:
 
 misspell:
 	@echo "misspell"
-	misspell -source=text -error $(TXT_FILES)
+	misspell -source=text -error $(GO_FILES)
 
 staticcheck:
 	@echo "staticcheck"
@@ -29,7 +26,8 @@ staticcheck:
 
 cyclo:
 	@echo "gocyclo"
-	gocyclo -over 12 $(Type)
+	gocyclo -over 10 $(GO_FILES)
+#	gocyclo -top 10 $(GO_FILES)
 
 const:
 	@echo "goconst"
@@ -40,4 +38,5 @@ veralls:
 	goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $(COVERALLS_TOKEN)
 
 test:
+	@echo "test"
 	go test -v -cover $(PKGSWITHOUTEXAMPLES)
