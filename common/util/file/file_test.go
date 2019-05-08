@@ -39,6 +39,9 @@ func TestPathExists(t *testing.T) {
 			fmt.Println(path, "exist =", exist)
 		}
 		err = os.Remove(path)
+		if nil != err {
+			fmt.Println(err.Error())
+		}
 	} else {
 		fmt.Println(err.Error())
 	}
