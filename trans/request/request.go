@@ -121,6 +121,13 @@ func (request *Request) call(context *gin.Context, method string, remote string,
 	case http.MethodTrace:
 		body, err = restTransHandler.Trace()
 	}
+	done(context, request, body, err, callback)
+}
+
+// done 请求转发处理结果
+//
+// 转发请求或降级回调
+func done(context *gin.Context, request *Request, body []byte, err error, callback func() *response.Result) {
 	if err != nil {
 		request.result.Callback(callback, err)
 	} else {
