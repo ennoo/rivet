@@ -16,15 +16,31 @@ package file
 
 import (
 	"fmt"
+	"os"
 	"testing"
 )
 
 func TestPathExists(t *testing.T) {
-	exist, err := PathExists("/etc/hostname")
+	path := "/etc/hostname"
+	exist, err := PathExists(path)
 	if nil != err {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Println("exist =", exist)
+		fmt.Println(path, "exist =", exist)
+	}
+
+	path = "/haha/oo"
+	err = os.MkdirAll(path, os.ModePerm)
+	if nil == err {
+		exist, err = PathExists(path)
+		if nil != err {
+			fmt.Println(err.Error())
+		} else {
+			fmt.Println(path, "exist =", exist)
+		}
+		err = os.Remove(path)
+	} else {
+		fmt.Println(err.Error())
 	}
 }
 

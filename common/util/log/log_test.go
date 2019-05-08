@@ -26,3 +26,24 @@ func TestDebug(t *testing.T) {
 	Debug("example = ", "test1")
 	zap.S().Debug("example = ", "test2")
 }
+
+func TestInfo(t *testing.T) {
+	Initialize(DebugLevel)
+
+	Info("example = ", "test1")
+	zap.S().Info("example = ", "test2")
+}
+
+func TestWarn(t *testing.T) {
+	Initialize(DebugLevel)
+
+	Warn("example = ", "test1")
+	zap.S().Warn("example = ", "test2")
+}
+
+func TestError(t *testing.T) {
+	Initialize(DebugLevel)
+
+	Error("example = ", "test1")
+	zap.S().Error("example = ", "test2")
+}
