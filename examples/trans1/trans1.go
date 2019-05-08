@@ -16,7 +16,6 @@
 package main
 
 import (
-	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
@@ -25,7 +24,7 @@ import (
 )
 
 func main() {
-	rivet.Initialize(log.DebugLevel, true, false, false)
+	rivet.Initialize(true, false, false)
 	rivet.Start(rivet.SetupRouter(testRouter1), "8081")
 }
 

@@ -23,6 +23,8 @@ import (
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap/zapcore"
+	"strings"
 )
 
 var useDiscovery = false
@@ -31,17 +33,21 @@ var sm = false
 
 // Initialize rivet 初始化方法，必须最先调用
 //
-// logLevel：日志等级，参考 github/rivet/common/util/log/log.go，一般调试用 DebugLevel，生产用 InfoLevel
-//
 // healthCheck：是否开启健康检查。开启后为 Get 请求，路径为 /health/check
 //
 // serverManager：是否开启外界服务管理功能
 //
 // loadBalance：是否开启负载均衡
-func Initialize(logLevel string, healthCheck bool, serverManager bool, loadBalance bool) {
-	// 初始化日志
-	log.Initialize(logLevel)
-	log.Info("controller init")
+func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
+	Log().Conf(&log.Config{
+		FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
+		Level:       zapcore.DebugLevel,
+		MaxSize:     128,
+		MaxBackups:  30,
+		MaxAge:      30,
+		Compress:    true,
+		ServiceName: serviceName,
+	})
 	hc = healthCheck
 	sm = serverManager
 	request.LB = loadBalance
@@ -52,7 +58,7 @@ func UseDiscovery(component string, url string, serviceName string) {
 	switch component {
 	case discovery.ComponentConsul:
 		if !useDiscovery {
-			log.Info("use discovery service {}", discovery.ComponentConsul)
+			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
 			useDiscovery = true
 			go consul.Enroll(url, serviceName)
 		}
@@ -76,9 +82,9 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 
 // Start 开始启用 rivet
 func Start(engine *gin.Engine, defaultPort string) {
-	log.Info("listening port bind")
+	log.Rivet.Info("listening port bind")
 	err := engine.Run(":" + env.GetEnvDefault(env.PortEnv, defaultPort))
 	if nil != err {
-		log.Info("exit because {}", err)
+		log.Rivet.Info("exit because {}" + err.Error())
 	}
 }

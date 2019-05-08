@@ -124,7 +124,7 @@ func (request *Request) call(context *gin.Context, method string, remote string,
 	if err != nil {
 		request.result.Callback(callback, err)
 	} else {
-		log.Debug("body = ", string(body))
+		log.Trans.Debug("body = " + string(body))
 		err := json.Unmarshal(body, &request.result)
 		if nil != err {
 			request.result.Fail(err.Error())

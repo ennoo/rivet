@@ -54,4 +54,11 @@ func TestReadFileByLine(t *testing.T) {
 	} else {
 		fmt.Println("hosts =", hosts)
 	}
+
+	profile, err := ReadFileByLine("/etc/profile")
+	if nil != err {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("profile =", profile)
+	}
 }

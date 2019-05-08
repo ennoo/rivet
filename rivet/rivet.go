@@ -16,6 +16,8 @@
 package rivet
 
 import (
+	"github.com/ennoo/rivet/common/util/env"
+	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
@@ -23,7 +25,8 @@ import (
 )
 
 var (
-	resp = sync.Pool{
+	serviceName = env.GetEnvDefault("SERVICE_NAME", "null")
+	resp        = sync.Pool{
 		New: func() interface{} {
 			return &response.Response{}
 		},
@@ -36,6 +39,11 @@ var (
 	// Shunt 负载入口对象
 	Shunt = shunt.Shunt{}
 )
+
+// Log 提供日志调用入口
+func Log() *log.Logger {
+	return &log.Log
+}
 
 // Response 提供实例化调用 Do 方法，并内置返回策略
 func Response() *response.Response {

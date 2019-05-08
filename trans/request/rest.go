@@ -140,7 +140,7 @@ func GetAccessTokenFromReq(c *gin.Context) (token string) {
 		if str.IsEmpty(token) {
 			token, err = c.Cookie("access_token")
 			if err != nil {
-				log.Error(err)
+				log.Trans.Error(err.Error())
 				return ""
 			}
 		}

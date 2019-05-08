@@ -22,3 +22,6 @@ gen### Go template
 *.out
 .vscode
 .DS_Store
+
+common/util/log/logs
+logs

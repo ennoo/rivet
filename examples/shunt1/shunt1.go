@@ -17,7 +17,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/shunt"
@@ -32,7 +31,7 @@ import (
 var adds []*server.Service
 
 func main() {
-	rivet.Initialize(log.DebugLevel, true, true, true)
+	rivet.Initialize(true, true, true)
 	rivet.Shunt.Register("test", &shunt.RoundRobinBalance{Position: 0})
 	rivet.Shunt.Register("test1", &shunt.RandomBalance{})
 	rivet.Shunt.Register("test2", &shunt.HashBalance{Key: []string{}})

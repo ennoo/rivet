@@ -17,33 +17,43 @@ package log
 
 import (
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"strings"
 	"testing"
+	"time"
 )
 
-func TestDebug(t *testing.T) {
-	Initialize(DebugLevel)
+func TestNewLogger(t *testing.T) {
+	logImpl := Logger{
+		Config: &Config{
+			FilePath:    strings.Join([]string{"/data/logs/oo.log"}, ""),
+			Level:       zapcore.DebugLevel,
+			MaxSize:     128,
+			MaxBackups:  30,
+			MaxAge:      30,
+			Compress:    true,
+			ServiceName: "yo",
+		}}
 
-	Debug("example = ", "test1")
-	zap.S().Debug("example = ", "test2")
-}
+	logImpl.Conf(&Config{
+		FilePath:    strings.Join([]string{"/data/logs/oo.log"}, ""),
+		Level:       zapcore.DebugLevel,
+		MaxSize:     128,
+		MaxBackups:  30,
+		MaxAge:      30,
+		Compress:    true,
+		ServiceName: "yo",
+	})
 
-func TestInfo(t *testing.T) {
-	Initialize(DebugLevel)
+	testLogger := logImpl.NewCustom("./logs/ho.log", zap.DebugLevel, 128, 30, 30, true, "ho")
 
-	Info("example = ", "test1")
-	zap.S().Info("example = ", "test2")
-}
+	testLogger.Info("log 初始化成功")
 
-func TestWarn(t *testing.T) {
-	Initialize(DebugLevel)
+	testLogger = logImpl.New("./logs/ho.log", "ho")
 
-	Warn("example = ", "test1")
-	zap.S().Warn("example = ", "test2")
-}
-
-func TestError(t *testing.T) {
-	Initialize(DebugLevel)
-
-	Error("example = ", "test1")
-	zap.S().Error("example = ", "test2")
+	testLogger.Info("log 初始化成功")
+	testLogger.Info("无法获取网址",
+		zap.String("url", "http://www.baidu.com"),
+		zap.Int("attempt", 3),
+		zap.Duration("backoff", time.Second))
 }

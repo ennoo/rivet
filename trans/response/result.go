@@ -54,11 +54,11 @@ func (result *Result) Fail(msg string) {
 // Callback 返回结果对象介入降级操作方法
 func (result *Result) Callback(callback func() *Result, err error) {
 	if nil == callback || str.IsEmpty(callback().ResultCode) {
-		log.Info("放弃降级或降级策略有误")
+		log.Trans.Info("放弃降级或降级策略有误")
 		result.ResultCode = Fail
 		result.Msg = err.Error()
 	} else {
-		log.Info("降级回调")
+		log.Trans.Info("降级回调")
 		result.reSet(callback())
 	}
 }
@@ -78,7 +78,7 @@ func (result *Result) FailErr(err error) {
 		result.ResultCode = vtype.ErrorCode
 	default:
 		result.ResultCode = Fail
-		log.Error(err)
+		log.Trans.Error(err.Error())
 		//result.Msg = ServiceException.ErrorMsg
 		result.Msg = err.Error()
 	}
@@ -103,11 +103,11 @@ func catchErr(context *gin.Context, res *Result) {
 		value, ok := r.(Exception)
 		if ok {
 			res.Fail(value.Msg)
-			log.Error(r)
+			log.Trans.Error(fmt.Sprint(r))
 			context.JSON(value.code, res)
 		} else {
 			res.Fail(fmt.Sprintf("An error occurred:%v \n", r))
-			log.Error(r)
+			log.Trans.Error(fmt.Sprint(r))
 			context.JSON(http.StatusInternalServerError, res)
 		}
 		return

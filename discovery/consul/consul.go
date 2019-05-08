@@ -35,7 +35,7 @@ import (
 // serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 func Enroll(consulURL string, serviceName string) {
 	defer func() {
-		log.Info("register sul start")
+		log.Discovery.Info("register sul start")
 		if err := recover(); err != nil {
 			fmt.Println(err) // 这里的err其实就是panic传入的内容
 			os.Exit(0)
@@ -49,9 +49,9 @@ func consulRegister(consulURL string, serviceName string) {
 	if nil != err {
 		panic(err)
 	}
-	log.Info("serviceID = ", discovery.ServiceID)
+	log.Discovery.Info("serviceID = " + discovery.ServiceID)
 	containerID := str.Trim(hosts[0])
-	log.Info("containerID = ", containerID)
+	log.Discovery.Info("containerID = " + containerID)
 	restJSONHandler := request.RestJSONHandler{
 		Param: Register{
 			ID:                discovery.ServiceID,
@@ -70,7 +70,7 @@ func consulRegister(consulURL string, serviceName string) {
 			Cookies:      nil}}
 	body, err := restJSONHandler.Put()
 	if nil != err {
-		log.Error(err.Error())
+		log.Discovery.Error(err.Error())
 	}
-	log.Info("register result = ", string(body))
+	log.Discovery.Info("register result = " + string(body))
 }
