@@ -1,6 +1,7 @@
 language: go
 
 env:
+  - GOPATH=/home/travis/gopath
   - COVERALLS_TOKEN=ff2BrkJczedGPzmKWFaOBClvTZrJ2b67e
 
 before_install:
