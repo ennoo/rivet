@@ -17,8 +17,8 @@ package response
 
 import (
 	"fmt"
-	"github.com/ennoo/rivet/common/util/log"
-	"github.com/ennoo/rivet/common/util/string"
+	"github.com/ennoo/rivet/utils/log"
+	"github.com/ennoo/rivet/utils/string"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

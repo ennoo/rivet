@@ -16,7 +16,7 @@
 package env
 
 import (
-	"github.com/ennoo/rivet/common/util/string"
+	"github.com/ennoo/rivet/utils/string"
 	"os"
 )
 

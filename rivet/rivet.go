@@ -16,11 +16,11 @@
 package rivet
 
 import (
-	"github.com/ennoo/rivet/common/util/env"
-	"github.com/ennoo/rivet/common/util/log"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
+	"github.com/ennoo/rivet/utils/env"
+	"github.com/ennoo/rivet/utils/log"
 	"sync"
 )
 

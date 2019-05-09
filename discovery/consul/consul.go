@@ -18,7 +18,7 @@ package consul
 
 import (
 	"fmt"
-	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/utils/log"
 	"os"
 )
 

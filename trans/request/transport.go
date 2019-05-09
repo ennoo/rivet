@@ -17,7 +17,7 @@ package request
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/ennoo/rivet/common/util/log"
+	"github.com/ennoo/rivet/utils/log"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net"

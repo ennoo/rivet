@@ -36,7 +36,10 @@ func main() {
 	rivet.Shunt.Register("test1", &shunt.RandomBalance{})
 	rivet.Shunt.Register("test2", &shunt.HashBalance{Key: []string{}})
 	//addAddress()
-	rivet.ListenAndServe(rivet.SetupRouter(testShunt1), "8083")
+	rivet.ListenAndServe(&rivet.ListenServe{
+		Engine:      rivet.SetupRouter(testShunt1),
+		DefaultPort: "8083",
+	})
 }
 
 func addAddress() {
@@ -63,7 +66,7 @@ func b(serviceName string) {
 
 func testShunt1(engine *gin.Engine) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet3")
+	vRepo := engine.Group("/rivet")
 	vRepo.GET("/shunt/:serviceName", shunt3)
 	vRepo.POST("/shunt", shunt4)
 }

@@ -55,6 +55,29 @@ func TestPathExists(t *testing.T) {
 	}
 }
 
+func TestReadFileFirstLine(t *testing.T) {
+	txt, err := ReadFileFirstLine("../../../a.txt")
+	if nil != err {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("txt =", txt)
+	}
+
+	profile, err := ReadFileFirstLine("/etc/profile")
+	if nil != err {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("profile =", profile)
+	}
+
+	hello, err := ReadFileFirstLine("/etc/hello")
+	if nil != err {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("hello =", hello)
+	}
+}
+
 func TestReadFileByLine(t *testing.T) {
 	hosts, err := ReadFileByLine("/etc/hostname")
 	if nil != err {

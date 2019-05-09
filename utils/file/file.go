@@ -17,7 +17,7 @@ package file
 
 import (
 	"bufio"
-	str "github.com/ennoo/rivet/common/util/string"
+	"github.com/ennoo/rivet/utils/string"
 	"io"
 	"os"
 )

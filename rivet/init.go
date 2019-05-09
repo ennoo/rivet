@@ -16,13 +16,13 @@
 package rivet
 
 import (
-	"github.com/ennoo/rivet/common/util/env"
-	"github.com/ennoo/rivet/common/util/log"
-	str "github.com/ennoo/rivet/common/util/string"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/trans/request"
+	"github.com/ennoo/rivet/utils/env"
+	"github.com/ennoo/rivet/utils/log"
+	str "github.com/ennoo/rivet/utils/string"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap/zapcore"
 	"strings"
