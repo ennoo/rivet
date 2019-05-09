@@ -4,6 +4,10 @@ COVERALLS_TOKEN := ff2BrkJczedGPzmKWFaOBClvTZrJ2b67e
 
 check: overalls vet lint misspell staticcheck cyclo const veralls
 
+consul:
+	@echo "consul"
+	nohup consul agent -dev &
+
 overalls:
 	@echo "overalls"
 	overalls -project=github.com/ennoo/rivet -covermode=count -ignore='.git,_vendor'
@@ -37,10 +41,10 @@ veralls:
 	@echo "goveralls"
 	goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $(COVERALLS_TOKEN)
 
-consul:
-	@echo "consul"
-	consul agent -dev
-
 test:
 	@echo "test"
 	go test -v -cover $(PKGSWITHOUTEXAMPLES)
+
+end:
+	@echo "end"
+	consul leave
