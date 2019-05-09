@@ -4,9 +4,15 @@ COVERALLS_TOKEN := ff2BrkJczedGPzmKWFaOBClvTZrJ2b67e
 
 check: overalls vet lint misspell staticcheck cyclo const veralls
 
+start: wright consul
+
 consul:
 	@echo "consul"
 	nohup consul agent -dev &
+
+wright:
+	@echo "wright"
+	echo "this is my test\n" > a.txt
 
 overalls:
 	@echo "overalls"
@@ -47,4 +53,5 @@ test:
 
 end:
 	@echo "end"
+	rm -rf a.txt
 	consul leave
