@@ -48,7 +48,7 @@ func SyncPoolGetRequest() *Request {
 	return req.Get().(*Request)
 }
 
-// RestJson JSON 请求
+// RestJSON JSON 请求
 //
 // method：请求方法
 //
@@ -57,7 +57,7 @@ func SyncPoolGetRequest() *Request {
 // uri：请求主体方法路径
 //
 // param 请求对象
-func (request *Request) RestJson(method string, remote string, uri string, param interface{}) ([]byte, error) {
+func (request *Request) RestJSON(method string, remote string, uri string, param interface{}) ([]byte, error) {
 	restJSONHandler := RestJSONHandler{
 		RestHandler: RestHandler{
 			RemoteServer: remote,

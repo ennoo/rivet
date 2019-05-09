@@ -27,11 +27,11 @@ import (
 )
 
 const (
-	// 转发请求，需要考虑是否携带上一请求的 Header 和 Cookies
+	// TransCallbackRequest 转发请求，需要考虑是否携带上一请求的 Header 和 Cookies
 	TransCallbackRequest = iota
-	// 直接请求，自处理 Header 和 Cookies
+	// DirectJSONRequest 直接请求，自处理 Header 和 Cookies
 	DirectJSONRequest
-	// 直接请求，自处理 Header 和 Cookies
+	// DirectTextRequest 直接请求，自处理 Header 和 Cookies
 	DirectTextRequest
 )
 

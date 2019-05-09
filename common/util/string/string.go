@@ -85,7 +85,7 @@ func Trim(str string) string {
 	return TrimN(str)
 }
 
-// Trim 去除字符串中的空格和换行符
+// TrimN 去除字符串中的空格和换行符
 func TrimN(str string) string {
 	// 去除换行符
 	str = strings.Replace(str, "\n", "", -1)

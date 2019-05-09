@@ -21,18 +21,10 @@ import (
 	str "github.com/ennoo/rivet/common/util/string"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/trans/request"
-	"github.com/hashicorp/consul/api"
 	"go.uber.org/zap"
 	"net/http"
 	"strings"
 )
-
-// Agent can be used to query the Agent endpoints
-type Agent struct {
-	c *api.Client
-	// cache the node name
-	nodeName string
-}
 
 func consulRegister(consulURL string, serviceName string, hostname string) {
 	if containerID, err := file.ReadFileFirstLine("/etc/hostname"); nil == err && str.IsEmpty(hostname) {
@@ -58,7 +50,7 @@ func consulRegister(consulURL string, serviceName string, hostname string) {
 			Interval:                       "10s"},
 	}
 
-	body, err := request.SyncPoolGetRequest().RestJson(method, remote, uri, param)
+	body, err := request.SyncPoolGetRequest().RestJSON(method, remote, uri, param)
 
 	if nil != err {
 		log.Discovery.Fatal(err.Error(),

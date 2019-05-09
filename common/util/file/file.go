@@ -34,7 +34,7 @@ func PathExists(path string) (bool, error) {
 	return false, err
 }
 
-// ReadFileByLine 从文件中逐行读取并返回字符串数组
+// ReadFileFirstLine 从文件中逐行读取并返回字符串数组
 func ReadFileFirstLine(filePath string) (string, error) {
 	fileIn, fileInErr := os.Open(filePath)
 	if fileInErr != nil {
