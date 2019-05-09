@@ -37,6 +37,10 @@ veralls:
 	@echo "goveralls"
 	goveralls -coverprofile=overalls.coverprofile -service=travis-ci -repotoken $(COVERALLS_TOKEN)
 
+consul:
+	@echo "consul"
+	consul agent -dev
+
 test:
 	@echo "test"
 	go test -v -cover $(PKGSWITHOUTEXAMPLES)
