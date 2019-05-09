@@ -15,19 +15,22 @@
 package main
 
 import (
+	"github.com/ennoo/rivet/common/util/env"
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 func main() {
 	rivet.Initialize(true, false, false)
+
 	rivet.ListenAndServeTLS(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testRouterTLS2),
 		DefaultPort: "8092",
-		CertFile:    "/Users/aberic/Documents/tmp/ca/test/server/server.crt",
-		KeyFile:     "/Users/aberic/Documents/tmp/ca/test/server/server.key",
+		CertFile:    strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/server/server.crt"}, ""),
+		KeyFile:     strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/server/server.key"}, ""),
 	})
 }
 

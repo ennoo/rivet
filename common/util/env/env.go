@@ -27,6 +27,8 @@ const (
 	PortEnv = "PORT"
 	// ConsulURL 当前服务注册的 consul 地址
 	ConsulURL = "CONSUL_URL"
+	// Go工作路径
+	GOPath = "GOPATH"
 )
 
 // GetEnv 获取环境变量 envName 的值

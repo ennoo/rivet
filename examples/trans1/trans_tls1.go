@@ -15,11 +15,13 @@
 package main
 
 import (
+	"github.com/ennoo/rivet/common/util/env"
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -30,7 +32,7 @@ func main() {
 		DefaultPort:    "8091",
 		ConnectTimeout: 3 * time.Second,
 		KeepAlive:      30 * time.Second,
-	}, "/Users/aberic/Documents/tmp/ca/test/rootCA.crt")
+	}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
 }
 
 func testRouterTLS1(engine *gin.Engine) {
