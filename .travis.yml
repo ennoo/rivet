@@ -20,6 +20,7 @@ script:
   - make consul
   - make check
   - make test
+  - make end
 
 go:
   - 1.11.x
