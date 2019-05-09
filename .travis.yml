@@ -17,8 +17,8 @@ before_install:
   - go get github.com/hashicorp/consul # consul测试
 
 script:
-  - make check
   - make consul
+  - make check
   - make test
 
 go:
