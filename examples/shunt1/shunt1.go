@@ -36,7 +36,7 @@ func main() {
 	rivet.Shunt.Register("test1", &shunt.RandomBalance{})
 	rivet.Shunt.Register("test2", &shunt.HashBalance{Key: []string{}})
 	//addAddress()
-	rivet.Start(rivet.SetupRouter(testShunt1), "8083")
+	rivet.ListenAndServe(rivet.SetupRouter(testShunt1), "8083")
 }
 
 func addAddress() {

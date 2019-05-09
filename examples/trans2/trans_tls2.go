@@ -10,7 +10,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package main
@@ -24,27 +23,29 @@ import (
 
 func main() {
 	rivet.Initialize(true, false, false)
-	rivet.ListenAndServe(&rivet.ListenServe{
-		Engine:      rivet.SetupRouter(testRouter2),
-		DefaultPort: "8082",
+	rivet.ListenAndServeTLS(&rivet.ListenServe{
+		Engine:      rivet.SetupRouter(testRouterTLS2),
+		DefaultPort: "8092",
+		CertFile:    "/Users/aberic/Documents/tmp/ca/test/server/server.crt",
+		KeyFile:     "/Users/aberic/Documents/tmp/ca/test/server/server.key",
 	})
 }
 
-func testRouter2(engine *gin.Engine) {
+func testRouterTLS2(engine *gin.Engine) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/rivet")
-	vRepo.GET("/get", get2)
-	vRepo.POST("/post", post2)
-	vRepo.POST("/shunt", shunt2)
+	vRepo.GET("/get", getTLS2)
+	vRepo.POST("/post", postTLS2)
+	vRepo.POST("/shunt", shuntTLS2)
 }
 
-func get2(context *gin.Context) {
+func getTLS2(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		result.SaySuccess(context, "get21")
 	})
 }
 
-func post2(context *gin.Context) {
+func postTLS2(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		var test = new(model.Test)
 		if err := context.ShouldBindJSON(test); err != nil {
@@ -54,7 +55,7 @@ func post2(context *gin.Context) {
 	})
 }
 
-func shunt2(context *gin.Context) {
+func shuntTLS2(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		var test = new(model.Test)
 		if err := context.ShouldBindJSON(test); err != nil {

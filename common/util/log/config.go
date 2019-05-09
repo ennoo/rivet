@@ -16,6 +16,11 @@ package log
 
 import "go.uber.org/zap/zapcore"
 
+const (
+	// ReadFileForCACertFail 根据指定路径读取 CA 证书文件失败
+	ReadFileForCACertFail = iota
+)
+
 // Config 日志配置对象
 type Config struct {
 	FilePath    string        // 日志文件路径

@@ -42,7 +42,7 @@ var (
 
 // Log 提供日志调用入口
 func Log() *log.Logger {
-	return &log.Log
+	return log.GetLogInstance()
 }
 
 // Response 提供实例化调用 Do 方法，并内置返回策略

@@ -21,6 +21,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"strings"
+	"sync"
 )
 
 var (
@@ -49,28 +50,36 @@ const (
 	InfoLevel = "info"
 )
 
+var instance *Logger
+var once sync.Once
+
 // Logger 日志入口对象
 type Logger struct {
 	Config *Config
 }
 
-func init() {
-	Log = Logger{}
-	Log.Conf(&Config{
-		FilePath:   strings.Join([]string{"./logs/rivet.log"}, ""),
-		Level:      zapcore.DebugLevel,
-		MaxSize:    128,
-		MaxBackups: 30,
-		MaxAge:     30,
-		Compress:   true,
+// GetLogInstance 获取日志管理对象Log单例
+func GetLogInstance() *Logger {
+	once.Do(func() {
+		instance = &Logger{
+			&Config{
+				FilePath:   strings.Join([]string{"./logs/rivet.log"}, ""),
+				Level:      zapcore.DebugLevel,
+				MaxSize:    128,
+				MaxBackups: 30,
+				MaxAge:     30,
+				Compress:   true,
+			},
+		}
+		Common = instance.New("./logs/common.log", "common")
+		Discovery = instance.New("./logs/discovery.log", "discovery")
+		Examples = instance.New("./logs/examples.log", "examples")
+		Rivet = instance.New("./logs/rivet.log", "rivet")
+		Server = instance.New("./logs/server.log", "server")
+		Shunt = instance.New("./logs/shunt.log", "shunt")
+		Trans = instance.New("./logs/trans.log", "trans")
 	})
-	Common = Log.New("./logs/common.log", "common")
-	Discovery = Log.New("./logs/discovery.log", "discovery")
-	Examples = Log.New("./logs/examples.log", "examples")
-	Rivet = Log.New("./logs/rivet.log", "rivet")
-	Server = Log.New("./logs/server.log", "server")
-	Shunt = Log.New("./logs/shunt.log", "shunt")
-	Trans = Log.New("./logs/trans.log", "trans")
+	return instance
 }
 
 // Conf 配置日志基本信息

@@ -25,7 +25,10 @@ import (
 
 func main() {
 	rivet.Initialize(true, false, false)
-	rivet.Start(rivet.SetupRouter(testRouter1), "8081")
+	rivet.ListenAndServe(&rivet.ListenServe{
+		Engine:      rivet.SetupRouter(testRouter1),
+		DefaultPort: "8081",
+	})
 }
 
 func testRouter1(engine *gin.Engine) {

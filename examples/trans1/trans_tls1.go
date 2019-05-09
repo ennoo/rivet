@@ -10,7 +10,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package main
@@ -20,47 +19,45 @@ import (
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"time"
 )
 
 func main() {
 	rivet.Initialize(true, false, false)
 	rivet.ListenAndServe(&rivet.ListenServe{
-		Engine:      rivet.SetupRouter(testRouter2),
-		DefaultPort: "8082",
-	})
+		Engine:         rivet.SetupRouter(testRouterTLS1),
+		DefaultPort:    "8091",
+		ConnectTimeout: 3 * time.Second,
+		KeepAlive:      30 * time.Second,
+	}, "/Users/aberic/Documents/tmp/ca/test/rootCA.crt")
 }
 
-func testRouter2(engine *gin.Engine) {
+func testRouterTLS1(engine *gin.Engine) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/rivet")
-	vRepo.GET("/get", get2)
-	vRepo.POST("/post", post2)
-	vRepo.POST("/shunt", shunt2)
+	vRepo.GET("/get", getTLS1)
+	vRepo.POST("/post", postTLS1)
+	vRepo.POST("/shunt", shuntTLS1)
 }
 
-func get2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
-		result.SaySuccess(context, "get21")
+func getTLS1(context *gin.Context) {
+	rivet.Request().Call(context, http.MethodGet, "https://localhost:8092", "rivet/get")
+}
+
+func postTLS1(context *gin.Context) {
+	rivet.Request().Callback(context, http.MethodPost, "https://localhost:8092", "rivet/post", func() *response.Result {
+		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }
 
-func post2(context *gin.Context) {
+func shuntTLS1(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		var test = new(model.Test)
 		if err := context.ShouldBindJSON(test); err != nil {
 			result.SayFail(context, err.Error())
 		}
-		result.SaySuccess(context, test)
-	})
-}
-
-func shunt2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
-		var test = new(model.Test)
-		if err := context.ShouldBindJSON(test); err != nil {
-			result.SayFail(context, err.Error())
-		}
-		test.Name = "trans2"
+		test.Name = "trans1"
 		result.SaySuccess(context, test)
 	})
 }

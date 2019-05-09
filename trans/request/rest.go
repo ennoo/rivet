@@ -111,7 +111,10 @@ func get(handler Handler) (body []byte, err error) {
 }
 
 func exec(req *http.Request) ([]byte, error) {
-	resp, err := http.DefaultClient.Do(req)
+	client := http.Client{
+		Transport: GetTPInstance().Transport,
+	}
+	resp, err := client.Do(req)
 
 	if err != nil {
 		return nil, err

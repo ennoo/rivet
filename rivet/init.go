@@ -18,6 +18,7 @@ package rivet
 import (
 	"github.com/ennoo/rivet/common/util/env"
 	"github.com/ennoo/rivet/common/util/log"
+	str "github.com/ennoo/rivet/common/util/string"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/ennoo/rivet/server"
@@ -25,11 +26,26 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap/zapcore"
 	"strings"
+	"time"
 )
 
 var useDiscovery = false
 var hc = false
 var sm = false
+
+// ListenServe 启动监听端口服务对象
+type ListenServe struct {
+	Engine *gin.Engine
+	// defaultPort 默认启用端口号，优先通过环境变量 PORT 获取
+	DefaultPort string
+	// connectTimeout 拨号等待连接完成的最长时间，TCP超时的时间一般在3s，默认3s
+	ConnectTimeout time.Duration
+	// keepAlive 指定保持活动网络连接的时间，如果为0，则不启用keep-alive，默认30s
+	KeepAlive time.Duration
+
+	CertFile string
+	KeyFile  string
+}
 
 // Initialize rivet 初始化方法，必须最先调用
 //
@@ -80,10 +96,45 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	return engine
 }
 
-// Start 开始启用 rivet
-func Start(engine *gin.Engine, defaultPort string) {
-	log.Rivet.Info("listening port bind")
-	err := engine.Run(":" + env.GetEnvDefault(env.PortEnv, defaultPort))
+// ListenAndServe 开始启用 rivet
+//
+// listenServe 启动监听端口服务对象
+//
+// caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
+func ListenAndServe(listenServe *ListenServe, caCertPaths ...string) {
+	listenAndServe(listenServe, false, caCertPaths...)
+}
+
+// ListenAndServeTLS 开始启用 rivet
+//
+// listenServe 启动监听端口服务对象
+//
+// caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
+func ListenAndServeTLS(listenServe *ListenServe, caCertPaths ...string) {
+	listenAndServe(listenServe, true, caCertPaths...)
+}
+
+func listenAndServe(listenServe *ListenServe, isTLS bool, caCertPaths ...string) {
+	if nil == listenServe.Engine {
+		log.Rivet.Fatal("HTTP Engine is nil")
+	}
+	if str.IsEmpty(listenServe.DefaultPort) {
+		log.Rivet.Fatal("HTTP Listening Port is nil")
+	}
+	if listenServe.ConnectTimeout < 0 {
+		listenServe.ConnectTimeout = 3 * time.Second
+	}
+	if listenServe.KeepAlive < 0 {
+		listenServe.KeepAlive = 30 * time.Second
+	}
+	request.GetTPInstance().Timeout(listenServe.ConnectTimeout, listenServe.KeepAlive).RootCACerts(caCertPaths).Instantiate()
+	log.Rivet.Info("listening http port bind")
+	var err error
+	if isTLS {
+		err = listenServe.Engine.RunTLS(":"+env.GetEnvDefault(env.PortEnv, listenServe.DefaultPort), listenServe.CertFile, listenServe.KeyFile)
+	} else {
+		err = listenServe.Engine.Run(":" + env.GetEnvDefault(env.PortEnv, listenServe.DefaultPort))
+	}
 	if nil != err {
 		log.Rivet.Info("exit because {}" + err.Error())
 	}
