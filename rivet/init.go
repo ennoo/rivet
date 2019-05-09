@@ -70,13 +70,19 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 }
 
 // UseDiscovery 启用指定的发现服务
-func UseDiscovery(component string, url string, serviceName string) {
+//
+// url：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
+//
+// serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
+//
+// hostname：注册到 consul 的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
+func UseDiscovery(component string, url string, serviceName string, hostname string) {
 	switch component {
 	case discovery.ComponentConsul:
 		if !useDiscovery {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
 			useDiscovery = true
-			go consul.Enroll(url, serviceName)
+			go consul.Enroll(url, serviceName, hostname)
 		}
 	}
 }

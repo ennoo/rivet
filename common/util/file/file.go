@@ -17,6 +17,7 @@ package file
 
 import (
 	"bufio"
+	str "github.com/ennoo/rivet/common/util/string"
 	"io"
 	"os"
 )
@@ -31,6 +32,21 @@ func PathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// ReadFileByLine 从文件中逐行读取并返回字符串数组
+func ReadFileFirstLine(filePath string) (string, error) {
+	fileIn, fileInErr := os.Open(filePath)
+	if fileInErr != nil {
+		return "", fileInErr
+	}
+	defer fileIn.Close()
+	finReader := bufio.NewReader(fileIn)
+	inputString, readerError := finReader.ReadString('\n')
+	if readerError == io.EOF {
+		return "", readerError
+	}
+	return str.TrimN(inputString), nil
 }
 
 // ReadFileByLine 从文件中逐行读取并返回字符串数组

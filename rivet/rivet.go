@@ -26,12 +26,7 @@ import (
 
 var (
 	serviceName = env.GetEnvDefault("SERVICE_NAME", "null")
-	resp        = sync.Pool{
-		New: func() interface{} {
-			return &response.Response{}
-		},
-	}
-	req = sync.Pool{
+	req         = sync.Pool{
 		New: func() interface{} {
 			return &request.Request{}
 		},
@@ -47,10 +42,10 @@ func Log() *log.Logger {
 
 // Response 提供实例化调用 Do 方法，并内置返回策略
 func Response() *response.Response {
-	return resp.Get().(*response.Response)
+	return response.SyncPoolGetResponse()
 }
 
 // Request 提供实例化调用请求方法，并内置返回策略
 func Request() *request.Request {
-	return req.Get().(*request.Request)
+	return request.SyncPoolGetRequest()
 }

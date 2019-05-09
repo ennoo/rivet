@@ -22,16 +22,112 @@ import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 )
 
-// LB 是否开启负载均衡
-var LB = false
+var (
+	// LB 是否开启负载均衡
+	LB  = false
+	req = sync.Pool{
+		New: func() interface{} {
+			return &Request{}
+		},
+	}
+)
 
 // Request 提供实例化调用请求方法，并内置返回策略
 type Request struct {
 	result response.Result
+}
+
+// SyncPoolGetRequest 提供实例化调用请求方法，并内置返回策略
+func SyncPoolGetRequest() *Request {
+	return req.Get().(*Request)
+}
+
+// RestJson JSON 请求
+//
+// method：请求方法
+//
+// remote：请求主体域名
+//
+// uri：请求主体方法路径
+//
+// param 请求对象
+func (request *Request) RestJson(method string, remote string, uri string, param interface{}) ([]byte, error) {
+	restJSONHandler := RestJSONHandler{
+		RestHandler: RestHandler{
+			RemoteServer: remote,
+			URI:          uri,
+		},
+		Param: param,
+	}
+	var body []byte
+	var err error
+
+	switch method {
+	case http.MethodGet:
+		body, err = restJSONHandler.Get(DirectJSONRequest)
+	case http.MethodHead:
+		body, err = restJSONHandler.Head(DirectJSONRequest)
+	case http.MethodPost:
+		body, err = restJSONHandler.Post(DirectJSONRequest)
+	case http.MethodPut:
+		body, err = restJSONHandler.Put(DirectJSONRequest)
+	case http.MethodPatch:
+		body, err = restJSONHandler.Patch(DirectJSONRequest)
+	case http.MethodDelete:
+		body, err = restJSONHandler.Delete(DirectJSONRequest)
+	case http.MethodConnect:
+		body, err = restJSONHandler.Connect(DirectJSONRequest)
+	case http.MethodOptions:
+		body, err = restJSONHandler.Options(DirectJSONRequest)
+	case http.MethodTrace:
+		body, err = restJSONHandler.Trace(DirectJSONRequest)
+	}
+	return body, err
+}
+
+// RestText TEXT 请求
+//
+// method：请求方法
+//
+// remote：请求主体域名
+//
+// uri：请求主体方法路径
+//
+// values 请求参数
+func (request *Request) RestText(method string, remote string, uri string, values url.Values) ([]byte, error) {
+	restTextHandler := RestTextHandler{
+		Values: values,
+	}
+	var body []byte
+	var err error
+
+	switch method {
+	case http.MethodGet:
+		body, err = restTextHandler.Get(DirectTextRequest)
+	case http.MethodHead:
+		body, err = restTextHandler.Head(DirectTextRequest)
+	case http.MethodPost:
+		body, err = restTextHandler.Post(DirectTextRequest)
+	case http.MethodPut:
+		body, err = restTextHandler.Put(DirectTextRequest)
+	case http.MethodPatch:
+		body, err = restTextHandler.Patch(DirectTextRequest)
+	case http.MethodDelete:
+		body, err = restTextHandler.Delete(DirectTextRequest)
+	case http.MethodConnect:
+		body, err = restTextHandler.Connect(DirectTextRequest)
+	case http.MethodOptions:
+		body, err = restTextHandler.Options(DirectTextRequest)
+	case http.MethodTrace:
+		body, err = restTextHandler.Trace(DirectTextRequest)
+	}
+	return body, err
 }
 
 // Call 请求转发处理方案
@@ -91,35 +187,36 @@ func (request *Request) Callback(context *gin.Context, method string, remote str
 // callback *response.Result 请求转发降级后返回请求方结果对象
 func (request *Request) call(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
 	req := context.Request
+	cookies := req.Cookies()
 	restTransHandler := RestTransHandler{
 		RestHandler: RestHandler{
 			RemoteServer: remote,
 			URI:          uri,
 			Body:         req.Body,
-			Header:       nil,
-			Cookies:      nil}}
+			Header:       req.Header,
+			Cookies:      cookies}}
 	var body []byte
 	var err error
 
 	switch method {
 	case http.MethodGet:
-		body, err = restTransHandler.Get()
+		body, err = restTransHandler.Get(TransCallbackRequest)
 	case http.MethodHead:
-		body, err = restTransHandler.Head()
+		body, err = restTransHandler.Head(TransCallbackRequest)
 	case http.MethodPost:
-		body, err = restTransHandler.Post()
+		body, err = restTransHandler.Post(TransCallbackRequest)
 	case http.MethodPut:
-		body, err = restTransHandler.Put()
+		body, err = restTransHandler.Put(TransCallbackRequest)
 	case http.MethodPatch:
-		body, err = restTransHandler.Patch()
+		body, err = restTransHandler.Patch(TransCallbackRequest)
 	case http.MethodDelete:
-		body, err = restTransHandler.Delete()
+		body, err = restTransHandler.Delete(TransCallbackRequest)
 	case http.MethodConnect:
-		body, err = restTransHandler.Connect()
+		body, err = restTransHandler.Connect(TransCallbackRequest)
 	case http.MethodOptions:
-		body, err = restTransHandler.Options()
+		body, err = restTransHandler.Options(TransCallbackRequest)
 	case http.MethodTrace:
-		body, err = restTransHandler.Trace()
+		body, err = restTransHandler.Trace(TransCallbackRequest)
 	}
 	done(context, request, body, err, callback)
 }

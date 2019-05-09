@@ -18,14 +18,8 @@ package consul
 
 import (
 	"fmt"
-	"github.com/ennoo/rivet/common/util/env"
-	"github.com/ennoo/rivet/common/util/file"
 	"github.com/ennoo/rivet/common/util/log"
-	"github.com/ennoo/rivet/common/util/string"
-	"github.com/ennoo/rivet/discovery"
-	"github.com/ennoo/rivet/trans/request"
 	"os"
-	"strings"
 )
 
 // Enroll 调用此方法注册 consul
@@ -33,7 +27,9 @@ import (
 // consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
 //
 // serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
-func Enroll(consulURL string, serviceName string) {
+//
+// hostname：注册到 consul 的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
+func Enroll(consulURL string, serviceName string, hostname string) {
 	defer func() {
 		log.Discovery.Info("register sul start")
 		if err := recover(); err != nil {
@@ -41,36 +37,5 @@ func Enroll(consulURL string, serviceName string) {
 			os.Exit(0)
 		}
 	}()
-	consulRegister(consulURL, serviceName)
-}
-
-func consulRegister(consulURL string, serviceName string) {
-	hosts, err := file.ReadFileByLine("/etc/hostname")
-	if nil != err {
-		panic(err)
-	}
-	log.Discovery.Info("serviceID = " + discovery.ServiceID)
-	containerID := str.Trim(hosts[0])
-	log.Discovery.Info("containerID = " + containerID)
-	restJSONHandler := request.RestJSONHandler{
-		Param: Register{
-			ID:                discovery.ServiceID,
-			Name:              env.GetEnvDefault(env.ServiceName, serviceName),
-			Address:           containerID,
-			Port:              80,
-			EnableTagOverride: false,
-			Check: Check{
-				DeregisterCriticalServiceAfter: "1m",
-				HTTP:                           strings.Join([]string{"http://", containerID, "/health/check"}, ""),
-				Interval:                       "10s"}},
-		RestHandler: request.RestHandler{
-			RemoteServer: env.GetEnvDefault(env.ConsulURL, consulURL),
-			URI:          "/v1/agent/service/register",
-			Header:       nil,
-			Cookies:      nil}}
-	body, err := restJSONHandler.Put()
-	if nil != err {
-		log.Discovery.Error(err.Error())
-	}
-	log.Discovery.Info("register result = " + string(body))
+	consulRegister(consulURL, serviceName, hostname)
 }

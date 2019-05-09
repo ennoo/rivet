@@ -18,11 +18,22 @@ package response
 
 import (
 	"github.com/gin-gonic/gin"
+	"sync"
 )
+
+var resp = sync.Pool{
+	New: func() interface{} {
+		return &Response{}
+	}}
 
 // Response 提供实例化调用 Do 方法，并内置返回策略
 type Response struct {
 	result Result
+}
+
+// SyncPoolGetResponse 提供实例化调用 Do 方法，并内置返回策略
+func SyncPoolGetResponse() *Response {
+	return resp.Get().(*Response)
 }
 
 // Do 处理 request 请求
