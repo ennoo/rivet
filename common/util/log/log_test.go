@@ -46,12 +46,14 @@ func TestNewLogger(t *testing.T) {
 	})
 
 	testLogger := logImpl.NewCustom("./logs/ho.log", zap.DebugLevel, 128, 30, 30, true, "ho")
-
-	testLogger.Info("log 初始化成功")
+	testLogger.Info("log 初始化成功1")
 
 	testLogger = logImpl.New("./logs/ho.log", "ho")
+	testLogger.Info("log 初始化成功2")
 
-	testLogger.Info("log 初始化成功")
+	testLogger = GetLogInstance().New("./logs/instance.log", "instance")
+	testLogger.Info("log 初始化成功3")
+
 	testLogger.Info("无法获取网址",
 		zap.String("url", "http://www.baidu.com"),
 		zap.Int("attempt", 3),
