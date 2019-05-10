@@ -24,3 +24,6 @@ const (
 
 // ServiceID 服务注册 consul 唯一 id
 var ServiceID = xid.New().String()
+
+// UseDiscovery 是否启用发现服务
+var UseDiscovery = false

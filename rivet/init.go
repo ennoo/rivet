@@ -31,7 +31,6 @@ import (
 	"time"
 )
 
-var useDiscovery = false
 var hc = false
 var sm = false
 
@@ -85,14 +84,14 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 func UseDiscovery(component, url, serviceName, hostname string, port int) {
 	switch component {
 	case discovery.ComponentConsul:
-		if !useDiscovery {
+		if !discovery.UseDiscovery {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
-			useDiscovery = true
+			discovery.UseDiscovery = true
 			consul.Enroll(url, serviceName, hostname, port)
 		}
 	}
 	if request.LB {
-		scheduled.CheckServices(component)
+		scheduled.CheckDiscovery(component)
 	}
 }
 

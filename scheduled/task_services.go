@@ -10,6 +10,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package scheduled
@@ -21,11 +22,11 @@ import (
 	"github.com/robfig/cron"
 )
 
-var abortConsul chan int
+var abortServices chan int
 
-// startCheckServicesByConsul 使用 consul 定时检出Service列表
-func startCheckServicesByConsul(abort chan int) {
-	abortConsul = abort
+// startCheckServices 定时检查已存在的服务列表
+func startCheckServices(abort chan int) {
+	abortServices = abort
 	c := cron.New()
 	// 每隔5秒执行一次：*/5 * * * * ?
 	// 每隔1分钟执行一次：0 */1 * * * ?
@@ -34,7 +35,7 @@ func startCheckServicesByConsul(abort chan int) {
 	// 每月1号凌晨1点执行一次：0 0 1 1 * ?
 	// 在26分、29分、33分执行一次：0 26,29,33 * * * ?
 	// 每天的0点、13点、18点、21点都执行一次：0 0 0,13,18,21 * * ?
-	err := c.AddFunc("*/10 * * * * ?", checkServicesByConsul)
+	err := c.AddFunc("*/10 * * * * ?", checkServices)
 	if nil != err {
 		abort <- -1
 	} else {
@@ -61,14 +62,14 @@ func startCheckServicesByConsul(abort chan int) {
 // 如可用，且 x 中不包含此服务，则新增服务到 x,y 中
 //
 // 移除 x 中不包含 y 的服务
-func checkServicesByConsul() {
+func checkServices() {
 	// 获取本地可负载服务列表
 	allWay := shunt.GetShuntInstance().AllWay
 	// 根据本地可负载服务列表遍历发现服务(线上)中是否存在
 	for serviceName := range allWay {
 		agentServiceChecks, slip := consul.ServiceCheck("127.0.0.1:8500", serviceName)
 		if nil != slip {
-			abortConsul <- slip.Code
+			abortServices <- slip.Code
 			return
 		}
 		// 如不存在，则继续下一轮遍历
@@ -84,14 +85,14 @@ func checkServicesByConsul() {
 		// 新建空服务列表
 		servicesCompare := server.Services{}
 		// 如存在且列表大于0，遍历线上服务列表并检查线上服务状态是否为可用
-		checkUpAndLocalByConsul(agentServiceChecks, services, &servicesCompare)
+		checkUpAndLocal(agentServiceChecks, services, &servicesCompare)
 		// 移除 x 中不包含 y 的服务
 		compareAndResetServices(services, &servicesCompare)
 	}
 }
 
 // checkUpAndLocalByConsul 如存在且列表大于0，遍历线上服务列表并检查线上服务状态是否为可用
-func checkUpAndLocalByConsul(agentServiceChecks []*consul.AgentServiceCheck, services, servicesCompare *server.Services) {
+func checkUpAndLocal(agentServiceChecks []*consul.AgentServiceCheck, services, servicesCompare *server.Services) {
 	for index := range agentServiceChecks {
 		agentServiceCheck := agentServiceChecks[index]
 		// 如不可用，且本地列表中包含此服务，则移除本地列表中的服务

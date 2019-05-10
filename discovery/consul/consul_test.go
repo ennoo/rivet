@@ -34,10 +34,10 @@ func TestEnroll(t *testing.T) {
 
 func TestChecks(t *testing.T) {
 	logger()
-	Checks("10.10.203.51:8500")
+	Checks("127.0.0.1:8500")
 }
 
 func TestServiceCheck(t *testing.T) {
 	logger()
-	ServiceCheck("10.10.203.51:8500", "operation")
+	_, _ = ServiceCheck("127.0.0.1:8500", "operation")
 }
