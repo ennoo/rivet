@@ -45,6 +45,12 @@
 			"revisionTime": "2019-04-24T07:51:23Z"
 		},
 		{
+			"checksumSHA1": "xGlhb4NZjBVCNSbb7GIMvhn6mQg=",
+			"path": "github.com/robfig/cron",
+			"revision": "b41be1df696709bb6395fe435af20370037c0b4c",
+			"revisionTime": "2018-05-05T20:34:41Z"
+		},
+		{
 			"checksumSHA1": "P1e3AR3oC4OKWfzbJ6kLCX/FRpo=",
 			"path": "github.com/rs/xid",
 			"revision": "ba6f703301d6c14cbc05faa3b512058f2304e16c",
