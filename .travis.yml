@@ -1,8 +1,5 @@
 language: go
 
-env:
-  - COVERALLS_TOKEN=ff2BrkJczedGPzmKWFaOBClvTZrJ2b67e
-
 before_install:
   - go get golang.org/x/sys/unix
   - go get golang.org/x/lint/golint # 检测语法问题
@@ -16,11 +13,19 @@ before_install:
   - go get github.com/smartystreets/goconvey # 测试工具
   - go get github.com/hashicorp/consul # consul测试
 
+before_script:
+  - "curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | sudo bash"
+
 script:
+  - fossa init
+  - fossa analyze
   - make consul
   - make check
   - make test
   - make end
+
+notifications:
+  webhooks: https://app.fossa.io/hooks/travisci
 
 go:
   - 1.11.x
