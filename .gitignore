@@ -25,3 +25,4 @@ gen### Go template
 
 utils/log/logs
 logs
+/.maintainer.yml
