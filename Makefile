@@ -1,8 +1,9 @@
 PKGSWITHOUTEXAMPLES := $(shell go list ./... | grep -v 'examples/')
 GO_FILES := $(shell find . -name "*.go" -not -path "./vendor/*" -not -path ".git/*" -print0 | xargs -0)
-COVERALLS_TOKEN := ff2BrkJczedGPzmKWFaOBClvTZrJ2b67e
 
 check: overalls vet lint misspell staticcheck cyclo const veralls
+
+checkLocal: overalls vet lint misspell staticcheck cyclo const
 
 start: wright consul
 
