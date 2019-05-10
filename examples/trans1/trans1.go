@@ -16,10 +16,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
+	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
+	"github.com/ennoo/rivet/utils/slip"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -36,16 +39,17 @@ func main() {
 func testRouter1(engine *gin.Engine) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/rivet")
-	vRepo.GET("/get", get1)
-	vRepo.POST("/post", post1)
+	vRepo.GET("/get", shunt1get1)
+	vRepo.POST("/post", shunt1post1)
+	vRepo.POST("/post2", shunt1post2)
 	vRepo.POST("/shunt", shunt1)
 }
 
-func get1(context *gin.Context) {
+func shunt1get1(context *gin.Context) {
 	rivet.Request().Call(context, http.MethodGet, "http://localhost:8082", "rivet/get")
 }
 
-func post1(context *gin.Context) {
+func shunt1post1(context *gin.Context) {
 	rivet.Request().Callback(context, http.MethodPost, "http://localhost:8082", "rivet/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
@@ -60,4 +64,15 @@ func shunt1(context *gin.Context) {
 		test.Name = "trans1"
 		result.SaySuccess(context, test)
 	})
+}
+
+func shunt1post2(context *gin.Context) {
+	method := http.MethodGet
+	remote := "http://127.0.0.1:8500"
+	uri := "v1/agent/health/service/name/test"
+	_, err := request.SyncPoolGetRequest().RestJSON(method, remote, uri, nil)
+	if nil != err {
+		sliper := err.(*slip.Slip)
+		fmt.Println("sliper = ", sliper.Msg)
+	}
 }

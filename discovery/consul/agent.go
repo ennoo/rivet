@@ -21,6 +21,7 @@ import (
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/file"
 	"github.com/ennoo/rivet/utils/log"
+	"github.com/ennoo/rivet/utils/slip"
 	str "github.com/ennoo/rivet/utils/string"
 	"go.uber.org/zap"
 	"net/http"
@@ -109,24 +110,26 @@ func agentCheck(consulURL string) {
 // consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
 //
 // serviceName：想要检出的服务名称
-func serviceCheck(consulURL, serviceName string) []*AgentServiceCheck {
+func serviceCheck(consulURL, serviceName string) ([]*AgentServiceCheck, *slip.Slip) {
 	method := http.MethodGet
 	remote := strings.Join([]string{"http://", env.GetEnvDefault(env.DiscoveryURL, consulURL)}, "")
 	uri := strings.Join([]string{"v1/agent/health/service/name/", serviceName}, "")
-
+	slips := slip.Slip{}
 	if body, err := request.SyncPoolGetRequest().RestJSON(method, remote, uri, nil); nil != err {
 		log.Discovery.Warn(err.Error(),
 			zap.String("url", strings.Join([]string{remote, "/", uri}, "")),
 			zap.String("method", method))
+		slips = *err.(*slip.Slip)
 	} else {
 		var agentServiceChecks []*AgentServiceCheck
 		if err = json.Unmarshal(body, &agentServiceChecks); nil == err {
-			return agentServiceChecks
+			return agentServiceChecks, nil
 		}
+		slips.FormatError(slip.JSONUnmarshalError, err)
 		log.Discovery.Warn(err.Error(),
 			zap.String("url", strings.Join([]string{remote, "/", uri}, "")),
 			zap.String("method", method),
 			zap.String("body", string(body)))
 	}
-	return nil
+	return nil, &slips
 }

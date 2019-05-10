@@ -17,6 +17,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -27,30 +28,79 @@ func launch() {
 func commencingCountDown(canLunch chan int) {
 	c := time.Tick(1 * time.Second)
 	for countDown := 20; countDown > 0; countDown-- {
-		fmt.Println(countDown)
+		//if countDown == 15 {
+		//	canLunch <- 15
+		//	return
+		//}
+		//if nil == canLunch {
+		//	return
+		//}
+		canLunch <- countDown
+		fmt.Println("0 = ", countDown)
 		<-c
 	}
 	canLunch <- -1
 }
 
-func isAbort(abort chan int) {
-	_, _ = os.Stdin.Read(make([]byte, 1))
-	abort <- -1
+func commencingCountDown1(canLunch1 chan int) {
+	c := time.Tick(1 * time.Second)
+	for countDown := 20; countDown > 0; countDown-- {
+		//if countDown == 10 {
+		//	canLunch1 <- 10
+		//	return
+		//}
+		//if nil == canLunch1 {
+		//	return
+		//}
+		canLunch1 <- countDown
+		fmt.Println("1 = ", countDown)
+		<-c
+	}
+	canLunch1 <- -1
 }
+
+func isAbort(abort chan int) {
+	//_, _ = os.Stdin.Read(make([]byte, 1))
+	abortOther = abort
+	//abort <- -1
+}
+
+func isAbortOther() {
+	_, _ = os.Stdin.Read(make([]byte, 1))
+	abortOther <- -1
+}
+
+var abortOther chan int
 
 func main() {
 	fmt.Println("Commencing coutdown")
 
 	abort := make(chan int)
 	canLunch := make(chan int)
+	canLunch1 := make(chan int)
 	go isAbort(abort)
+	go isAbortOther()
 	go commencingCountDown(canLunch)
-	select {
-	case <-canLunch:
-
-	case <-abort:
-		fmt.Println("Launch aborted!")
-		return
+	go commencingCountDown1(canLunch1)
+	for {
+		select {
+		case x := <-canLunch:
+			if x == 15 {
+				fmt.Println("canLunch is nil")
+				canLunch = nil
+			}
+		case y := <-canLunch1:
+			if y == 10 {
+				fmt.Println("canLunch1 is nil")
+				canLunch1 = nil
+			}
+		case r := <-abort:
+			fmt.Println("Launch aborted! and r = " + strconv.Itoa(r))
+			return
+		}
+		if canLunch == nil && canLunch1 == nil {
+			return
+		}
+		//launch()
 	}
-	launch()
 }

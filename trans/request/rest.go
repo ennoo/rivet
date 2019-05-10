@@ -17,6 +17,7 @@ package request
 
 import (
 	"github.com/ennoo/rivet/utils/log"
+	"github.com/ennoo/rivet/utils/slip"
 	"github.com/ennoo/rivet/utils/string"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -143,7 +144,8 @@ func exec(req *http.Request) (body []byte, err error) {
 	}
 
 	if err != nil {
-		return nil, err
+		slips := slip.NewSlip(slip.RestResponseError, err.Error(), resp)
+		return nil, slips
 	}
 
 	defer resp.Body.Close()

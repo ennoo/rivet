@@ -79,7 +79,7 @@ func (result *Result) FailErr(err error) {
 	default:
 		result.ResultCode = Fail
 		log.Trans.Error(err.Error())
-		//result.Msg = ServiceException.ErrorMsg
+		//result.Msg = ServiceException.Msg
 		result.Msg = err.Error()
 	}
 

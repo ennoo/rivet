@@ -92,7 +92,7 @@ func UseDiscovery(component, url, serviceName, hostname string, port int) {
 		}
 	}
 	if request.LB {
-		scheduled.CheckServices()
+		scheduled.CheckServices(component)
 	}
 }
 

@@ -18,6 +18,7 @@ package consul
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet/utils/slip"
 	"os"
 )
 
@@ -58,7 +59,7 @@ func Checks(consulURL string) {
 // consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
 //
 // serviceName：想要检出的服务名称
-func ServiceCheck(consulURL, serviceName string) []*AgentServiceCheck {
+func ServiceCheck(consulURL, serviceName string) ([]*AgentServiceCheck, *slip.Slip) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err) // 这里的err其实就是panic传入的内容
