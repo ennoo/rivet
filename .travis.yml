@@ -14,8 +14,6 @@ before_install:
   - go get github.com/hashicorp/consul # consul测试
 
 script:
-  - fossa init
-  - fossa analyze
   - make consul
   - make check
   - make test
