@@ -41,6 +41,8 @@ var (
 	Shunt *zap.Logger
 	// Trans 请求处理日志对象
 	Trans *zap.Logger
+	// Scheduled 请求处理日志对象
+	Scheduled *zap.Logger
 )
 
 const (
@@ -58,7 +60,7 @@ type Logger struct {
 	Config *Config
 }
 
-// GetLogInstance 获取日志管理对象Log单例
+// GetLogInstance 获取日志管理对象 Log 单例
 func GetLogInstance() *Logger {
 	once.Do(func() {
 		instance = &Logger{
@@ -78,6 +80,7 @@ func GetLogInstance() *Logger {
 		Server = instance.New("./logs/server.log", "server")
 		Shunt = instance.New("./logs/shunt.log", "shunt")
 		Trans = instance.New("./logs/trans.log", "trans")
+		Scheduled = instance.New("./logs/scheduled.log", "scheduled")
 	})
 	return instance
 }

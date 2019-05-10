@@ -16,6 +16,7 @@
 package main
 
 import (
+	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
@@ -25,6 +26,7 @@ import (
 
 func main() {
 	rivet.Initialize(true, false, false)
+	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "test", "127.0.0.1", 8081)
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testRouter1),
 		DefaultPort: "8081",

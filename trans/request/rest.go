@@ -121,11 +121,14 @@ func get(handler Handler, reqType int) (body []byte, err error) {
 	if nil != err {
 		return nil, err
 	}
-	if nil != handler.ObtainCookies() && len(handler.ObtainCookies()) > 0 {
+	switch reqType {
+	case TransCallbackRequest:
 		addCookies(req, handler.ObtainCookies())
-	}
-	if nil != handler.ObtainHeader() {
 		req.Header = handler.ObtainHeader()
+	case DirectJSONRequest:
+		req.Header.Add("Content-Type", "application/json")
+	case DirectTextRequest:
+		req.Header.Add("Content-Type", "text/html")
 	}
 	return exec(req)
 }

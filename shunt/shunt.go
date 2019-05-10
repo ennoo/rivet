@@ -18,7 +18,19 @@ package shunt
 import (
 	"fmt"
 	"github.com/ennoo/rivet/server"
+	"sync"
 )
+
+var instance *Shunt
+var once sync.Once
+
+// GetShuntInstance 获取负载管理对象 Shunt 单例
+func GetShuntInstance() *Shunt {
+	once.Do(func() {
+		instance = &Shunt{AllWay: make(map[string]Way)}
+	})
+	return instance
+}
 
 // Way 负载均衡方式接口
 type Way interface {
@@ -29,19 +41,17 @@ type Way interface {
 
 // Shunt 负载入口对象
 type Shunt struct {
-	allWay map[string]Way
+	AllWay map[string]Way
 }
-
-var shunt = Shunt{allWay: make(map[string]Way)}
 
 // Register 注册新的负载方式
 func (s *Shunt) Register(serviceName string, way Way) {
-	shunt.allWay[serviceName] = way
+	instance.AllWay[serviceName] = way
 }
 
 // RunShunt 开启负载
 func RunShunt(serviceName string) (*server.Service, error) {
-	way, ok := shunt.allWay[serviceName]
+	way, ok := instance.AllWay[serviceName]
 	if !ok {
 		err := fmt.Errorf("not fount %s", serviceName)
 		fmt.Println("not found ", serviceName)

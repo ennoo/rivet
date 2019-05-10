@@ -27,7 +27,7 @@ type RandomBalance struct {
 
 // Run 负载均衡 round 策略实现
 func (random *RandomBalance) Run(serviceName string) (add *server.Service, err error) {
-	services := server.ServiceGroup[serviceName].Services
+	services := server.ServiceGroup()[serviceName].Services
 	if len(services) == 0 {
 		err = errors.New("no instance")
 		return

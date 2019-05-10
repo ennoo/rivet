@@ -21,11 +21,6 @@ import (
 	"strings"
 )
 
-var (
-	// ServiceGroup 全局服务器群组
-	ServiceGroup = make(map[string]*Services)
-)
-
 // Server 服务器管理服务路由
 func Server(engine *gin.Engine) {
 	// 仓库相关路由设置
@@ -45,10 +40,10 @@ func addService(context *gin.Context) {
 			result.SayFail(context, err.Error())
 		}
 		name := serviceReq.Name
-		services := ServiceGroup[name]
+		services := ServiceGroup()[name]
 		if nil == services {
 			services = &Services{}
-			ServiceGroup[name] = services
+			ServiceGroup()[name] = services
 		}
 		services.Add(serviceReq.Service)
 		result.SaySuccess(context, "add service success")
@@ -60,11 +55,11 @@ func rmService(context *gin.Context) {
 	resp.Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
 		serviceID := context.Param("serviceId")
-		if nil == ServiceGroup[serviceName] {
+		if nil == ServiceGroup()[serviceName] {
 			panic(response.ExpNotExist.Fit(strings.Join([]string{"service", serviceName}, " ")))
 		}
 		have := false
-		service := ServiceGroup[serviceName]
+		service := ServiceGroup()[serviceName]
 		services := service.Services
 		for i := 0; i < len(services); i++ {
 			if serviceID == services[i].ID {
@@ -84,8 +79,8 @@ func listService(context *gin.Context) {
 	resp := response.Response{}
 	resp.Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		if nil != ServiceGroup[serviceName] {
-			result.SaySuccess(context, ServiceGroup[serviceName].Services)
+		if nil != ServiceGroup()[serviceName] {
+			result.SaySuccess(context, ServiceGroup()[serviceName].Services)
 		} else {
 			result.SaySuccess(context, []Service{})
 		}
@@ -96,10 +91,10 @@ func rmGroup(context *gin.Context) {
 	resp := response.Response{}
 	resp.Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		if nil == ServiceGroup[serviceName] {
+		if nil == ServiceGroup()[serviceName] {
 			panic(response.ExpNotExist.Fit(strings.Join([]string{"service", serviceName}, " ")))
 		}
-		delete(ServiceGroup, serviceName)
+		delete(ServiceGroup(), serviceName)
 		result.SaySuccess(context, strings.Join([]string{"remove ", serviceName, " balance success"}, ""))
 	})
 }
@@ -107,9 +102,9 @@ func rmGroup(context *gin.Context) {
 func listGroup(context *gin.Context) {
 	resp := response.Response{}
 	resp.Do(context, func(result *response.Result) {
-		shunts := make([]string, len(ServiceGroup))
+		shunts := make([]string, len(ServiceGroup()))
 		index := 0
-		for k := range ServiceGroup {
+		for k := range ServiceGroup() {
 			shunts[index] = k
 			index++
 		}

@@ -15,6 +15,8 @@
 
 package server
 
+import "sync"
+
 // ServiceReq 服务器新增请求对象
 type ServiceReq struct {
 	Name    string  `json:"name"`
@@ -68,4 +70,27 @@ func (a *Service) GetHost() string {
 // GetPort 获取服务器信息端口号
 func (a *Service) GetPort() int {
 	return a.Port
+}
+
+// Equal 比较服务器是否相同
+func (a *Service) Equal(host string, port int) bool {
+	return a.Host == host && a.Port == port
+}
+
+// EqualService 比较服务器是否相同
+func (a *Service) EqualService(service *Service) bool {
+	return a.Host == service.Host && a.Port == service.Port
+}
+
+var (
+	serviceGroup map[string]*Services
+	once         sync.Once
+)
+
+// ServiceGroup 全局服务器群组
+func ServiceGroup() map[string]*Services {
+	once.Do(func() {
+		serviceGroup = make(map[string]*Services)
+	})
+	return serviceGroup
 }

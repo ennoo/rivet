@@ -18,7 +18,6 @@ package consul
 
 import (
 	"fmt"
-	"github.com/ennoo/rivet/utils/log"
 	"os"
 )
 
@@ -29,13 +28,42 @@ import (
 // serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 //
 // hostname：注册到 consul 的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
-func Enroll(consulURL string, serviceName string, hostname string) {
+//
+// port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
+func Enroll(consulURL, serviceName, hostname string, port int) {
 	defer func() {
-		log.Discovery.Info("register sul start")
 		if err := recover(); err != nil {
 			fmt.Println(err) // 这里的err其实就是panic传入的内容
 			os.Exit(0)
 		}
 	}()
-	consulRegister(consulURL, serviceName, hostname)
+	agentRegister(consulURL, serviceName, hostname, port)
+}
+
+// Checks 检查 consul 中各服务状态
+//
+// consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
+func Checks(consulURL string) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err) // 这里的err其实就是panic传入的内容
+			os.Exit(0)
+		}
+	}()
+	agentCheck(consulURL)
+}
+
+// ServiceCheck 检查 consul 中各服务状态
+//
+// consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
+//
+// serviceName：想要检出的服务名称
+func ServiceCheck(consulURL, serviceName string) []*AgentServiceCheck {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err) // 这里的err其实就是panic传入的内容
+			os.Exit(0)
+		}
+	}()
+	return serviceCheck(consulURL, serviceName)
 }

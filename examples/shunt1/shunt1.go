@@ -16,52 +16,25 @@
 package main
 
 import (
-	"fmt"
+	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/rivet"
-	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
-	"math/rand"
 	"net/http"
-	"strconv"
-	"time"
 )
-
-var adds []*server.Service
 
 func main() {
 	rivet.Initialize(true, true, true)
-	rivet.Shunt.Register("test", &shunt.RoundRobinBalance{Position: 0})
-	rivet.Shunt.Register("test1", &shunt.RandomBalance{})
-	rivet.Shunt.Register("test2", &shunt.HashBalance{Key: []string{}})
+	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
+	rivet.Shunt().Register("test", &shunt.RoundRobinBalance{Position: 0})
+	rivet.Shunt().Register("test1", &shunt.RandomBalance{})
+	rivet.Shunt().Register("test2", &shunt.HashBalance{Key: []string{}})
 	//addAddress()
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testShunt1),
 		DefaultPort: "8083",
 	})
-}
-
-func addAddress() {
-	for i := 0; i < 10; i++ {
-		host := fmt.Sprintf("192.168.%d.%d", rand.Intn(255), rand.Intn(255))
-		port, _ := strconv.Atoi(fmt.Sprintf("880%d", i))
-		one := server.NewService(host, port)
-		adds = append(adds, one)
-	}
-}
-
-func b(serviceName string) {
-	for {
-		add, err := shunt.RunShunt(serviceName)
-		if err != nil {
-			fmt.Println("do balance err")
-			time.Sleep(time.Second)
-			continue
-		}
-		fmt.Println(add)
-		time.Sleep(time.Second)
-	}
 }
 
 func testShunt1(engine *gin.Engine) {
@@ -74,8 +47,7 @@ func testShunt1(engine *gin.Engine) {
 func shunt3(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		rivet.Shunt.Register(serviceName, &shunt.RoundRobinBalance{Position: 0})
-		b(serviceName)
+		rivet.Shunt().Register(serviceName, &shunt.RoundRobinBalance{Position: 0})
 		result.SaySuccess(context, "test2")
 	})
 }

@@ -25,8 +25,8 @@ const (
 	ServiceName = "SERVICE_NAME"
 	// PortEnv 当前服务启动端口号
 	PortEnv = "PORT"
-	// ConsulURL 当前服务注册的 consul 地址
-	ConsulURL = "CONSUL_URL"
+	// DiscoveryURL 当前服务注册的发现服务地址
+	DiscoveryURL = "DISCOVERY_URL"
 	// GOPath Go工作路径
 	GOPath = "GOPATH"
 )

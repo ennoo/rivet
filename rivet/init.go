@@ -18,6 +18,7 @@ package rivet
 import (
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/discovery/consul"
+	"github.com/ennoo/rivet/scheduled"
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/utils/env"
@@ -25,6 +26,7 @@ import (
 	str "github.com/ennoo/rivet/utils/string"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap/zapcore"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -64,26 +66,33 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 		Compress:    true,
 		ServiceName: serviceName,
 	})
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	hc = healthCheck
 	sm = serverManager
 	request.LB = loadBalance
+
 }
 
 // UseDiscovery 启用指定的发现服务
 //
-// url：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
+// url：consul 等发现服务注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
 //
-// serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
+// serviceName：注册到 consul 等发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 //
-// hostname：注册到 consul 的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
-func UseDiscovery(component string, url string, serviceName string, hostname string) {
+// hostname：注册到 consul 等发现服务的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
+//
+// port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
+func UseDiscovery(component, url, serviceName, hostname string, port int) {
 	switch component {
 	case discovery.ComponentConsul:
 		if !useDiscovery {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
 			useDiscovery = true
-			go consul.Enroll(url, serviceName, hostname)
+			consul.Enroll(url, serviceName, hostname, port)
 		}
+	}
+	if request.LB {
+		go scheduled.CheckServices()
 	}
 }
 

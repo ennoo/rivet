@@ -21,23 +21,20 @@ import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
-	"sync"
 )
 
 var (
 	serviceName = env.GetEnvDefault("SERVICE_NAME", "null")
-	req         = sync.Pool{
-		New: func() interface{} {
-			return &request.Request{}
-		},
-	}
-	// Shunt 负载入口对象
-	Shunt = shunt.Shunt{}
 )
 
 // Log 提供日志调用入口
 func Log() *log.Logger {
 	return log.GetLogInstance()
+}
+
+// Shunt 提供负载调用入口
+func Shunt() *shunt.Shunt {
+	return shunt.GetShuntInstance()
 }
 
 // Response 提供实例化调用 Do 方法，并内置返回策略

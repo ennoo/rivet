@@ -12,32 +12,45 @@
  * limitations under the License.
  */
 
-package consul
+package main
 
 import (
-	"github.com/ennoo/rivet/utils/log"
-	"go.uber.org/zap"
-	"testing"
+	"fmt"
+	"os"
+	"time"
 )
 
-var testLogger *zap.Logger
-
-func logger() {
-	testLogger = log.GetLogInstance().New("./logs/consul_test.log", "consul_test")
-	testLogger.Info("log consul_test 初始化成功")
+func launch() {
+	fmt.Println("nuclear launch detected")
 }
 
-func TestEnroll(t *testing.T) {
-	logger()
-	Enroll("127.0.0.1:8500", "rivet", "127.0.0.1", 8080)
+func commencingCountDown(canLunch chan int) {
+	c := time.Tick(1 * time.Second)
+	for countDown := 20; countDown > 0; countDown-- {
+		fmt.Println(countDown)
+		<-c
+	}
+	canLunch <- -1
 }
 
-func TestChecks(t *testing.T) {
-	logger()
-	Checks("10.10.203.51:8500")
+func isAbort(abort chan int) {
+	_, _ = os.Stdin.Read(make([]byte, 1))
+	abort <- -1
 }
 
-func TestServiceCheck(t *testing.T) {
-	logger()
-	ServiceCheck("10.10.203.51:8500", "operation")
+func main() {
+	fmt.Println("Commencing coutdown")
+
+	abort := make(chan int)
+	canLunch := make(chan int)
+	go isAbort(abort)
+	go commencingCountDown(canLunch)
+	select {
+	case <-canLunch:
+
+	case <-abort:
+		fmt.Println("Launch aborted!")
+		return
+	}
+	launch()
 }

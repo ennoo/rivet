@@ -14,30 +14,16 @@
 
 package consul
 
-import (
-	"github.com/ennoo/rivet/utils/log"
-	"go.uber.org/zap"
-	"testing"
-)
-
-var testLogger *zap.Logger
-
-func logger() {
-	testLogger = log.GetLogInstance().New("./logs/consul_test.log", "consul_test")
-	testLogger.Info("log consul_test 初始化成功")
+// AgentServiceCheck consul 中根据服务名称获取到服务列表中单个对象
+type AgentServiceCheck struct {
+	AggregatedStatus string       `json:"AggregatedStatus"`
+	Service          AgentService `json:"Service"`
 }
 
-func TestEnroll(t *testing.T) {
-	logger()
-	Enroll("127.0.0.1:8500", "rivet", "127.0.0.1", 8080)
-}
-
-func TestChecks(t *testing.T) {
-	logger()
-	Checks("10.10.203.51:8500")
-}
-
-func TestServiceCheck(t *testing.T) {
-	logger()
-	ServiceCheck("10.10.203.51:8500", "operation")
+// AgentService AgentServiceCheck 中所属服务对象
+type AgentService struct {
+	ID      string `json:"ID"`
+	Service string `json:"Service"`
+	Port    int    `json:"Port"`
+	Address string `json:"Address"`
 }
