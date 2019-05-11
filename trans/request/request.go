@@ -48,6 +48,18 @@ func SyncPoolGetRequest() *Request {
 	return req.Get().(*Request)
 }
 
+// RestJSONByURL JSON 请求
+//
+// method：请求方法
+//
+// url：完整请求路径
+//
+// param 请求对象
+func (request *Request) RestJSONByURL(method string, url string, param interface{}) ([]byte, error) {
+	remote, uri := remoteUri(url)
+	return request.RestJSON(method, remote, uri, param)
+}
+
 // RestJSON JSON 请求
 //
 // method：请求方法
@@ -91,6 +103,18 @@ func (request *Request) RestJSON(method string, remote string, uri string, param
 	return body, err
 }
 
+// RestTextByURL TEXT 请求
+//
+// method：请求方法
+//
+// url：完整请求路径
+//
+// param 请求对象
+func (request *Request) RestTextByURL(method string, url string, values url.Values) ([]byte, error) {
+	remote, uri := remoteUri(url)
+	return request.RestText(method, remote, uri, values)
+}
+
 // RestText TEXT 请求
 //
 // method：请求方法
@@ -130,6 +154,18 @@ func (request *Request) RestText(method string, remote string, uri string, value
 	return body, err
 }
 
+// CallByURL 请求转发处理方案
+//
+// context：原请求上下文
+//
+// method：即将转发的请求方法
+//
+// url：完整转发路径
+func (request *Request) CallByURL(context *gin.Context, method string, url string) {
+	remote, uri := remoteUri(url)
+	request.Call(context, method, remote, uri)
+}
+
 // Call 请求转发处理方案
 //
 // context：原请求上下文
@@ -141,6 +177,22 @@ func (request *Request) RestText(method string, remote string, uri string, value
 // uri：请求转发主体方法路径
 func (request *Request) Call(context *gin.Context, method string, remote string, uri string) {
 	request.call(context, method, remote, uri, nil)
+}
+
+// CallbackByURL 请求转发处理方案
+//
+// context：原请求上下文
+//
+// method：即将转发的请求方法
+//
+// url：完整转发路径
+//
+// callback：请求转发失败后回调降级策略
+//
+// callback *response.Result 请求转发降级后返回请求方结果对象
+func (request *Request) CallbackByURL(context *gin.Context, method string, url string, callback func() *response.Result) {
+	remote, uri := remoteUri(url)
+	request.Callback(context, method, remote, uri, callback)
 }
 
 // Callback 请求转发处理方案
@@ -235,4 +287,15 @@ func done(context *gin.Context, request *Request, body []byte, err error, callba
 		}
 	}
 	context.JSON(http.StatusOK, request.result)
+}
+
+func remoteUri(url string) (remote, uri string) {
+	urlTmp := url
+	if strings.Contains(urlTmp, "//") {
+		urlTmp = strings.Split(urlTmp, "//")[1]
+	}
+	size := len(strings.Split(urlTmp, "/")[0]) + 1
+	uri = urlTmp[size:]
+	url = url[0:(len(url) - len(urlTmp) - 1)]
+	return
 }
