@@ -29,6 +29,7 @@ type AgentService struct {
 	Address string `json:"Address"`
 }
 
+// AgentCheck AgentServiceCheck 中所属服务健康检查 URL
 type AgentCheck struct {
 	Output string `json:"Output"`
 }

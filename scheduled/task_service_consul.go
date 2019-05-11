@@ -65,13 +65,13 @@ func startCheckServicesByConsul(abortDiscovery chan int) {
 func checkServicesByConsul(abortDiscovery chan int) {
 	// 检查发现服务状态
 	agentServiceChecks, slips := consul.ServiceCheck(selfServiceName)
-	if nil != slips {
-		abortDiscovery <- slips.Code
-		return
-	} else {
+	if nil == slips {
 		if nil == agentServiceChecks || len(agentServiceChecks) <= 0 {
 			consul.ReEnroll()
 		}
+	} else {
+		abortDiscovery <- slips.Code
+		return
 	}
 	// 获取本地可负载服务列表
 	allWay := shunt.GetShuntInstance().AllWay
@@ -107,42 +107,51 @@ func checkUpAndLocalByConsul(agentServiceChecks []*consul.AgentServiceCheck, ser
 		agentServiceCheck := agentServiceChecks[index]
 		// 如不可用，且本地列表中包含此服务，则移除本地列表中的服务
 		if agentServiceCheck.AggregatedStatus != "passing" {
-			servicesArr := services.Services
-			size := len(servicesArr)
-			for i := 0; i < size; i++ {
-				if servicesArr[i].Equal(agentServiceCheck.Service.Address, agentServiceCheck.Service.Port) {
-					services.Remove(i)
-					i--
-					size--
-				}
-			}
+			checkRemoveServiceByConsul(services, agentServiceCheck)
 		} else { // 如可用，且本地列表中不包含此服务，则新增服务到本地列表中
-			var health string // 服务健康检查地址
-			for offset := range agentServiceCheck.Checks {
-				if health = strings.Split(agentServiceCheck.Checks[offset].Output, " ")[2]; !strings.HasPrefix(health, "http") {
-					continue
-				} else {
-					health = health[0 : len(health)-1]
-					break
-				}
-			}
-			service := server.Service{
-				ID:     agentServiceCheck.Service.ID,
-				Host:   agentServiceCheck.Service.Address,
-				Port:   agentServiceCheck.Service.Port,
-				Health: health,
-			}
-			have := false
-			for position := range services.Services {
-				if nil != services.Services && services.Services[position].Equal(service.Host, service.Port) {
-					have = true
-					break
-				}
-			}
-			if !have {
-				services.Add(service)
-			}
-			servicesCompare.Add(service)
+			checkAddServiceByConsul(services, servicesCompare, agentServiceCheck)
 		}
 	}
+}
+
+// checkRemoveServiceByConsul 移除本地列表中的服务
+func checkRemoveServiceByConsul(services *server.Services, agentServiceCheck *consul.AgentServiceCheck) {
+	servicesArr := services.Services
+	size := len(servicesArr)
+	for i := 0; i < size; i++ {
+		if servicesArr[i].Equal(agentServiceCheck.Service.Address, agentServiceCheck.Service.Port) {
+			services.Remove(i)
+			i--
+			size--
+		}
+	}
+}
+
+// checkAddServiceByConsul 新增服务到本地列表中
+func checkAddServiceByConsul(services, servicesCompare *server.Services, agentServiceCheck *consul.AgentServiceCheck) {
+	var health string // 服务健康检查地址
+	for offset := range agentServiceCheck.Checks {
+		if health = strings.Split(agentServiceCheck.Checks[offset].Output, " ")[2]; !strings.HasPrefix(health, "http") {
+			continue
+		}
+		health = health[0 : len(health)-1]
+		break
+	}
+	service := server.Service{
+		ID:     agentServiceCheck.Service.ID,
+		Host:   agentServiceCheck.Service.Address,
+		Port:   agentServiceCheck.Service.Port,
+		Health: health,
+	}
+	have := false
+	for position := range services.Services {
+		if nil != services.Services && services.Services[position].Equal(service.Host, service.Port) {
+			have = true
+			break
+		}
+	}
+	if !have {
+		services.Add(service)
+	}
+	servicesCompare.Add(service)
 }

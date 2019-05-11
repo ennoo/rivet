@@ -29,6 +29,7 @@ var (
 	selfDiscoveryComponent string
 )
 
+// CheckService 检查可用负载服务列表
 func CheckService(serviceName, component string) {
 	selfServiceName = serviceName
 	selfDiscoveryComponent = component

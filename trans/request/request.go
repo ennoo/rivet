@@ -57,7 +57,7 @@ func SyncPoolGetRequest() *Request {
 //
 // param 请求对象
 func (request *Request) RestJSONByURL(method string, url string, param interface{}) ([]byte, error) {
-	remote, uri := remoteUri(url)
+	remote, uri := remoteURI(url)
 	return request.RestJSON(method, remote, uri, param)
 }
 
@@ -112,7 +112,7 @@ func (request *Request) RestJSON(method string, remote string, uri string, param
 //
 // param 请求对象
 func (request *Request) RestTextByURL(method string, url string, values url.Values) ([]byte, error) {
-	remote, uri := remoteUri(url)
+	remote, uri := remoteURI(url)
 	return request.RestText(method, remote, uri, values)
 }
 
@@ -163,7 +163,7 @@ func (request *Request) RestText(method string, remote string, uri string, value
 //
 // url：完整转发路径
 func (request *Request) CallByURL(context *gin.Context, method string, url string) {
-	remote, uri := remoteUri(url)
+	remote, uri := remoteURI(url)
 	request.Call(context, method, remote, uri)
 }
 
@@ -192,7 +192,7 @@ func (request *Request) Call(context *gin.Context, method string, remote string,
 //
 // callback *response.Result 请求转发降级后返回请求方结果对象
 func (request *Request) CallbackByURL(context *gin.Context, method string, url string, callback func() *response.Result) {
-	remote, uri := remoteUri(url)
+	remote, uri := remoteURI(url)
 	request.Callback(context, method, remote, uri, callback)
 }
 
@@ -290,7 +290,7 @@ func done(context *gin.Context, request *Request, body []byte, err error, callba
 	context.JSON(http.StatusOK, request.result)
 }
 
-func remoteUri(url string) (remote, uri string) {
+func remoteURI(url string) (remote, uri string) {
 	urlTmp := url
 	if strings.Contains(urlTmp, "//") {
 		urlTmp = strings.Split(urlTmp, "//")[1]
@@ -299,6 +299,6 @@ func remoteUri(url string) (remote, uri string) {
 	urlTmp = urlTmp[size:]
 	remote = url[0:(len(url) - len(urlTmp) - 1)]
 	uri = urlTmp
-	log.Trans.Debug("remoteUri", zap.String("url", url), zap.String("remote", remote), zap.String("uri", uri))
+	log.Trans.Debug("remoteURI", zap.String("url", url), zap.String("remote", remote), zap.String("uri", uri))
 	return
 }
