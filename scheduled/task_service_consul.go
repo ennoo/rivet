@@ -18,14 +18,13 @@ import (
 	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/shunt"
+	"github.com/ennoo/rivet/utils/slip"
 	"github.com/robfig/cron"
+	"strings"
 )
 
-var abortConsul chan int
-
 // startCheckServicesByConsul 使用 consul 定时检出Service列表
-func startCheckServicesByConsul(abort chan int) {
-	abortConsul = abort
+func startCheckServicesByConsul(abortDiscovery chan int) {
 	c := cron.New()
 	// 每隔5秒执行一次：*/5 * * * * ?
 	// 每隔1分钟执行一次：0 */1 * * * ?
@@ -34,9 +33,11 @@ func startCheckServicesByConsul(abort chan int) {
 	// 每月1号凌晨1点执行一次：0 0 1 1 * ?
 	// 在26分、29分、33分执行一次：0 26,29,33 * * * ?
 	// 每天的0点、13点、18点、21点都执行一次：0 0 0,13,18,21 * * ?
-	err := c.AddFunc("*/10 * * * * ?", checkServicesByConsul)
+	err := c.AddFunc("*/10 * * * * ?", func() {
+		checkServicesByConsul(abortDiscovery)
+	})
 	if nil != err {
-		abort <- -1
+		abortDiscovery <- slip.StartError
 	} else {
 		c.Start()
 	}
@@ -61,15 +62,24 @@ func startCheckServicesByConsul(abort chan int) {
 // 如可用，且 x 中不包含此服务，则新增服务到 x,y 中
 //
 // 移除 x 中不包含 y 的服务
-func checkServicesByConsul() {
+func checkServicesByConsul(abortDiscovery chan int) {
+	// 检查发现服务状态
+	agentServiceChecks, slips := consul.ServiceCheck(selfServiceName)
+	if nil != slips {
+		abortDiscovery <- slips.Code
+		return
+	} else {
+		if nil == agentServiceChecks || len(agentServiceChecks) <= 0 {
+			consul.ReEnroll()
+		}
+	}
 	// 获取本地可负载服务列表
 	allWay := shunt.GetShuntInstance().AllWay
 	// 根据本地可负载服务列表遍历发现服务(线上)中是否存在
 	for serviceName := range allWay {
-		agentServiceChecks, slip := consul.ServiceCheck("127.0.0.1:8500", serviceName)
-		if nil != slip {
-			abortConsul <- slip.Code
-			return
+		agentServiceChecks, slips = consul.ServiceCheck(serviceName)
+		if nil != slips {
+			abortDiscovery <- slips.Code
 		}
 		// 如不存在，则继续下一轮遍历
 		if nil == agentServiceChecks || len(agentServiceChecks) <= 0 {
@@ -88,6 +98,7 @@ func checkServicesByConsul() {
 		// 移除 x 中不包含 y 的服务
 		compareAndResetServices(services, &servicesCompare)
 	}
+	abortDiscovery <- slip.StartSuccess
 }
 
 // checkUpAndLocalByConsul 如存在且列表大于0，遍历线上服务列表并检查线上服务状态是否为可用
@@ -96,16 +107,30 @@ func checkUpAndLocalByConsul(agentServiceChecks []*consul.AgentServiceCheck, ser
 		agentServiceCheck := agentServiceChecks[index]
 		// 如不可用，且本地列表中包含此服务，则移除本地列表中的服务
 		if agentServiceCheck.AggregatedStatus != "passing" {
-			for position := range services.Services {
-				if services.Services[position].Equal(agentServiceCheck.Service.Address, agentServiceCheck.Service.Port) {
-					services.Remove(position)
+			servicesArr := services.Services
+			size := len(servicesArr)
+			for i := 0; i < size; i++ {
+				if servicesArr[i].Equal(agentServiceCheck.Service.Address, agentServiceCheck.Service.Port) {
+					services.Remove(i)
+					i--
+					size--
 				}
 			}
 		} else { // 如可用，且本地列表中不包含此服务，则新增服务到本地列表中
+			var health string // 服务健康检查地址
+			for offset := range agentServiceCheck.Checks {
+				if health = strings.Split(agentServiceCheck.Checks[offset].Output, " ")[2]; !strings.HasPrefix(health, "http") {
+					continue
+				} else {
+					health = health[0 : len(health)-1]
+					break
+				}
+			}
 			service := server.Service{
-				ID:   agentServiceCheck.Service.ID,
-				Host: agentServiceCheck.Service.Address,
-				Port: agentServiceCheck.Service.Port,
+				ID:     agentServiceCheck.Service.ID,
+				Host:   agentServiceCheck.Service.Address,
+				Port:   agentServiceCheck.Service.Port,
+				Health: health,
 			}
 			have := false
 			for position := range services.Services {

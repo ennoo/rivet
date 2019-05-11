@@ -22,49 +22,61 @@ import (
 	"os"
 )
 
+var (
+	selfConsulURL   string
+	selfServiceID   string
+	selfServiceName string
+	selfHostname    string
+	selfPort        int
+)
+
 // Enroll 调用此方法注册 consul
 //
 // consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
+//
+// serviceID：注册到 consul 的服务 ID
 //
 // serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 //
 // hostname：注册到 consul 的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
 //
 // port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
-func Enroll(consulURL, serviceName, hostname string, port int) {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println(err) // 这里的err其实就是panic传入的内容
-			os.Exit(0)
-		}
-	}()
-	agentRegister(consulURL, serviceName, hostname, port)
+func Enroll(consulURL, serviceID, serviceName, hostname string, port int) {
+	selfConsulURL = consulURL
+	selfServiceID = serviceID
+	selfServiceName = serviceName
+	selfHostname = hostname
+	selfPort = port
+	ReEnroll()
+}
+
+// ReEnroll 调用此方法真实注册 consul
+//
+// 必须确保 Enroll 被首先调用过
+func ReEnroll() {
+	agentRegister(selfConsulURL, selfServiceID, selfServiceName, selfHostname, selfPort)
 }
 
 // Checks 检查 consul 中各服务状态
-//
-// consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
-func Checks(consulURL string) {
+func Checks() {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err) // 这里的err其实就是panic传入的内容
 			os.Exit(0)
 		}
 	}()
-	agentCheck(consulURL)
+	agentCheck(selfConsulURL)
 }
 
 // ServiceCheck 检查 consul 中各服务状态
 //
-// consulUrl：consul 注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
-//
 // serviceName：想要检出的服务名称
-func ServiceCheck(consulURL, serviceName string) ([]*AgentServiceCheck, *slip.Slip) {
+func ServiceCheck(serviceName string) ([]*AgentServiceCheck, *slip.Slip) {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err) // 这里的err其实就是panic传入的内容
 			os.Exit(0)
 		}
 	}()
-	return serviceCheck(consulURL, serviceName)
+	return serviceCheck(selfConsulURL, serviceName)
 }

@@ -23,16 +23,19 @@ import (
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
-	str "github.com/ennoo/rivet/utils/string"
+	"github.com/ennoo/rivet/utils/string"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap/zapcore"
 	"runtime"
-	"strings"
 	"time"
 )
 
-var hc = false
-var sm = false
+var (
+	hc = false
+	sm = false
+	ud = false
+	cp string
+	sn string
+)
 
 // ListenServe 启动监听端口服务对象
 type ListenServe struct {
@@ -56,15 +59,6 @@ type ListenServe struct {
 //
 // loadBalance：是否开启负载均衡
 func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
-	Log().Conf(&log.Config{
-		FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
-		Level:       zapcore.DebugLevel,
-		MaxSize:     128,
-		MaxBackups:  30,
-		MaxAge:      30,
-		Compress:    true,
-		ServiceName: serviceName,
-	})
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	hc = healthCheck
 	sm = serverManager
@@ -82,16 +76,15 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 //
 // port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
 func UseDiscovery(component, url, serviceName, hostname string, port int) {
+	cp = component
+	sn = serviceName
 	switch component {
 	case discovery.ComponentConsul:
-		if !discovery.UseDiscovery {
+		if !ud {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
-			discovery.UseDiscovery = true
-			consul.Enroll(url, serviceName, hostname, port)
+			ud = true
+			consul.Enroll(url, serviceID, ServiceName(), hostname, port)
 		}
-	}
-	if request.LB {
-		scheduled.CheckDiscovery(component)
 	}
 }
 
@@ -103,6 +96,13 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	}
 	if sm {
 		server.Server(engine)
+	}
+	if request.LB {
+		if ud {
+			scheduled.CheckService(sn, cp)
+		} else {
+			scheduled.CheckService(sn, "")
+		}
 	}
 	for _, route := range routes {
 		route(engine)

@@ -18,6 +18,7 @@ package consul
 type AgentServiceCheck struct {
 	AggregatedStatus string       `json:"AggregatedStatus"`
 	Service          AgentService `json:"Service"`
+	Checks           []AgentCheck `json:"Checks"`
 }
 
 // AgentService AgentServiceCheck 中所属服务对象
@@ -26,4 +27,8 @@ type AgentService struct {
 	Service string `json:"Service"`
 	Port    int    `json:"Port"`
 	Address string `json:"Address"`
+}
+
+type AgentCheck struct {
+	Output string `json:"Output"`
 }

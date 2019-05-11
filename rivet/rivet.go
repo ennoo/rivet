@@ -21,11 +21,21 @@ import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
+	"github.com/rs/xid"
 )
 
-var (
-	serviceName = env.GetEnvDefault("SERVICE_NAME", "null")
-)
+// serviceID 自身服务唯一 id
+var serviceID = xid.New().String()
+
+// ServiceID 服务注册 consul 唯一 id
+func ServiceID() string {
+	return serviceID
+}
+
+// ServiceName 自身服务唯一名称
+func ServiceName() string {
+	return env.GetEnvDefault("SERVICE_NAME", sn)
+}
 
 // Log 提供日志调用入口
 func Log() *log.Logger {

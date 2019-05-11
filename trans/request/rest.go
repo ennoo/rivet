@@ -102,7 +102,8 @@ func addCookies(request *http.Request, cookies []*http.Cookie) {
 func request(method string, handler Handler, reqType int) ([]byte, error) {
 	req, err := http.NewRequest(method, getFullURI(handler), handler.ObtainBody())
 	if nil != err {
-		return nil, err
+		slips := slip.NewSlip(slip.RestRequestError, err.Error(), nil)
+		return nil, slips
 	}
 	switch reqType {
 	case TransCallbackRequest:
@@ -120,7 +121,8 @@ func request(method string, handler Handler, reqType int) ([]byte, error) {
 func get(handler Handler, reqType int) (body []byte, err error) {
 	req, err := http.NewRequest(http.MethodGet, getFullURI(handler), nil)
 	if nil != err {
-		return nil, err
+		slips := slip.NewSlip(slip.RestRequestError, err.Error(), nil)
+		return nil, slips
 	}
 	switch reqType {
 	case TransCallbackRequest:

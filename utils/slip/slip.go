@@ -21,8 +21,16 @@ import (
 )
 
 const (
-	// RestResponseError Rest 请求调用有误
-	RestResponseError = iota
+	// StartError 启动有误
+	StartError = iota
+	// StartSuccess 启动成功
+	StartSuccess
+	// DiscoveryStart 启动发现服务
+	DiscoveryStart
+	// RestRequestError Rest 请求调用有误
+	RestRequestError
+	// RestResponseError Rest 请求返回有误
+	RestResponseError
 	// JSONUnmarshalError JSON 逆向解析有误
 	JSONUnmarshalError
 )

@@ -28,12 +28,12 @@ func init() {
 
 // IsEmpty 判断字符串是否为空，是则返回true，否则返回false
 func IsEmpty(s string) bool {
-	return !IsNotEmpty(s)
+	return len(s) == 0
 }
 
 // IsNotEmpty 和 IsEmpty 的语义相反
 func IsNotEmpty(s string) bool {
-	return len(s) != 0
+	return !IsEmpty(s)
 }
 
 // Convert 下划线转换，首字母小写变大写，

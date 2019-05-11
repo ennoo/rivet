@@ -17,6 +17,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet/utils/log"
 	"strconv"
 	"time"
 )
@@ -40,7 +41,8 @@ func main() {
 			abort1 <- i
 		}
 	}()
-	for {
+	timeout := time.After(5 * time.Second) // timeout 是一个计时信道, 如果达到时间了，就会发一个信号出来
+	for isTimeout := false; !isTimeout; {
 		select {
 		case m := <-abort1:
 			if m == 3 {
@@ -50,6 +52,9 @@ func main() {
 			abort2 = nil
 		case <-abort3:
 
+		case <-timeout:
+			log.Scheduled.Debug("超时")
+			isTimeout = true // 超时
 		}
 		if abort2 == nil {
 			return

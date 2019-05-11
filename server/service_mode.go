@@ -30,9 +30,10 @@ type Services struct {
 
 // Service 服务器信息
 type Service struct {
-	ID   string `json:"id"`
-	Host string `json:"host"`
-	Port int    `json:"port"`
+	ID     string `json:"id"`
+	Host   string `json:"host"`
+	Port   int    `json:"port"`
+	Health string `json:"health"`
 }
 
 // Add Service 服务器对象集合内新增

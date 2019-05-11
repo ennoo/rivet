@@ -42,6 +42,8 @@ func formatString2(urlIn string) {
 	}
 	size := len(strings.Split(urlTmp, "/")[0]) + 1
 	urlTmp = urlTmp[size:]
-	fmt.Println("remote = ", urlIn[0:(len(urlIn)-len(urlTmp)-1)])
-	fmt.Println("uri = ", urlTmp)
+	remote := urlIn[0:(len(urlIn) - len(urlTmp) - 1)]
+	uri := urlTmp
+	fmt.Println("remote = ", remote)
+	fmt.Println("uri = ", uri)
 }

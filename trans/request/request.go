@@ -21,6 +21,7 @@ import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -295,7 +296,9 @@ func remoteUri(url string) (remote, uri string) {
 		urlTmp = strings.Split(urlTmp, "//")[1]
 	}
 	size := len(strings.Split(urlTmp, "/")[0]) + 1
-	uri = urlTmp[size:]
-	url = url[0:(len(url) - len(urlTmp) - 1)]
+	urlTmp = urlTmp[size:]
+	remote = url[0:(len(url) - len(urlTmp) - 1)]
+	uri = urlTmp
+	log.Trans.Debug("remoteUri", zap.String("url", url), zap.String("remote", remote), zap.String("uri", uri))
 	return
 }

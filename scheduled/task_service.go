@@ -17,82 +17,106 @@ package scheduled
 import (
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/server"
+	"github.com/ennoo/rivet/utils/log"
 	"github.com/ennoo/rivet/utils/slip"
+	"github.com/ennoo/rivet/utils/string"
+	"go.uber.org/zap"
+	"time"
 )
 
-// CheckDiscovery 定时检出发现服务中的注册服务列表
-func CheckDiscovery(component string) {
-	switch component {
+var (
+	selfServiceName        string
+	selfDiscoveryComponent string
+)
+
+func CheckService(serviceName, component string) {
+	selfServiceName = serviceName
+	selfDiscoveryComponent = component
+	if str.IsEmpty(selfDiscoveryComponent) {
+		go checkSelfService()
+	} else {
+		go checkDiscoveryService()
+	}
+}
+
+func checkDiscoveryService() {
+	timeout := time.After(30 * time.Second) // timeout 是一个计时信道, 如果达到时间了，就会发一个信号出来
+	// 发现服务通道
+	abortDiscovery := make(chan int, 1)
+	switch selfDiscoveryComponent {
 	case discovery.ComponentConsul:
-		abort := make(chan int, 1)
-		go startCheckServicesByConsul(abort)
-		a := <-abort
-		if execAbortForDiscovery(a) {
-			abort = nil
+		go startCheckServicesByConsul(abortDiscovery)
+		for isTimeout := false; !isTimeout; {
+			select {
+			case discoveryChanStatus := <-abortDiscovery:
+				timeout = time.After(30 * time.Second) // 超时重置
+				switch discoveryChanStatus {
+				// 启动定时任务出错
+				// 请求调用有误
+				// 请求对方网络有误
+				// 请求返回数据转JSON失败
+				case slip.StartError, slip.RestRequestError, slip.RestResponseError, slip.JSONUnmarshalError:
+					log.Scheduled.Debug("自身有误，则自处理完成后关闭当前协程，进入自检查模式")
+					// 自身有误，则自处理完成后关闭当前协程
+					isTimeout = true
+					// 进入自检查模式
+					checkSelfService()
+				}
+			case <-timeout:
+				log.Scheduled.Debug("发现服务检查超时，则自处理完成后关闭当前协程，进入自检查模式")
+				checkSelfService()
+				isTimeout = true // 超时
+			}
 		}
-		if abort == nil {
-			// 退出前进入自我检查阶段
-			CheckServices()
-			return
+	default:
+		log.Scheduled.Warn("没有发现组件，进入自检查模式", zap.String("component", selfDiscoveryComponent))
+		checkSelfService()
+	}
+}
+
+func checkSelfService() {
+	timeout := time.After(30 * time.Second) // timeout 是一个计时信道, 如果达到时间了，就会发一个信号出来
+	// 自检查服务通道
+	abortServices := make(chan int, 1)
+	go startCheckServices(abortServices)
+	for isTimeout := false; !isTimeout; {
+		select {
+		case servicesChanStatus := <-abortServices:
+			timeout = time.After(30 * time.Second) // 超时重置
+			switch servicesChanStatus {
+			// 启动定时任务出错
+			case slip.StartError:
+				log.Scheduled.Debug("启动定时任务出错，关闭当前协程，开启新的自检查模式")
+				checkSelfService()
+				isTimeout = true
+			// 启动发现服务
+			case slip.DiscoveryStart:
+				log.Scheduled.Debug("发现服务可用，退出自检查模式，重新启用注册发现服务")
+				isTimeout = true
+			}
+		case <-timeout:
+			log.Scheduled.Debug("自检查服务超时，关闭当前协程，开启新的自检查模式")
+			checkSelfService()
+			isTimeout = true // 超时
 		}
 	}
-}
-
-// CheckServices 定时检查已存在的服务列表
-func CheckServices() {
-	abort := make(chan int, 1)
-	go startCheckServices(abort)
-	a := <-abort
-	if execAbortForServices(a) {
-		abort = nil
-	}
-	if abort == nil {
-		// todo 退出前解决方案
-		return
-	}
-}
-
-func execAbortForDiscovery(a int) bool {
-	switch a {
-	case -1: // 启动定时任务出错
-		// todo 定时任务出错解决方案
-		return true
-	case slip.RestResponseError: // 请求对方网络有误
-		// todo 请求对方网络有误解决方案
-		return true
-	case slip.JSONUnmarshalError: // 请求返回数据转JSON失败
-		// todo 请求返回数据转JSON失败解决方案
-		return true
-	}
-	return false
-}
-
-func execAbortForServices(a int) bool {
-	switch a {
-	case -1: // 启动定时任务出错
-		// todo 定时任务出错解决方案
-		return true
-	case slip.RestResponseError: // 请求对方网络有误
-		// todo 请求对方网络有误解决方案
-		return true
-	case slip.JSONUnmarshalError: // 请求返回数据转JSON失败
-		// todo 请求返回数据转JSON失败解决方案
-		return true
-	}
-	return false
 }
 
 // compareAndResetServices 通过比较对象移除原本对象中多余项
 func compareAndResetServices(services, servicesCompare *server.Services) {
-	for offset := range services.Services {
+	servicesArr := services.Services
+	size := len(servicesArr)
+	for i := 0; i < size; i++ {
 		have := false
 		for position := range servicesCompare.Services {
-			if servicesCompare.Services[position].EqualService(services.Services[offset]) {
+			if servicesCompare.Services[position].EqualService(services.Services[i]) {
 				have = true
 			}
 		}
 		if !have {
-			services.Remove(offset)
+			services.Remove(i)
+			i--
+			size--
 		}
 	}
 }

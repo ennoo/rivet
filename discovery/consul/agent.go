@@ -16,13 +16,12 @@ package consul
 
 import (
 	"encoding/json"
-	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/file"
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/ennoo/rivet/utils/slip"
-	str "github.com/ennoo/rivet/utils/string"
+	"github.com/ennoo/rivet/utils/string"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -33,12 +32,14 @@ import (
 //
 // consulUrl：consul 注册地址，包括端口号（优先通过环境变量 DISCOVERY_URL 获取）
 //
+// serviceID：注册到 consul 的服务 ID
+//
 // serviceName：注册到 consul 的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 //
 // hostname：注册到 consul 的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
 //
 // port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
-func agentRegister(consulURL, serviceName, hostname string, port int) {
+func agentRegister(consulURL, serviceID, serviceName, hostname string, port int) {
 	if containerID, err := file.ReadFileFirstLine("/etc/hostname"); nil == err && str.IsEmpty(hostname) {
 		hostname = containerID
 	} else {
@@ -56,13 +57,13 @@ func agentRegister(consulURL, serviceName, hostname string, port int) {
 	healthCheckURL := strings.Join([]string{"http://", hostname, ":", strconv.Itoa(port), "/health/check"}, "")
 
 	log.Discovery.Info("consul register info",
-		zap.String("serviceID", discovery.ServiceID),
+		zap.String("serviceID", serviceID),
 		zap.String("hostname", hostname),
 		zap.String("method", http.MethodPut),
 		zap.String("remote", remote),
 		zap.String("health", healthCheckURL))
 	param := Register{
-		ID:                discovery.ServiceID,
+		ID:                serviceID,
 		Name:              env.GetEnvDefault(env.ServiceName, serviceName),
 		Address:           hostname,
 		Port:              port,
@@ -74,7 +75,7 @@ func agentRegister(consulURL, serviceName, hostname string, port int) {
 	}
 
 	if body, err := request.SyncPoolGetRequest().RestJSON(method, remote, uri, param); nil != err {
-		log.Discovery.Fatal(err.Error(),
+		log.Discovery.Warn(err.Error(),
 			zap.String("url", strings.Join([]string{remote, "/", uri}, "")),
 			zap.String("method", method))
 	} else {
@@ -116,10 +117,10 @@ func serviceCheck(consulURL, serviceName string) ([]*AgentServiceCheck, *slip.Sl
 	uri := strings.Join([]string{"v1/agent/health/service/name/", serviceName}, "")
 	slips := slip.Slip{}
 	if body, err := request.SyncPoolGetRequest().RestJSON(method, remote, uri, nil); nil != err {
-		log.Discovery.Warn(err.Error(),
+		log.Discovery.Info(err.Error(),
 			zap.String("url", strings.Join([]string{remote, "/", uri}, "")),
 			zap.String("method", method))
-		slips = *err.(*slip.Slip)
+		slips.FormatError(slip.RestResponseError, err)
 	} else {
 		var agentServiceChecks []*AgentServiceCheck
 		if err = json.Unmarshal(body, &agentServiceChecks); nil == err {

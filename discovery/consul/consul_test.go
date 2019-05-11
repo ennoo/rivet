@@ -29,15 +29,15 @@ func logger() {
 
 func TestEnroll(t *testing.T) {
 	logger()
-	Enroll("127.0.0.1:8500", "rivet", "127.0.0.1", 8080)
+	Enroll("127.0.0.1:8500", "ididididid", "rivet", "127.0.0.1", 8080)
 }
 
 func TestChecks(t *testing.T) {
 	logger()
-	Checks("127.0.0.1:8500")
+	Checks()
 }
 
 func TestServiceCheck(t *testing.T) {
 	logger()
-	_, _ = ServiceCheck("127.0.0.1:8500", "operation")
+	_, _ = ServiceCheck("operation")
 }

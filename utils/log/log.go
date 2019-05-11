@@ -28,21 +28,21 @@ var (
 	// Log 日志全局对象
 	Log Logger
 	// Common 通用包日志对象
-	Common *zap.Logger
+	Common, _ = zap.NewDevelopment()
 	// Discovery 发现服务包日志对象
-	Discovery *zap.Logger
+	Discovery, _ = zap.NewDevelopment()
 	// Examples 案例日志对象
-	Examples *zap.Logger
+	Examples, _ = zap.NewDevelopment()
 	// Rivet 框架日志对象
-	Rivet *zap.Logger
+	Rivet, _ = zap.NewDevelopment()
 	// Server 关联接口服务日志对象
-	Server *zap.Logger
+	Server, _ = zap.NewDevelopment()
 	// Shunt 负载均衡日志对象
-	Shunt *zap.Logger
+	Shunt, _ = zap.NewDevelopment()
 	// Trans 请求处理日志对象
-	Trans *zap.Logger
+	Trans, _ = zap.NewDevelopment()
 	// Scheduled 请求处理日志对象
-	Scheduled *zap.Logger
+	Scheduled, _ = zap.NewDevelopment()
 )
 
 const (
