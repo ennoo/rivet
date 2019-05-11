@@ -26,6 +26,15 @@ import (
 
 func main() {
 	rivet.Initialize(true, true, true)
+	//rivet.Log().Conf(&log.Config{
+	//	FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
+	//	Level:       zapcore.DebugLevel,
+	//	MaxSize:     128,
+	//	MaxBackups:  30,
+	//	MaxAge:      30,
+	//	Compress:    true,
+	//	ServiceName: env.GetEnvDefault("SERVICE_NAME", "shunt1"),
+	//})
 	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
 	rivet.Shunt().Register("test", &shunt.RoundRobinBalance{Position: 0})
 	rivet.Shunt().Register("test1", &shunt.RandomBalance{})

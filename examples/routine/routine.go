@@ -27,7 +27,7 @@ func launch() {
 
 func commencingCountDown(canLunch chan int) {
 	c := time.Tick(1 * time.Second)
-	for countDown := 20; countDown > 0; countDown-- {
+	for countDown := 10; countDown > 0; countDown-- {
 		//if countDown == 15 {
 		//	canLunch <- 15
 		//	return
@@ -44,7 +44,7 @@ func commencingCountDown(canLunch chan int) {
 
 func commencingCountDown1(canLunch1 chan int) {
 	c := time.Tick(1 * time.Second)
-	for countDown := 20; countDown > 0; countDown-- {
+	for countDown := 10; countDown > 0; countDown-- {
 		//if countDown == 10 {
 		//	canLunch1 <- 10
 		//	return
@@ -85,12 +85,17 @@ func main() {
 	for {
 		select {
 		case x := <-canLunch:
-			if x == 15 {
+			if x == 5 {
 				fmt.Println("canLunch is nil")
 				canLunch = nil
 			}
 		case y := <-canLunch1:
-			if y == 10 {
+			//fmt.Println("canLunch1 = ", y)
+			if y == 8 {
+				canLunch = nil
+				//canLunch = make(chan int)
+				//go commencingCountDown(canLunch)
+			} else if y == 2 {
 				fmt.Println("canLunch1 is nil")
 				canLunch1 = nil
 			}
