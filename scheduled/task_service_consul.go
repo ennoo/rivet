@@ -66,7 +66,13 @@ func checkServicesByConsul(abortDiscovery chan int) {
 	// 检查发现服务状态
 	agentServiceChecks, slips := consul.ServiceCheck(selfServiceName)
 	if nil == slips {
-		if nil == agentServiceChecks || len(agentServiceChecks) <= 0 {
+		have := false
+		for index := range agentServiceChecks {
+			if agentServiceChecks[index].Service.ID == selfServiceID {
+				have = true
+			}
+		}
+		if !have {
 			consul.ReEnroll()
 		}
 	} else {

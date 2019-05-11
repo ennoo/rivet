@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // agentRegister 注册服务到 consul
@@ -40,6 +41,22 @@ import (
 //
 // port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
 func agentRegister(consulURL, serviceID, serviceName, hostname string, port int) {
+	agentServiceChecks, slips := ServiceCheck(selfServiceName)
+	if nil == slips {
+		have := false
+		for index := range agentServiceChecks {
+			if agentServiceChecks[index].Service.ID == selfServiceID {
+				have = true
+			}
+		}
+		if have {
+			return
+		}
+	} else {
+		time.Sleep(1 * time.Second)
+		ReEnroll()
+		return
+	}
 	if containerID, err := file.ReadFileFirstLine("/etc/hostname"); nil == err && str.IsEmpty(hostname) {
 		hostname = containerID
 	} else {

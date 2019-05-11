@@ -30,11 +30,11 @@ import (
 )
 
 var (
-	hc = false
-	sm = false
-	ud = false
-	cp string
-	sn string
+	hc = false // 是否开启健康检查。开启后为 Get 请求，路径为 /health/check
+	sm = false // 是否开启外界服务管理功能
+	ud = false // 是否启用发现服务
+	cp string  // 启用的发现服务组件类型
+	sn string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 )
 
 // ListenServe 启动监听端口服务对象
@@ -68,11 +68,13 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 
 // UseDiscovery 启用指定的发现服务
 //
+// component：启用的发现服务组件类型
+//
 // url：consul 等发现服务注册地址，包括端口号（优先通过环境变量 CONSUL_URL 获取）
 //
-// serviceName：注册到 consul 等发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
+// serviceName：注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 //
-// hostname：注册到 consul 等发现服务的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
+// hostname：注册到发现服务的服务地址（如果为空，则尝试通过 /etc/hostname 获取）
 //
 // port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
 func UseDiscovery(component, url, serviceName, hostname string, port int) {
@@ -83,7 +85,11 @@ func UseDiscovery(component, url, serviceName, hostname string, port int) {
 		if !ud {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
 			ud = true
-			consul.Enroll(url, serviceID, ServiceName(), hostname, port)
+			if request.LB {
+				consul.Enroll(url, serviceID, ServiceName(), hostname, port)
+			} else {
+				go scheduled.ConsulEnroll(url, serviceID, ServiceName(), hostname, port)
+			}
 		}
 	}
 }
@@ -99,9 +105,9 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	}
 	if request.LB {
 		if ud {
-			scheduled.CheckService(sn, cp)
+			scheduled.CheckService(serviceID, sn, cp)
 		} else {
-			scheduled.CheckService(sn, "")
+			scheduled.CheckService(serviceID, sn, "")
 		}
 	}
 	for _, route := range routes {

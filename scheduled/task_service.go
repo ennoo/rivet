@@ -25,12 +25,14 @@ import (
 )
 
 var (
+	selfServiceID          string
 	selfServiceName        string
 	selfDiscoveryComponent string
 )
 
 // CheckService 检查可用负载服务列表
-func CheckService(serviceName, component string) {
+func CheckService(serviceID, serviceName, component string) {
+	selfServiceID = serviceID
 	selfServiceName = serviceName
 	selfDiscoveryComponent = component
 	if str.IsEmpty(selfDiscoveryComponent) {

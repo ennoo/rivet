@@ -22,6 +22,7 @@ import (
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
+	"github.com/ennoo/rivet/utils/ip"
 	"github.com/ennoo/rivet/utils/slip"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -50,6 +51,7 @@ func shunt1get1(context *gin.Context) {
 }
 
 func shunt1post1(context *gin.Context) {
+	fmt.Println("ip = ", ip.Get(context.Request))
 	rivet.Request().Callback(context, http.MethodPost, "http://localhost:8082", "rivet/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
@@ -72,7 +74,7 @@ func shunt1post2(context *gin.Context) {
 	uri := "v1/agent/health/service/name/test"
 	_, err := request.SyncPoolGetRequest().RestJSON(method, remote, uri, nil)
 	if nil != err {
-		sliper := err.(*slip.Slip)
-		fmt.Println("sliper = ", sliper.Msg)
+		slips := err.(*slip.Slip)
+		fmt.Println("slips = ", slips.Msg)
 	}
 }
