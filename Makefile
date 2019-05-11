@@ -7,6 +7,11 @@ checkLocal: overalls vet lint misspell staticcheck cyclo const
 
 start: wright consul
 
+end:
+	@echo "end"
+	rm -rf a.txt
+	consul leave
+
 consul:
 	@echo "consul"
 	nohup consul agent -dev &
@@ -51,8 +56,3 @@ veralls:
 test:
 	@echo "test"
 	go test -v -cover $(PKGSWITHOUTEXAMPLES)
-
-end:
-	@echo "end"
-	rm -rf a.txt
-	consul leave
