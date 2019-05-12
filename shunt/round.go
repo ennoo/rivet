@@ -42,7 +42,7 @@ func generaCount() chan int {
 	return ch
 }
 
-// Run 负载均衡 round 策略实现
+// RunRound 负载均衡 round 策略实现
 func RunRound(serviceName string) (service *server.Service, err error) {
 	services := server.ServiceGroup()[serviceName].Services
 	var lens int

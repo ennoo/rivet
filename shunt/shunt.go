@@ -24,8 +24,11 @@ import (
 )
 
 const (
+	// Random 负载均衡 random 策略
 	Random = iota
+	// Round 负载均衡 round 策略
 	Round
+	// Hash 负载均衡 hash 策略
 	Hash
 )
 

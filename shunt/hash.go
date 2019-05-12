@@ -22,7 +22,7 @@ import (
 	"math/rand"
 )
 
-// Run 负载均衡 hash 策略实现
+// RunHash 负载均衡 hash 策略实现
 func RunHash(serviceName string) (add *server.Service, err error) {
 	services := server.ServiceGroup()[serviceName].Services
 	defKey := fmt.Sprintf("%d", rand.Int())

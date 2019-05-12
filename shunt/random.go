@@ -21,7 +21,7 @@ import (
 	"math/rand"
 )
 
-// Run 负载均衡 round 策略实现
+// RunRandom 负载均衡 random 策略实现
 func RunRandom(serviceName string) (add *server.Service, err error) {
 	services := server.ServiceGroup()[serviceName].Services
 	if len(services) == 0 {
