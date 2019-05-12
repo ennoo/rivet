@@ -10,7 +10,6 @@ start: wright consul
 end:
 	@echo "end"
 	rm -rf a.txt
-	rm -rf /etc/hostname
 	consul leave
 
 consul:
