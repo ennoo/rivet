@@ -1,5 +1,8 @@
 language: go
 
+env:
+  - PORT=8080
+
 before_install:
   - go get golang.org/x/sys/unix
   - go get golang.org/x/lint/golint # 检测语法问题
