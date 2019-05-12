@@ -3,13 +3,14 @@ GO_FILES := $(shell find . -name "*.go" -not -path "./vendor/*" -not -path ".git
 
 check: overalls vet lint misspell staticcheck cyclo const veralls
 
-checkLocal: overalls vet lint misspell staticcheck cyclo const
+checkLocal: start overalls vet lint misspell staticcheck cyclo const end
 
 start: wright consul
 
 end:
 	@echo "end"
 	rm -rf a.txt
+	rm -rf /etc/hostname
 	consul leave
 
 consul:
