@@ -17,6 +17,7 @@ package request
 
 import (
 	"encoding/json"
+	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/log"
@@ -210,19 +211,7 @@ func (request *Request) CallbackByURL(context *gin.Context, method string, url s
 //
 // callback *response.Result 请求转发降级后返回请求方结果对象
 func (request *Request) Callback(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
-	if LB {
-		add, err := shunt.RunShunt(remote)
-		if nil != err {
-			request.result.Fail(err.Error())
-			context.JSON(http.StatusOK, request.result)
-		} else {
-			// todo 请求协议判定
-			remoteNew := strings.Join([]string{"http://", add.Host, ":", strconv.Itoa(add.Port)}, "")
-			request.call(context, method, remoteNew, uri, callback)
-		}
-	} else {
-		request.call(context, method, remote, uri, callback)
-	}
+	request.call(context, method, remote, uri, callback)
 }
 
 // call 请求转发处理方案
@@ -239,6 +228,33 @@ func (request *Request) Callback(context *gin.Context, method string, remote str
 //
 // callback *response.Result 请求转发降级后返回请求方结果对象
 func (request *Request) call(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
+	if LB {
+		service, err := shunt.RunShunt(remote)
+		if nil == err {
+			remote = request.formatURL(context, service)
+		} else {
+			request.result.Fail(err.Error())
+			context.JSON(http.StatusOK, request.result)
+			return
+		}
+	}
+	request.callReal(context, method, remote, uri, callback)
+}
+
+// callReal 请求转发处理方案
+//
+// context：原请求上下文
+//
+// method：即将转发的请求方法
+//
+// remote：请求转发主体域名
+//
+// uri：请求转发主体方法路径
+//
+// callback：请求转发失败后回调降级策略
+//
+// callback *response.Result 请求转发降级后返回请求方结果对象
+func (request *Request) callReal(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
 	req := context.Request
 	cookies := req.Cookies()
 	restTransHandler := RestTransHandler{
@@ -288,6 +304,18 @@ func done(context *gin.Context, request *Request, body []byte, err error, callba
 		}
 	}
 	context.JSON(http.StatusOK, request.result)
+}
+
+// FormatURL 将注册到服务的 service host 和 port 组装成完成的 URL
+func (request *Request) formatURL(context *gin.Context, service *server.Service) string {
+	switch context.Request.Proto {
+	case "HTTP/1.1":
+		return strings.Join([]string{"http://", service.Host, ":", strconv.Itoa(service.Port)}, "")
+	case "HTTP/2.0":
+		return strings.Join([]string{"https://", service.Host, ":", strconv.Itoa(service.Port)}, "")
+	default:
+		return ""
+	}
 }
 
 func remoteURI(url string) (remote, uri string) {

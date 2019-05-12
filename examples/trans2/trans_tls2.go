@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	rivet.Initialize(true, false, false)
+	rivet.Initialize(false, true, false, false)
 
 	rivet.ListenAndServeTLS(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testRouterTLS2),

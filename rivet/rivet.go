@@ -16,6 +16,7 @@
 package rivet
 
 import (
+	"github.com/ennoo/rivet/bow"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
@@ -55,4 +56,9 @@ func Response() *response.Response {
 // Request 提供实例化调用请求方法，并内置返回策略
 func Request() *request.Request {
 	return request.SyncPoolGetRequest()
+}
+
+// Bow 提供实例化调用路由，并内置返回策略
+func Bow() *bow.Bow {
+	return bow.GetBowInstance()
 }

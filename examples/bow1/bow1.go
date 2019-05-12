@@ -10,35 +10,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package consul
+package main
 
 import (
-	"github.com/ennoo/rivet/utils/log"
-	"go.uber.org/zap"
-	"testing"
+	"github.com/ennoo/rivet/rivet"
+	"github.com/ennoo/rivet/utils/env"
+	"strings"
 )
 
-var testLogger *zap.Logger
-
-func logger() {
-	testLogger = log.GetLogInstance().New("./logs/consul_test.log", "consul_test")
-	testLogger.Info("log consul_test 初始化成功")
-}
-
-func TestEnroll(t *testing.T) {
-	logger()
-	Enroll("127.0.0.1:8500", "ididididid", "rivet", "127.0.0.1", 8080)
-	ReEnroll()
-}
-
-func TestChecks(t *testing.T) {
-	logger()
-	Checks()
-}
-
-func TestServiceCheck(t *testing.T) {
-	logger()
-	_, _ = ServiceCheck("operation")
+func main() {
+	rivet.Initialize(true, false, true, false)
+	rivet.Bow().AddService("test1", "hello1", "http://localhost:8081", "rivet/shunt")
+	rivet.Bow().AddService("test2", "hello2", "https://localhost:8092", "rivet/shunt")
+	rivet.ListenAndServe(&rivet.ListenServe{
+		Engine:      rivet.SetupRouter(),
+		DefaultPort: "8084",
+	}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
 }

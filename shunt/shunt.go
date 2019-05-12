@@ -18,6 +18,8 @@ package shunt
 import (
 	"fmt"
 	"github.com/ennoo/rivet/server"
+	"github.com/ennoo/rivet/utils/log"
+	"go.uber.org/zap"
 	"sync"
 )
 
@@ -34,7 +36,6 @@ func GetShuntInstance() *Shunt {
 
 // Way 负载均衡方式接口
 type Way interface {
-
 	// Run 负载均衡算法
 	Run(string) (*server.Service, error)
 }
@@ -53,8 +54,9 @@ func (s *Shunt) Register(serviceName string, way Way) {
 func RunShunt(serviceName string) (*server.Service, error) {
 	way, ok := instance.AllWay[serviceName]
 	if !ok {
-		err := fmt.Errorf("not fount %s", serviceName)
+		err := fmt.Errorf("service not fount")
 		fmt.Println("not found ", serviceName)
+		log.Shunt.Error(err.Error(), zap.String("serviceName", serviceName))
 		return nil, err
 	}
 	service, err := way.Run(serviceName)

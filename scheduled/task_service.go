@@ -107,6 +107,7 @@ func checkSelfService() {
 
 // compareAndResetServices 通过比较对象移除原本对象中多余项
 func compareAndResetServices(services, servicesCompare *server.Services) {
+	// todo 发现服务中没有的 service 应该交由自检查服务进行管理
 	servicesArr := services.Services
 	size := len(servicesArr)
 	for i := 0; i < size; i++ {

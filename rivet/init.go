@@ -16,6 +16,7 @@
 package rivet
 
 import (
+	"github.com/ennoo/rivet/bow"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/ennoo/rivet/scheduled"
@@ -30,11 +31,12 @@ import (
 )
 
 var (
-	hc = false // 是否开启健康检查。开启后为 Get 请求，路径为 /health/check
-	sm = false // 是否开启外界服务管理功能
-	ud = false // 是否启用发现服务
-	cp string  // 启用的发现服务组件类型
-	sn string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
+	route = false // 是否开启网关路由
+	hc    = false // 是否开启健康检查。开启后为 Get 请求，路径为 /health/check
+	sm    = false // 是否开启外界服务管理功能
+	ud    = false // 是否启用发现服务
+	cp    string  // 启用的发现服务组件类型
+	sn    string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
 )
 
 // ListenServe 启动监听端口服务对象
@@ -53,13 +55,16 @@ type ListenServe struct {
 
 // Initialize rivet 初始化方法，必须最先调用
 //
+// bow：是否开启网关路由
+//
 // healthCheck：是否开启健康检查。开启后为 Get 请求，路径为 /health/check
 //
 // serverManager：是否开启外界服务管理功能
 //
 // loadBalance：是否开启负载均衡
-func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
+func Initialize(bow bool, healthCheck bool, serverManager bool, loadBalance bool) {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	route = bow
 	hc = healthCheck
 	sm = serverManager
 	request.LB = loadBalance
@@ -97,6 +102,9 @@ func UseDiscovery(component, url, serviceName, hostname string, port int) {
 // SetupRouter 设置路由器相关选项
 func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	engine := gin.Default()
+	if route {
+		bow.Route(engine)
+	}
 	if hc {
 		Health(engine)
 	}

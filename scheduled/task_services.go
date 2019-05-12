@@ -75,10 +75,7 @@ func checkServices(abortServices chan int) {
 	// 根据本地可负载服务列表遍历发现服务(线上)中是否存在
 	for serviceName := range allWay {
 		// 获取本地服务列表
-		services := server.ServiceGroup()[serviceName]
-		if nil == services {
-			continue
-		}
+		services := server.GetServices(serviceName)
 		log.Scheduled.Debug("获取本地服务列表", zap.Any("servicesArr", services.Services))
 		servicesArr := services.Services
 		size := len(servicesArr)

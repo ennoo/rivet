@@ -92,11 +92,7 @@ func checkServicesByConsul(abortDiscovery chan int) {
 			continue
 		}
 		// 获取本地本地列表
-		services := server.ServiceGroup()[serviceName]
-		if nil == services {
-			services = &server.Services{}
-			server.ServiceGroup()[serviceName] = services
-		}
+		services := server.GetServices(serviceName)
 		// 新建空服务列表
 		servicesCompare := server.Services{}
 		// 如存在且列表大于0，遍历线上服务列表并检查线上服务状态是否为可用

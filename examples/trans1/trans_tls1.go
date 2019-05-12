@@ -26,12 +26,14 @@ import (
 )
 
 func main() {
-	rivet.Initialize(true, false, false)
-	rivet.ListenAndServe(&rivet.ListenServe{
+	rivet.Initialize(false, true, false, false)
+	rivet.ListenAndServeTLS(&rivet.ListenServe{
 		Engine:         rivet.SetupRouter(testRouterTLS1),
 		DefaultPort:    "8091",
 		ConnectTimeout: 3 * time.Second,
 		KeepAlive:      30 * time.Second,
+		CertFile:       strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/server/server.crt"}, ""),
+		KeyFile:        strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/server/server.key"}, ""),
 	}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
 }
 

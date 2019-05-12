@@ -37,11 +37,13 @@ var (
 	Rivet, _ = zap.NewDevelopment()
 	// Server 关联接口服务日志对象
 	Server, _ = zap.NewDevelopment()
+	// Bow 网关日志对象
+	Bow, _ = zap.NewDevelopment()
 	// Shunt 负载均衡日志对象
 	Shunt, _ = zap.NewDevelopment()
 	// Trans 请求处理日志对象
 	Trans, _ = zap.NewDevelopment()
-	// Scheduled 请求处理日志对象
+	// Scheduled 定时任务日志对象
 	Scheduled, _ = zap.NewDevelopment()
 )
 
@@ -78,6 +80,7 @@ func GetLogInstance() *Logger {
 		Examples = instance.New("./logs/examples.log", "examples")
 		Rivet = instance.New("./logs/rivet.log", "rivet")
 		Server = instance.New("./logs/server.log", "server")
+		Bow = instance.New("./logs/bow.log", "bow")
 		Shunt = instance.New("./logs/shunt.log", "shunt")
 		Trans = instance.New("./logs/trans.log", "trans")
 		Scheduled = instance.New("./logs/scheduled.log", "scheduled")

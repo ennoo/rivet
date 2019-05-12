@@ -95,3 +95,13 @@ func ServiceGroup() map[string]*Services {
 	})
 	return serviceGroup
 }
+
+// GetServices 根据服务名称获取本地服务器列表，如果没有，则新建
+func GetServices(serviceName string) *Services {
+	services := ServiceGroup()[serviceName]
+	if nil == services {
+		services = &Services{}
+		ServiceGroup()[serviceName] = services
+	}
+	return ServiceGroup()[serviceName]
+}

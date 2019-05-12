@@ -25,7 +25,7 @@ import (
 )
 
 func main() {
-	rivet.Initialize(true, true, true)
+	rivet.Initialize(false, true, true, true)
 	//rivet.Log().Conf(&log.Config{
 	//	FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
 	//	Level:       zapcore.DebugLevel,

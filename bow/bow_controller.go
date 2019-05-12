@@ -10,35 +10,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package consul
+package bow
 
 import (
-	"github.com/ennoo/rivet/utils/log"
-	"go.uber.org/zap"
-	"testing"
+	"github.com/gin-gonic/gin"
 )
 
-var testLogger *zap.Logger
-
-func logger() {
-	testLogger = log.GetLogInstance().New("./logs/consul_test.log", "consul_test")
-	testLogger.Info("log consul_test 初始化成功")
-}
-
-func TestEnroll(t *testing.T) {
-	logger()
-	Enroll("127.0.0.1:8500", "ididididid", "rivet", "127.0.0.1", 8080)
-	ReEnroll()
-}
-
-func TestChecks(t *testing.T) {
-	logger()
-	Checks()
-}
-
-func TestServiceCheck(t *testing.T) {
-	logger()
-	_, _ = ServiceCheck("operation")
+// Route 网关服务路由
+func Route(engine *gin.Engine) {
+	// 仓库相关路由设置
+	vRepo := engine.Group("/")
+	for x := range routeServices {
+		bowService := routeServices[x]
+		vRepo.Any(bowService.InURI, func(context *gin.Context) {
+			RunBow(context, bowService.Name)
+		})
+	}
 }
