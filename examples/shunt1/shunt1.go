@@ -36,9 +36,9 @@ func main() {
 	//	ServiceName: env.GetEnvDefault("SERVICE_NAME", "shunt1"),
 	//})
 	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
-	rivet.Shunt().Register("test", &shunt.RoundRobinBalance{Position: 0})
-	rivet.Shunt().Register("test1", &shunt.RandomBalance{})
-	rivet.Shunt().Register("test2", &shunt.HashBalance{Key: []string{}})
+	rivet.Shunt().Register("test", shunt.Round)
+	rivet.Shunt().Register("test1", shunt.Random)
+	rivet.Shunt().Register("test2", shunt.Hash)
 	//addAddress()
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testShunt1),
@@ -56,7 +56,7 @@ func testShunt1(engine *gin.Engine) {
 func shunt3(context *gin.Context) {
 	rivet.Response().Do(context, func(result *response.Result) {
 		serviceName := context.Param("serviceName")
-		rivet.Shunt().Register(serviceName, &shunt.RoundRobinBalance{Position: 0})
+		rivet.Shunt().Register(serviceName, shunt.Round)
 		result.SaySuccess(context, "test2")
 	})
 }

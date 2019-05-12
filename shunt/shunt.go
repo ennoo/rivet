@@ -23,35 +23,50 @@ import (
 	"sync"
 )
 
-var instance *Shunt
-var once sync.Once
+const (
+	// Random 负载均衡 random 策略
+	Random = iota
+	// Round 负载均衡 round 策略
+	Round
+	// Hash 负载均衡 hash 策略
+	Hash
+)
+
+var (
+	instance *Shunt
+	once     sync.Once
+)
 
 // GetShuntInstance 获取负载管理对象 Shunt 单例
 func GetShuntInstance() *Shunt {
 	once.Do(func() {
-		instance = &Shunt{AllWay: make(map[string]Way)}
+		instance = &Shunt{AllWay: make(map[string]int)}
 	})
 	return instance
 }
 
-// Way 负载均衡方式接口
-type Way interface {
-	// Run 负载均衡算法
-	Run(string) (*server.Service, error)
-}
-
 // Shunt 负载入口对象
 type Shunt struct {
-	AllWay map[string]Way
+	AllWay map[string]int
 }
 
 // Register 注册新的负载方式
-func (s *Shunt) Register(serviceName string, way Way) {
+func (s *Shunt) Register(serviceName string, way int) {
+	switch way {
+	case Round:
+		if nil == roundRobinBalances {
+			roundRobinBalances = make(map[string]*RoundRobinBalance)
+		}
+		roundRobinBalances[serviceName] = &RoundRobinBalance{
+			serviceName: serviceName,
+			rrbCh:       generaCount(),
+		}
+	}
 	instance.AllWay[serviceName] = way
 }
 
 // RunShunt 开启负载
-func RunShunt(serviceName string) (*server.Service, error) {
+func RunShunt(serviceName string) (service *server.Service, err error) {
 	way, ok := instance.AllWay[serviceName]
 	if !ok {
 		err := fmt.Errorf("service not fount")
@@ -59,10 +74,17 @@ func RunShunt(serviceName string) (*server.Service, error) {
 		log.Shunt.Error(err.Error(), zap.String("serviceName", serviceName))
 		return nil, err
 	}
-	service, err := way.Run(serviceName)
+	switch way {
+	case Random:
+		service, err = RunRandom(serviceName)
+	case Round:
+		service, err = RunRound(serviceName)
+	case Hash:
+		service, err = RunHash(serviceName)
+	}
 	if err != nil {
 		err = fmt.Errorf(" %s erros", serviceName)
-		return nil, err
+		return
 	}
-	return service, nil
+	return
 }

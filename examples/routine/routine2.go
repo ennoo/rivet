@@ -13,26 +13,44 @@
  *
  */
 
-package shunt
+package main
 
 import (
 	"fmt"
-	"github.com/ennoo/rivet/server"
-	"hash/crc32"
-	"math/rand"
+	"time"
 )
 
-// RunHash 负载均衡 hash 策略实现
-func RunHash(serviceName string) (add *server.Service, err error) {
-	services := server.ServiceGroup()[serviceName].Services
-	defKey := fmt.Sprintf("%d", rand.Int())
-	lens := len(services)
-	if lens == 0 {
-		err = fmt.Errorf("no balance")
-		return
+func main() {
+
+	c := make(chan int, 2)
+	defer close(c)
+	//提前将队列放满
+	c <- 1
+	c <- 2
+	fmt.Println("开始尝试执行")
+	go cross(c)
+	process(c)
+
+}
+
+func process(c chan int) {
+
+	fmt.Println("被限流阻塞")
+	c <- 1 //channel已满，将阻塞，直到成功放入channel  **
+	fmt.Println("已放行，执行process")
+
+}
+
+func cross(c chan int) {
+	a := 1
+	b := 5
+	for b >= a {
+		fmt.Println("阻塞", b, "秒")
+		time.Sleep(time.Second)
+		b -= 1
 	}
-	hashVal := crc32.Checksum([]byte(defKey), crc32.MakeTable(crc32.IEEE))
-	index := int(hashVal) % lens
-	add = services[index]
-	return
+
+	fmt.Println("释放一个通行证")
+	<-c //取出元素，则chan可以继续放入数据，将唤醒**行代码
+
 }
