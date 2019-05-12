@@ -91,7 +91,7 @@ func UseDiscovery(component, url, serviceName, hostname string, port int) {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
 			ud = true
 			if request.LB {
-				consul.Enroll(url, serviceID, ServiceName(), hostname, port)
+				go consul.Enroll(url, serviceID, ServiceName(), hostname, port)
 			} else {
 				go scheduled.ConsulEnroll(url, serviceID, ServiceName(), hostname, port)
 			}
