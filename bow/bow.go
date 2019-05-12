@@ -22,6 +22,7 @@ import (
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"net/http"
 	"sync"
 )
 
@@ -90,8 +91,8 @@ func RunBow(context *gin.Context, serviceName string) {
 	routeService, ok := instance.AllWay[serviceName]
 	if !ok {
 		err := fmt.Errorf("routeService not fount")
-		fmt.Println("not found ", serviceName)
 		log.Shunt.Error(err.Error(), zap.String("serviceName", serviceName))
+		context.JSON(http.StatusOK, err.Error())
 	} else {
 		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, routeService.OutURI)
 	}
@@ -102,8 +103,8 @@ func RunBowCallback(context *gin.Context, serviceName string, f func() *response
 	routeService, ok := instance.AllWay[serviceName]
 	if !ok {
 		err := fmt.Errorf("service not fount")
-		fmt.Println("not found ", serviceName)
 		log.Shunt.Error(err.Error(), zap.String("serviceName", serviceName))
+		context.JSON(http.StatusOK, err.Error())
 	} else {
 		request.SyncPoolGetRequest().Callback(context, context.Request.Method, routeService.OutRemote, routeService.OutURI, f)
 	}
