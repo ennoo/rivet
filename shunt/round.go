@@ -20,24 +20,41 @@ import (
 	"github.com/ennoo/rivet/server"
 )
 
+var roundRobinBalances map[string]*RoundRobinBalance
+
 // RoundRobinBalance 负载均衡 round 策略实体
 type RoundRobinBalance struct {
-	Position int
+	serviceName string
+	rrbCh       chan int
+}
+
+// generaCount 自增生成一个0~65535的数，到达65535则重0开始计数
+func generaCount() chan int {
+	var ch = make(chan int)
+	go func() {
+		for i := 0; ; i++ {
+			ch <- i // 等待索要数据
+			if i == 65535 {
+				i = 0
+			}
+		}
+	}()
+	return ch
 }
 
 // Run 负载均衡 round 策略实现
-func (round *RoundRobinBalance) Run(serviceName string) (add *server.Service, err error) {
+func RunRound(serviceName string) (service *server.Service, err error) {
 	services := server.ServiceGroup()[serviceName].Services
-	if len(services) == 0 {
+	var lens int
+	if lens = len(services); nil == services || lens == 0 {
 		err = errors.New("no instance")
 		return
 	}
-
-	lens := len(services)
-	if round.Position >= lens {
-		round.Position = 0
+	roundRobinBalance := roundRobinBalances[serviceName]
+	var position int
+	if position = <-roundRobinBalance.rrbCh; position >= lens {
+		position = position % lens
 	}
-	add = services[round.Position]
-	round.Position++
+	service = services[position]
 	return
 }

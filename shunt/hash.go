@@ -22,19 +22,10 @@ import (
 	"math/rand"
 )
 
-// HashBalance 负载均衡 hash 策略实体
-type HashBalance struct {
-	Key []string
-}
-
-// Run 负载均衡 round 策略实现
-func (hash *HashBalance) Run(serviceName string) (add *server.Service, err error) {
+// Run 负载均衡 hash 策略实现
+func RunHash(serviceName string) (add *server.Service, err error) {
 	services := server.ServiceGroup()[serviceName].Services
 	defKey := fmt.Sprintf("%d", rand.Int())
-	if len(hash.Key) > 0 {
-		defKey = hash.Key[0]
-	}
-
 	lens := len(services)
 	if lens == 0 {
 		err = fmt.Errorf("no balance")
