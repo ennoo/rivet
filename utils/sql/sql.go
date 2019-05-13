@@ -18,89 +18,107 @@ import (
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/robfig/cron"
 	"strings"
+	"sync"
 	"time"
 )
 
 var (
-	// 数据库任务入口
-	db *gorm.DB
-	// dbURL 数据库 URL
-	dbURLSelf string
-	// dbUser 数据库用户名
-	dbUserSelf string
-	// dbPass 数据库用户密码
-	dbPassSelf string
-	// dbName 数据库名称
-	dbNameSelf string
+	instance *SQL
+	once     sync.Once
 )
 
+// SQL sql 连接对象
+type SQL struct {
+	DB     *gorm.DB // 数据库任务入口
+	DBUrl  string   // dbURL 数据库 URL
+	DBUser string   // dbUser 数据库用户名
+	DBPass string   // dbPass 数据库用户密码
+	DBName string   // dbName 数据库名称
+}
+
+// GetSQLInstance 获取 SQL 单例
+func GetSQLInstance() *SQL {
+	once.Do(func() {
+		instance = &SQL{}
+	})
+	return instance
+}
+
 // Connect 链接数据库服务
-func Connect(dbURL, dbUser, dbPass, dbName string) error {
-	if nil == db {
-		dbURLSelf = env.GetEnvDefault(env.DBURL, dbURL)
-		dbUserSelf = env.GetEnvDefault(env.DBUser, dbUser)
-		dbPassSelf = env.GetEnvDefault(env.DBPass, dbPass)
-		dbNameSelf = env.GetEnvDefault(env.DBName, dbName)
-		log.SQL.Warn("init DB Manager")
-		dbValue := strings.Join([]string{dbUserSelf, ":", dbPassSelf, "@tcp(", dbURLSelf, ")/", dbNameSelf,
+func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string) error {
+	if nil == s.DB {
+		s.DBUrl = env.GetEnvDefault(env.DBUrl, dbURL)
+		s.DBUser = env.GetEnvDefault(env.DBUser, dbUser)
+		s.DBPass = env.GetEnvDefault(env.DBPass, dbPass)
+		s.DBName = env.GetEnvDefault(env.DBName, dbName)
+		log.SQL.Info("init DB Manager")
+		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,
 			"?charset=utf8&parseTime=True&loc=Local"}, "")
+		log.SQL.Debug("dbValue = " + dbValue)
 		var err error
-		db, err = gorm.Open("mysql", dbValue)
+		s.DB, err = gorm.Open("mysql", dbValue)
 		if err != nil {
 			log.SQL.Error("failed to connect database, err = " + err.Error())
 			return err
 		}
-		db.LogMode(true)
+		s.DB.LogMode(false)
 		// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
-		db.DB().SetMaxIdleConns(10)
+		s.DB.DB().SetMaxIdleConns(10)
 		// SetMaxOpenConns sets the maximum number of open connections to the database.
-		db.DB().SetMaxOpenConns(100)
+		s.DB.DB().SetMaxOpenConns(100)
 		// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
-		db.DB().SetConnMaxLifetime(time.Hour)
-		go dbKeepAlive(db)
+		s.DB.DB().SetConnMaxLifetime(time.Hour)
+		go s.dbKeepAlive(s.DB)
 	}
 	return nil
 }
 
-func reConnect() error {
-	return Connect(dbURLSelf, dbUserSelf, dbPassSelf, dbNameSelf)
+func (s *SQL) reConnect() error {
+	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName)
 }
 
 // Exec 执行自定义 SQL
-func Exec(f func(db *gorm.DB)) error {
-	if nil == db {
-		if err := reConnect(); nil == err {
-			f(db)
+func (s *SQL) Exec(f func(db *gorm.DB)) error {
+	if nil == s.DB {
+		if err := s.reConnect(); nil == err {
+			f(s.DB)
 		} else {
 			return err
 		}
 	}
+	f(s.DB)
 	return nil
 }
 
-// Custom 新建并链接到指定数据库，同时执行 SQL
-func Custom(dbURL string, dbUser string, dbPass string, dbName string, f func(db *gorm.DB)) error {
-	if err := Connect(dbURL, dbUser, dbPass, dbName); nil == err {
-		f(db)
-	} else {
-		return err
-	}
-	return nil
+// ExecSQL 执行自定义 SQL 语句，该方法是对 func Exec(f func(db *gorm.DB)) error 的实现
+//
+// dest 期望通过该过程赋值的对象
+//
+// sql 即将执行的 SQL 语句，可以包含 "?" 来做通配符
+//
+// values 上述 SQL 语句中 "?" 通配符所表达的值
+//
+// eg：在 db_user 表中根据用户编号和年龄查询用户基本信息，如下所示：
+//
+// ExecSQL(&user, "select id,name,age from db_user where id=? and age=?", 1, 18)
+func (s *SQL) ExecSQL(dest interface{}, sql string, values ...interface{}) {
+	s.DB.Raw(Format(sql), values).Scan(dest)
 }
 
-// Fromat SQL 格式化
-func Fromat(elem ...string) string {
+// Format SQL 格式化
+func Format(elem ...string) string {
 	return strings.Join(elem, " ")
 }
 
-func dbKeepAlive(db *gorm.DB) {
+func (s *SQL) dbKeepAlive(db *gorm.DB) {
 	c := cron.New()
 	_ = c.AddFunc("*/10 * * * * ?", func() {
 		err := db.DB().Ping()
 		if nil != err {
-			_ = Exec(func(db *gorm.DB) {})
+			_ = s.Exec(func(db *gorm.DB) {})
 		}
 	}) //每10秒执行一次
 	c.Start()

@@ -29,8 +29,8 @@ const (
 	DiscoveryURL = "DISCOVERY_URL"
 	// GOPath Go工作路径
 	GOPath = "GO_PATH"
-	// DBURL 数据库 URL
-	DBURL = "DB_URL"
+	// DBUrl 数据库 URL
+	DBUrl = "DB_URL"
 	// DBName 数据库名称
 	DBName = "DB_NAME"
 	// DBUser 数据库用户名
