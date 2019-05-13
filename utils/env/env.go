@@ -28,7 +28,15 @@ const (
 	// DiscoveryURL 当前服务注册的发现服务地址
 	DiscoveryURL = "DISCOVERY_URL"
 	// GOPath Go工作路径
-	GOPath = "GOPATH"
+	GOPath = "GO_PATH"
+	// DBUrl 数据库 URL
+	DBUrl = "DB_URL"
+	// DBName 数据库名称
+	DBName = "DB_NAME"
+	// DBUser 数据库用户名
+	DBUser = "DB_USER"
+	// DBPass 数据库用户密码
+	DBPass = "DB_PASS"
 )
 
 // GetEnv 获取环境变量 envName 的值

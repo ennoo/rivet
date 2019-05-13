@@ -25,7 +25,7 @@ import (
 
 func main() {
 	rivet.Initialize(false, true, false)
-	rivet.UserBow(func(context *gin.Context, result *response.Result) bool {
+	rivet.UseBow(func(context *gin.Context, result *response.Result) bool {
 		result.Fail("test fail")
 		return false
 	})

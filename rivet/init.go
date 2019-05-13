@@ -73,10 +73,10 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 	request.LB = loadBalance
 }
 
-// UserBow 开启网关路由
+// UseBow 开启网关路由
 //
 // filter 自定义过滤方案
-func UserBow(filter func(context *gin.Context, result *response.Result) bool) {
+func UseBow(filter func(context *gin.Context, result *response.Result) bool) {
 	route = true
 	f = filter
 }
