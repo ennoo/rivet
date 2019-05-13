@@ -8,8 +8,6 @@ environment:
   GOPATH: c:\gopath
   GO111MODULE: on
   GOFLAGS: -mod=readonly
-  PKGSWITHOUTEXAMPLES: $(shell go list ./... | grep -v 'examples/')
-  GO_FILES: $(shell find . -name "*.go" -not -path "./vendor/*" -not -path ".git/*" -print0 | xargs -0)
 
 install:
   - echo %PATH%
@@ -19,24 +17,5 @@ install:
   - go env
 
 build_script:
-  - go get golang.org/x/sys/unix
-  - go get golang.org/x/lint/golint # 检测语法问题
-  - go get github.com/fzipp/gocyclo # 检查函数的复杂度
-  - go get github.com/jgautheron/goconst/cmd/goconst # 查找重复的字符串
-  - go get honnef.co/go/tools/cmd/staticcheck # 静态检查
-  - go get github.com/client9/misspell/cmd/misspell # 拼写检查
-  - go get github.com/fzipp/gocyclo # 检查函数的复杂度
-  - go get github.com/go-playground/overalls # overalls能够支持到各级子目录
-  - go get github.com/mattn/goveralls # 是coveralls对golang的测试覆盖率支持命令
-  - go get github.com/smartystreets/goconvey # 测试工具
-  - go get github.com/hashicorp/consul # consul测试
-  - go get -t -v -d ./...
-  - nohup consul agent -dev &
-  - overalls -project=github.com/ennoo/rivet -covermode=count -ignore='.git,_vendor'
-  - go vet $(PKGSWITHOUTEXAMPLES)
-  - golint -set_exit_status $(PKGSWITHOUTEXAMPLES)
-  - misspell -source=text -error $(GO_FILES)
-  - staticcheck $(PKGSWITHOUTEXAMPLES)
-  - gocyclo -over 10 $(GO_FILES)
-  - goconst $(PKGSWITHOUTEXAMPLES)
-  - go test -v -cover $(PKGSWITHOUTEXAMPLES)
+  - go vet ./...
+  - go test -v -race -cover ./...
