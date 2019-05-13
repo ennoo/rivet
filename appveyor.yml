@@ -8,6 +8,7 @@ environment:
   GOPATH: c:\gopath
   GO111MODULE: on
   GOFLAGS: -mod=readonly
+  PKGSWITHOUTEXAMPLES: $(shell go list ./... | grep -v 'examples/')
 
 install:
   - echo %PATH%
@@ -17,5 +18,6 @@ install:
   - go env
 
 build_script:
-  - go vet ./...
-  - go test -v -race -cover ./...
+  - go vet $(PKGSWITHOUTEXAMPLES)
+  - go test -v -race -cover $(PKGSWITHOUTEXAMPLES)
+#  - go test -v -run - -bench . -benchmem ./...
