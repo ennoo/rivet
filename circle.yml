@@ -19,4 +19,4 @@ jobs:
       - run: go get github.com/smartystreets/goconvey # 测试工具
       - run: go get github.com/hashicorp/consul # consul测试
       - run: go get -t -v -d ./...
-      - run: make start check test end
+      - run: make checkCircle
