@@ -105,14 +105,7 @@ func (request *Request) RestJSON(method string, remote string, uri string, param
 	case http.MethodTrace:
 		resp, err = restJSONHandler.Trace(DirectJSONRequest)
 	}
-
-	if nil != resp {
-		defer resp.Body.Close()
-		body, err = ioutil.ReadAll(resp.Body)
-		return body, err
-	} else {
-		return body, errors.New("response is nil")
-	}
+	return restDone(body, resp, err)
 }
 
 // RestTextByURL TEXT 请求
@@ -164,14 +157,20 @@ func (request *Request) RestText(method string, remote string, uri string, value
 	case http.MethodTrace:
 		resp, err = restTextHandler.Trace(DirectTextRequest)
 	}
+	return restDone(body, resp, err)
+}
 
+func restDone(body []byte, resp *http.Response, err error) ([]byte, error) {
+	if err != nil {
+		return nil, err
+	}
 	if nil != resp {
 		defer resp.Body.Close()
 		body, err = ioutil.ReadAll(resp.Body)
-		return body, err
 	} else {
-		return body, errors.New("response is nil")
+		err = errors.New("response is nil")
 	}
+	return body, err
 }
 
 // CallByURL 请求转发处理方案
@@ -306,16 +305,24 @@ func (request *Request) callReal(context *gin.Context, method string, remote str
 	case http.MethodTrace:
 		resp, err = restTransHandler.Trace(TransCallbackRequest)
 	}
+	request.callDone(context, body, resp, err, callback)
+}
+
+func (request *Request) callDone(context *gin.Context, body []byte, resp *http.Response, err error, callback func() *response.Result) {
+	if err != nil {
+		request.result.Fail(err.Error())
+		context.JSON(http.StatusOK, request.result)
+		return
+	}
 
 	if nil != resp {
 		defer resp.Body.Close()
-		body, err = ioutil.ReadAll(resp.Body)
-		done(context, resp, request, body, err, callback)
+		bodyRead, err := ioutil.ReadAll(resp.Body)
+		done(context, resp, request, bodyRead, err, callback)
 	} else {
 		request.result.Fail("Response is nil")
 		context.JSON(http.StatusOK, request.result)
 	}
-
 }
 
 // done 请求转发处理结果
