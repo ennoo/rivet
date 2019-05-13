@@ -51,46 +51,46 @@ func (handler *RestTransHandler) ObtainCookies() []*http.Cookie {
 }
 
 // Post 发起 Post 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Post(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Post(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodPost, handler, reqType)
 }
 
 // Put 发起 Put 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Put(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Put(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodPut, handler, reqType)
 }
 
 // Delete 发起 Delete 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Delete(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Delete(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodDelete, handler, reqType)
 }
 
 // Patch 发起 Patch 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Patch(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Patch(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodPatch, handler, reqType)
 }
 
 // Options 发起 Options 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Options(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Options(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodOptions, handler, reqType)
 }
 
 // Head 发起 Head 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Head(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Head(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodHead, handler, reqType)
 }
 
 // Connect 发起 Connect 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Connect(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Connect(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodConnect, handler, reqType)
 }
 
 // Trace 发起 Trace 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Trace(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Trace(reqType int) (resp *http.Response, err error) {
 	return request(http.MethodTrace, handler, reqType)
 }
 
 // Get 发起 Get 请求，body 为请求后的返回内容，err 指出请求出错原因
-func (handler *RestTransHandler) Get(reqType int) (body []byte, err error) {
+func (handler *RestTransHandler) Get(reqType int) (resp *http.Response, err error) {
 	return get(handler, reqType)
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/ennoo/rivet/scheduled"
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/trans/request"
+	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/ennoo/rivet/utils/string"
@@ -37,6 +38,7 @@ var (
 	ud    = false // 是否启用发现服务
 	cp    string  // 启用的发现服务组件类型
 	sn    string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
+	f     func(context *gin.Context, result *response.Result) bool
 )
 
 // ListenServe 启动监听端口服务对象
@@ -49,8 +51,10 @@ type ListenServe struct {
 	// keepAlive 指定保持活动网络连接的时间，如果为0，则不启用keep-alive，默认30s
 	KeepAlive time.Duration
 
+	// TLS 服务端私钥
 	CertFile string
-	KeyFile  string
+	// TLS 服务端的数字证书
+	KeyFile string
 }
 
 // Initialize rivet 初始化方法，必须最先调用
@@ -62,13 +66,19 @@ type ListenServe struct {
 // serverManager：是否开启外界服务管理功能
 //
 // loadBalance：是否开启负载均衡
-func Initialize(bow bool, healthCheck bool, serverManager bool, loadBalance bool) {
+func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	route = bow
 	hc = healthCheck
 	sm = serverManager
 	request.LB = loadBalance
+}
 
+// UserBow 开启网关路由
+//
+// filter 自定义过滤方案
+func UserBow(filter func(context *gin.Context, result *response.Result) bool) {
+	route = true
+	f = filter
 }
 
 // UseDiscovery 启用指定的发现服务
@@ -103,7 +113,7 @@ func UseDiscovery(component, url, serviceName, hostname string, port int) {
 func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 	engine := gin.Default()
 	if route {
-		bow.Route(engine)
+		bow.Route(engine, f)
 	}
 	if hc {
 		Health(engine)

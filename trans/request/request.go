@@ -17,12 +17,14 @@ package request
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -80,29 +82,37 @@ func (request *Request) RestJSON(method string, remote string, uri string, param
 		Param: param,
 	}
 	var body []byte
+	var resp *http.Response
 	var err error
 
 	switch method {
 	case http.MethodGet:
-		body, err = restJSONHandler.Get(DirectJSONRequest)
+		resp, err = restJSONHandler.Get(DirectJSONRequest)
 	case http.MethodHead:
-		body, err = restJSONHandler.Head(DirectJSONRequest)
+		resp, err = restJSONHandler.Head(DirectJSONRequest)
 	case http.MethodPost:
-		body, err = restJSONHandler.Post(DirectJSONRequest)
+		resp, err = restJSONHandler.Post(DirectJSONRequest)
 	case http.MethodPut:
-		body, err = restJSONHandler.Put(DirectJSONRequest)
+		resp, err = restJSONHandler.Put(DirectJSONRequest)
 	case http.MethodPatch:
-		body, err = restJSONHandler.Patch(DirectJSONRequest)
+		resp, err = restJSONHandler.Patch(DirectJSONRequest)
 	case http.MethodDelete:
-		body, err = restJSONHandler.Delete(DirectJSONRequest)
+		resp, err = restJSONHandler.Delete(DirectJSONRequest)
 	case http.MethodConnect:
-		body, err = restJSONHandler.Connect(DirectJSONRequest)
+		resp, err = restJSONHandler.Connect(DirectJSONRequest)
 	case http.MethodOptions:
-		body, err = restJSONHandler.Options(DirectJSONRequest)
+		resp, err = restJSONHandler.Options(DirectJSONRequest)
 	case http.MethodTrace:
-		body, err = restJSONHandler.Trace(DirectJSONRequest)
+		resp, err = restJSONHandler.Trace(DirectJSONRequest)
 	}
-	return body, err
+
+	if nil != resp {
+		defer resp.Body.Close()
+		body, err = ioutil.ReadAll(resp.Body)
+		return body, err
+	} else {
+		return body, errors.New("response is nil")
+	}
 }
 
 // RestTextByURL TEXT 请求
@@ -131,29 +141,37 @@ func (request *Request) RestText(method string, remote string, uri string, value
 		Values: values,
 	}
 	var body []byte
+	var resp *http.Response
 	var err error
 
 	switch method {
 	case http.MethodGet:
-		body, err = restTextHandler.Get(DirectTextRequest)
+		resp, err = restTextHandler.Get(DirectTextRequest)
 	case http.MethodHead:
-		body, err = restTextHandler.Head(DirectTextRequest)
+		resp, err = restTextHandler.Head(DirectTextRequest)
 	case http.MethodPost:
-		body, err = restTextHandler.Post(DirectTextRequest)
+		resp, err = restTextHandler.Post(DirectTextRequest)
 	case http.MethodPut:
-		body, err = restTextHandler.Put(DirectTextRequest)
+		resp, err = restTextHandler.Put(DirectTextRequest)
 	case http.MethodPatch:
-		body, err = restTextHandler.Patch(DirectTextRequest)
+		resp, err = restTextHandler.Patch(DirectTextRequest)
 	case http.MethodDelete:
-		body, err = restTextHandler.Delete(DirectTextRequest)
+		resp, err = restTextHandler.Delete(DirectTextRequest)
 	case http.MethodConnect:
-		body, err = restTextHandler.Connect(DirectTextRequest)
+		resp, err = restTextHandler.Connect(DirectTextRequest)
 	case http.MethodOptions:
-		body, err = restTextHandler.Options(DirectTextRequest)
+		resp, err = restTextHandler.Options(DirectTextRequest)
 	case http.MethodTrace:
-		body, err = restTextHandler.Trace(DirectTextRequest)
+		resp, err = restTextHandler.Trace(DirectTextRequest)
 	}
-	return body, err
+
+	if nil != resp {
+		defer resp.Body.Close()
+		body, err = ioutil.ReadAll(resp.Body)
+		return body, err
+	} else {
+		return body, errors.New("response is nil")
+	}
 }
 
 // CallByURL 请求转发处理方案
@@ -265,35 +283,45 @@ func (request *Request) callReal(context *gin.Context, method string, remote str
 			Header:       req.Header,
 			Cookies:      cookies}}
 	var body []byte
+	var resp *http.Response
 	var err error
 
 	switch method {
 	case http.MethodGet:
-		body, err = restTransHandler.Get(TransCallbackRequest)
+		resp, err = restTransHandler.Get(TransCallbackRequest)
 	case http.MethodHead:
-		body, err = restTransHandler.Head(TransCallbackRequest)
+		resp, err = restTransHandler.Head(TransCallbackRequest)
 	case http.MethodPost:
-		body, err = restTransHandler.Post(TransCallbackRequest)
+		resp, err = restTransHandler.Post(TransCallbackRequest)
 	case http.MethodPut:
-		body, err = restTransHandler.Put(TransCallbackRequest)
+		resp, err = restTransHandler.Put(TransCallbackRequest)
 	case http.MethodPatch:
-		body, err = restTransHandler.Patch(TransCallbackRequest)
+		resp, err = restTransHandler.Patch(TransCallbackRequest)
 	case http.MethodDelete:
-		body, err = restTransHandler.Delete(TransCallbackRequest)
+		resp, err = restTransHandler.Delete(TransCallbackRequest)
 	case http.MethodConnect:
-		body, err = restTransHandler.Connect(TransCallbackRequest)
+		resp, err = restTransHandler.Connect(TransCallbackRequest)
 	case http.MethodOptions:
-		body, err = restTransHandler.Options(TransCallbackRequest)
+		resp, err = restTransHandler.Options(TransCallbackRequest)
 	case http.MethodTrace:
-		body, err = restTransHandler.Trace(TransCallbackRequest)
+		resp, err = restTransHandler.Trace(TransCallbackRequest)
 	}
-	done(context, request, body, err, callback)
+
+	if nil != resp {
+		defer resp.Body.Close()
+		body, err = ioutil.ReadAll(resp.Body)
+		done(context, resp, request, body, err, callback)
+	} else {
+		request.result.Fail("Response is nil")
+		context.JSON(http.StatusOK, request.result)
+	}
+
 }
 
 // done 请求转发处理结果
 //
 // 转发请求或降级回调
-func done(context *gin.Context, request *Request, body []byte, err error, callback func() *response.Result) {
+func done(context *gin.Context, resp *http.Response, request *Request, body []byte, err error, callback func() *response.Result) {
 	if err != nil {
 		request.result.Callback(callback, err)
 	} else {
@@ -302,6 +330,14 @@ func done(context *gin.Context, request *Request, body []byte, err error, callba
 		if err := json.Unmarshal(body, &request.result); nil != err {
 			request.result.Fail(err.Error())
 		}
+	}
+
+	//for k := range resp.Header {
+	//	context.Writer.Header().Add(k, resp.Header.Get(k))
+	//}
+	for index := range resp.Cookies() {
+		cookie := resp.Cookies()[index]
+		context.SetCookie(cookie.Name, cookie.Value, cookie.MaxAge, cookie.Path, cookie.Domain, cookie.Secure, cookie.HttpOnly)
 	}
 	context.JSON(http.StatusOK, request.result)
 }
