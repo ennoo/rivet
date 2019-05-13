@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	rivet.Initialize(false, true, false, false)
+	rivet.Initialize(true, false, false)
 	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "test", "127.0.0.1", 8082)
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testRouter2),

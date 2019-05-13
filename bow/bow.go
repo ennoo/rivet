@@ -87,24 +87,27 @@ func (s *Bow) register(routeService *RouteService) {
 }
 
 // RunBow 开启路由
-func RunBow(context *gin.Context, serviceName string) {
-	routeService, ok := instance.AllWay[serviceName]
-	if !ok {
-		err := fmt.Errorf("routeService not fount")
-		log.Shunt.Error(err.Error(), zap.String("serviceName", serviceName))
-		context.JSON(http.StatusOK, err.Error())
-	} else {
-		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, routeService.OutURI)
-	}
+func RunBow(context *gin.Context, serviceName string, filter func(context *gin.Context, result *response.Result) bool) {
+	RunBowCallback(context, serviceName, filter, nil)
 }
 
 // RunBowCallback 开启路由并处理降级
-func RunBowCallback(context *gin.Context, serviceName string, f func() *response.Result) {
+func RunBowCallback(context *gin.Context, serviceName string, filter func(context *gin.Context, result *response.Result) bool, f func() *response.Result) {
 	routeService, ok := instance.AllWay[serviceName]
+	result := response.Result{}
 	if !ok {
-		err := fmt.Errorf("service not fount")
+		err := fmt.Errorf("routeService not fount")
 		log.Shunt.Error(err.Error(), zap.String("serviceName", serviceName))
-		context.JSON(http.StatusOK, err.Error())
+		result.Fail(err.Error())
+		context.JSON(http.StatusOK, result)
+		return
+	}
+	if !filter(context, &result) {
+		context.JSON(http.StatusOK, result)
+		return
+	}
+	if nil == f {
+		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, routeService.OutURI)
 	} else {
 		request.SyncPoolGetRequest().Callback(context, context.Request.Method, routeService.OutRemote, routeService.OutURI, f)
 	}

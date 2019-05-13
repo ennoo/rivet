@@ -17,12 +17,18 @@ package main
 
 import (
 	"github.com/ennoo/rivet/rivet"
+	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
+	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 func main() {
-	rivet.Initialize(true, false, true, false)
+	rivet.Initialize(false, true, false)
+	rivet.UserBow(func(context *gin.Context, result *response.Result) bool {
+		result.Fail("test fail")
+		return false
+	})
 	rivet.Bow().AddService("test1", "hello1", "http://localhost:8081", "rivet/shunt")
 	rivet.Bow().AddService("test2", "hello2", "https://localhost:8092", "rivet/shunt")
 	rivet.ListenAndServe(&rivet.ListenServe{

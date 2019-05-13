@@ -21,7 +21,6 @@ import (
 	"github.com/ennoo/rivet/utils/string"
 	"github.com/gin-gonic/gin"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -48,31 +47,31 @@ type RestHandler struct {
 // Rest http 请求方法接口
 type Rest interface {
 	// Post 发起 Post 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Post(reqType int) (body []byte, err error)
+	Post(reqType int) (resp *http.Response, err error)
 
 	// Put 发起 Put 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Put(reqType int) (body []byte, err error)
+	Put(reqType int) (resp *http.Response, err error)
 
 	// Delete 发起 Delete 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Delete(reqType int) (body []byte, err error)
+	Delete(reqType int) (resp *http.Response, err error)
 
 	// Patch 发起 Patch 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Patch(reqType int) (body []byte, err error)
+	Patch(reqType int) (resp *http.Response, err error)
 
 	// Options 发起 Options 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Options(reqType int) (body []byte, err error)
+	Options(reqType int) (resp *http.Response, err error)
 
 	// Head 发起 Head 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Head(reqType int) (body []byte, err error)
+	Head(reqType int) (resp *http.Response, err error)
 
 	// Connect 发起 Connect 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Connect(reqType int) (body []byte, err error)
+	Connect(reqType int) (resp *http.Response, err error)
 
 	// Trace 发起 Trace 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Trace(reqType int) (body []byte, err error)
+	Trace(reqType int) (resp *http.Response, err error)
 
 	// Get 发起 Get 请求，body 为请求后的返回内容，err 指出请求出错原因
-	Get(reqType int) (body []byte, err error)
+	Get(reqType int) (resp *http.Response, err error)
 }
 
 // Handler http 处理请求发送内容接口
@@ -99,7 +98,7 @@ func addCookies(request *http.Request, cookies []*http.Cookie) {
 	}
 }
 
-func request(method string, handler Handler, reqType int) ([]byte, error) {
+func request(method string, handler Handler, reqType int) (*http.Response, error) {
 	req, err := http.NewRequest(method, getFullURI(handler), handler.ObtainBody())
 	if nil != err {
 		slips := slip.NewSlip(slip.RestRequestError, err.Error(), nil)
@@ -118,7 +117,7 @@ func request(method string, handler Handler, reqType int) ([]byte, error) {
 }
 
 // Get 发送get请求
-func get(handler Handler, reqType int) (body []byte, err error) {
+func get(handler Handler, reqType int) (resp *http.Response, err error) {
 	req, err := http.NewRequest(http.MethodGet, getFullURI(handler), nil)
 	if nil != err {
 		slips := slip.NewSlip(slip.RestRequestError, err.Error(), nil)
@@ -136,8 +135,7 @@ func get(handler Handler, reqType int) (body []byte, err error) {
 	return exec(req)
 }
 
-func exec(req *http.Request) (body []byte, err error) {
-	var resp *http.Response
+func exec(req *http.Request) (resp *http.Response, err error) {
 	if nil != GetTPInstance().Transport {
 		client := http.Client{Transport: GetTPInstance().Transport}
 		resp, err = client.Do(req)
@@ -150,8 +148,6 @@ func exec(req *http.Request) (body []byte, err error) {
 		return nil, slips
 	}
 
-	defer resp.Body.Close()
-	body, err = ioutil.ReadAll(resp.Body)
 	return
 }
 

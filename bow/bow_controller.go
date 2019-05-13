@@ -16,17 +16,18 @@
 package bow
 
 import (
+	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
 )
 
 // Route 网关服务路由
-func Route(engine *gin.Engine) {
+func Route(engine *gin.Engine, filter func(context *gin.Context, result *response.Result) bool) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/")
 	for x := range routeServices {
 		bowService := routeServices[x]
 		vRepo.Any(bowService.InURI, func(context *gin.Context) {
-			RunBow(context, bowService.Name)
+			RunBow(context, bowService.Name, filter)
 		})
 	}
 }
