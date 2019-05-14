@@ -22,6 +22,7 @@ import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
+	"github.com/ennoo/rivet/utils/sql"
 	"github.com/rs/xid"
 )
 
@@ -61,4 +62,9 @@ func Request() *request.Request {
 // Bow 提供实例化调用路由，并内置返回策略
 func Bow() *bow.Bow {
 	return bow.GetBowInstance()
+}
+
+// SQL 提供实例化调用数据库连接对象
+func SQL() *sql.SQL {
+	return sql.GetSQLInstance()
 }

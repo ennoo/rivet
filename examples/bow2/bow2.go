@@ -35,12 +35,24 @@ func main() {
 			InURI:     "hello1",
 			OutRemote: "http://localhost:8081",
 			OutURI:    "rivet/shunt",
+			Limit: &bow.Limit{
+				LimitMillisecond:         int64(3 * 1000),
+				LimitCount:               3,
+				LimitIntervalMillisecond: 150,
+				LimitChan:                make(chan int, 10),
+			},
 		},
 		&bow.RouteService{
 			Name:      "test2",
 			InURI:     "hello2",
 			OutRemote: "https://localhost:8092",
 			OutURI:    "rivet/shunt",
+			Limit: &bow.Limit{
+				LimitMillisecond:         int64(3 * 1000),
+				LimitCount:               3,
+				LimitIntervalMillisecond: 150,
+				LimitChan:                make(chan int, 10),
+			},
 		},
 	)
 	rivet.ListenAndServe(&rivet.ListenServe{

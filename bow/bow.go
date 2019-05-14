@@ -48,10 +48,11 @@ type Bow struct {
 
 // RouteService 路由对象
 type RouteService struct {
-	Name      string
-	InURI     string
-	OutRemote string
-	OutURI    string
+	Name      string // 服务名称
+	InURI     string // 路由入口 URI
+	OutRemote string // 路由出口地址
+	OutURI    string // 路由出口 URI
+	Limit     *Limit // 服务限流策略
 }
 
 // Add 新增路由服务数组
@@ -60,6 +61,9 @@ func (s *Bow) Add(routeServiceArr ...*RouteService) {
 		routeService := routeServiceArr[index]
 		routeServices[routeService.Name] = routeService
 		GetBowInstance().register(routeService)
+		if nil != routeService.Limit {
+			go routeService.Limit.limit()
+		}
 		serviceCount++
 	}
 }
@@ -105,6 +109,10 @@ func RunBowCallback(context *gin.Context, serviceName string, filter func(contex
 	if !filter(context, &result) {
 		context.JSON(http.StatusOK, result)
 		return
+	}
+	// 限流
+	if nil != routeService.Limit {
+		routeService.Limit.LimitChan <- 1
 	}
 	if nil == f {
 		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, routeService.OutURI)
