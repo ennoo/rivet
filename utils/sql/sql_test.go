@@ -29,7 +29,7 @@ type User struct {
 
 func TestSQL(t *testing.T) {
 	dbURL := env.GetEnvDefault(env.DBUrl, "127.0.0.1:3306")
-	dbPass := env.GetEnvDefault(env.DBPass, "secret")
+	dbPass := env.GetEnvDefault(env.DBPass, "")
 	dbName := env.GetEnvDefault(env.DBName, "mysql")
 	db := GetSQLInstance()
 	_ = db.Connect(dbURL, "root", dbPass, dbName)
