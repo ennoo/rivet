@@ -16,6 +16,7 @@
 package sql
 
 import (
+	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/jinzhu/gorm"
 	"testing"
@@ -27,10 +28,13 @@ type User struct {
 }
 
 func TestSQL(t *testing.T) {
+	dbUrl := env.GetEnvDefault(env.DBUrl, "127.0.0.1:3306")
+	dbPass := env.GetEnvDefault(env.DBPass, "secret")
+	dbName := env.GetEnvDefault(env.DBName, "mysql")
 	db := GetSQLInstance()
-	_ = db.Connect("127.0.0.1:3306", "root", "my-secret-pw", "mysql")
+	_ = db.Connect(dbUrl, "root", dbPass, dbName)
 
-	_ = db.Connect("127.0.0.1:3306", "root", "my-secret-pw", "mysql")
+	_ = db.Connect(dbUrl, "root", dbPass, dbName)
 	log.SQL.Info("dbURL = " + db.DBUrl)
 	var user User
 	db.ExecSQL(&user, "select * from user where User=? limit 1", "root")
