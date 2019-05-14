@@ -5,6 +5,7 @@ jobs:
     parallelism: 1
     docker:
       - image: circleci/golang
+      - image: circleci/mysql:5.7.26
     steps:
       - checkout
       - run: go get golang.org/x/sys/unix
