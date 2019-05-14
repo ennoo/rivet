@@ -13,6 +13,11 @@
  *
  */
 
+// Package rivet implements micro service components for Go development
+//
+// Source code and other details for the project are available at GitHub:
+//
+// https://github.com/ennoo/rivet
 package rivet
 
 import (
