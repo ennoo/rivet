@@ -67,14 +67,14 @@ func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable bool) 
 		s.DBPass = env.GetEnvDefault(env.DBPass, dbPass)
 		s.DBName = env.GetEnvDefault(env.DBName, dbName)
 		s.LogModeEnable = logModeEnable
-		log.SQL.Info("init DB Manager")
+		log.Common.Info("init DB Manager")
 		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,
 			"?charset=utf8&parseTime=True&loc=Local"}, "")
-		log.SQL.Debug("dbValue = " + dbValue)
+		log.Common.Debug("dbValue = " + dbValue)
 		var err error
 		s.DB, err = gorm.Open("mysql", dbValue)
 		if err != nil {
-			log.SQL.Error("failed to connect database, err = " + err.Error())
+			log.Common.Error("failed to connect database, err = " + err.Error())
 			return err
 		}
 		s.DB.LogMode(logModeEnable)

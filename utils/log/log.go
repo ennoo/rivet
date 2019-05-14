@@ -45,8 +45,6 @@ var (
 	Trans, _ = zap.NewDevelopment()
 	// Scheduled 定时任务日志对象
 	Scheduled, _ = zap.NewDevelopment()
-	// SQL 数据库日志对象
-	SQL, _ = zap.NewDevelopment()
 )
 
 const (
@@ -86,7 +84,6 @@ func GetLogInstance() *Logger {
 		Shunt = instance.New("./logs/shunt.log", "shunt")
 		Trans = instance.New("./logs/trans.log", "trans")
 		Scheduled = instance.New("./logs/scheduled.log", "scheduled")
-		SQL = instance.New("./logs/sql.log", "sql")
 	})
 	return instance
 }

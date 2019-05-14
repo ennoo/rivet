@@ -35,10 +35,10 @@ func TestSQL(t *testing.T) {
 	_ = db.Connect(dbURL, "root", dbPass, dbName, false)
 
 	_ = db.Connect(dbURL, "root", dbPass, dbName, false)
-	log.SQL.Info("dbURL = " + db.DBUrl)
+	log.Common.Info("dbURL = " + db.DBUrl)
 	var user User
 	db.ExecSQL(&user, "select * from user where User=? limit 1", "root")
-	log.SQL.Info("user Host = " + user.Host + " User = " + user.User)
+	log.Common.Info("user Host = " + user.Host + " User = " + user.User)
 
 	db.DB = nil
 	_ = db.reConnect()
@@ -52,5 +52,5 @@ func TestSQL(t *testing.T) {
 		db.Raw(Format(
 			"select * from", "user", "where User=? limit 1"), "root").Scan(&user)
 	})
-	log.SQL.Info("user Host = " + user.Host + " User = " + user.User)
+	log.Common.Info("user Host = " + user.Host + " User = " + user.User)
 }
