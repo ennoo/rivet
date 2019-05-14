@@ -28,13 +28,13 @@ type User struct {
 }
 
 func TestSQL(t *testing.T) {
-	dbUrl := env.GetEnvDefault(env.DBUrl, "127.0.0.1:3306")
+	dbURL := env.GetEnvDefault(env.DBUrl, "127.0.0.1:3306")
 	dbPass := env.GetEnvDefault(env.DBPass, "secret")
 	dbName := env.GetEnvDefault(env.DBName, "mysql")
 	db := GetSQLInstance()
-	_ = db.Connect(dbUrl, "root", dbPass, dbName)
+	_ = db.Connect(dbURL, "root", dbPass, dbName)
 
-	_ = db.Connect(dbUrl, "root", dbPass, dbName)
+	_ = db.Connect(dbURL, "root", dbPass, dbName)
 	log.SQL.Info("dbURL = " + db.DBUrl)
 	var user User
 	db.ExecSQL(&user, "select * from user where User=? limit 1", "root")
