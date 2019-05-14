@@ -19,7 +19,7 @@ checkTravis: start overalls vet lint misspell staticcheck cyclo const veralls te
 
 checkCircle: wright consul overalls vet lint misspell staticcheck cyclo const test endCommon endConsul
 
-checkLocal: start overalls vet lint misspell staticcheck cyclo const endCommon endConsul endDocker
+checkLocal: wright consul overalls vet lint misspell staticcheck cyclo const endCommon endConsul endDocker
 
 start: wright mysql consul
 
