@@ -37,6 +37,8 @@ type SQL struct {
 	DBUser string   // dbUser 数据库用户名
 	DBPass string   // dbPass 数据库用户密码
 	DBName string   // dbName 数据库名称
+	// LogMode set log mode, `true` for detailed logs, `false` for no log, default, will only print error logs
+	LogModeEnable bool
 }
 
 // GetSQLInstance 获取 SQL 单例
@@ -48,12 +50,23 @@ func GetSQLInstance() *SQL {
 }
 
 // Connect 链接数据库服务
-func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string) error {
+//
+// dbURL 数据库 URL
+//
+// dbUser 数据库用户名
+//
+// dbPass 数据库用户密码
+//
+// dbName 数据库名称
+//
+// logModeEnable set log mode, `true` for detailed logs, `false` for no log, default, will only print error logs
+func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable bool) error {
 	if nil == s.DB {
 		s.DBUrl = env.GetEnvDefault(env.DBUrl, dbURL)
 		s.DBUser = env.GetEnvDefault(env.DBUser, dbUser)
 		s.DBPass = env.GetEnvDefault(env.DBPass, dbPass)
 		s.DBName = env.GetEnvDefault(env.DBName, dbName)
+		s.LogModeEnable = logModeEnable
 		log.SQL.Info("init DB Manager")
 		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,
 			"?charset=utf8&parseTime=True&loc=Local"}, "")
@@ -64,7 +77,7 @@ func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string) error {
 			log.SQL.Error("failed to connect database, err = " + err.Error())
 			return err
 		}
-		s.DB.LogMode(false)
+		s.DB.LogMode(logModeEnable)
 		// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 		s.DB.DB().SetMaxIdleConns(10)
 		// SetMaxOpenConns sets the maximum number of open connections to the database.
@@ -77,7 +90,7 @@ func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string) error {
 }
 
 func (s *SQL) reConnect() error {
-	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName)
+	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName, s.LogModeEnable)
 }
 
 // Exec 执行自定义 SQL
