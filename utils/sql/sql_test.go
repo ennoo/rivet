@@ -32,9 +32,9 @@ func TestSQL(t *testing.T) {
 	dbPass := env.GetEnvDefault(env.DBPass, "")
 	dbName := env.GetEnvDefault(env.DBName, "mysql")
 	db := GetSQLInstance()
-	_ = db.Connect(dbURL, "root", dbPass, dbName)
+	_ = db.Connect(dbURL, "root", dbPass, dbName, false)
 
-	_ = db.Connect(dbURL, "root", dbPass, dbName)
+	_ = db.Connect(dbURL, "root", dbPass, dbName, false)
 	log.SQL.Info("dbURL = " + db.DBUrl)
 	var user User
 	db.ExecSQL(&user, "select * from user where User=? limit 1", "root")
