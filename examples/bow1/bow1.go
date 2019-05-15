@@ -19,13 +19,12 @@ import (
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
-	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 func main() {
 	rivet.Initialize(false, true, false)
-	rivet.UseBow(func(context *gin.Context, result *response.Result) bool {
+	rivet.UseBow(func(result *response.Result) bool {
 		result.Fail("test fail")
 		return false
 	})

@@ -20,7 +20,6 @@ import (
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -32,37 +31,37 @@ func main() {
 	})
 }
 
-func testRouter2(engine *gin.Engine) {
+func testRouter2(router *response.Router) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet")
-	vRepo.GET("/get", get2)
-	vRepo.POST("/post", post2)
-	vRepo.POST("/shunt", shunt2)
+	router.Group = router.Engine.Group("/rivet")
+	router.GET("/get", get2)
+	router.POST("/post", post2)
+	router.POST("/shunt", shunt2)
 }
 
-func get2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
-		result.SaySuccess(context, "get21")
+func get2(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
+		result.SaySuccess(router.Context, "get21")
 	})
 }
 
-func post2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
+func post2(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
 		var test = new(model.Test)
-		if err := context.ShouldBindJSON(test); err != nil {
-			result.SayFail(context, err.Error())
+		if err := router.Context.ShouldBindJSON(test); err != nil {
+			result.SayFail(router.Context, err.Error())
 		}
-		result.SaySuccess(context, test)
+		result.SaySuccess(router.Context, test)
 	})
 }
 
-func shunt2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
+func shunt2(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
 		var test = new(model.Test)
-		if err := context.ShouldBindJSON(test); err != nil {
-			result.SayFail(context, err.Error())
+		if err := router.Context.ShouldBindJSON(test); err != nil {
+			result.SayFail(router.Context, err.Error())
 		}
 		test.Name = "trans2"
-		result.SaySuccess(context, test)
+		result.SaySuccess(router.Context, test)
 	})
 }

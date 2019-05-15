@@ -91,12 +91,12 @@ func (s *Bow) register(routeService *RouteService) {
 }
 
 // RunBow 开启路由
-func RunBow(context *gin.Context, serviceName string, filter func(context *gin.Context, result *response.Result) bool) {
+func RunBow(context *gin.Context, serviceName string, filter func(result *response.Result) bool) {
 	RunBowCallback(context, serviceName, filter, nil)
 }
 
 // RunBowCallback 开启路由并处理降级
-func RunBowCallback(context *gin.Context, serviceName string, filter func(context *gin.Context, result *response.Result) bool, f func() *response.Result) {
+func RunBowCallback(context *gin.Context, serviceName string, filter func(result *response.Result) bool, f func() *response.Result) {
 	routeService, ok := instance.AllWay[serviceName]
 	result := response.Result{}
 	if !ok {
@@ -106,7 +106,7 @@ func RunBowCallback(context *gin.Context, serviceName string, filter func(contex
 		context.JSON(http.StatusOK, result)
 		return
 	}
-	if !filter(context, &result) {
+	if !filter(&result) {
 		context.JSON(http.StatusOK, result)
 		return
 	}

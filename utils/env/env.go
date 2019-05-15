@@ -28,7 +28,7 @@ const (
 	// DiscoveryURL 当前服务注册的发现服务地址
 	DiscoveryURL = "DISCOVERY_URL"
 	// GOPath Go工作路径
-	GOPath = "GO_PATH"
+	GOPath = "GOPATH"
 	// DBUrl 数据库 URL
 	DBUrl = "DB_URL"
 	// DBName 数据库名称

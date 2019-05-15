@@ -18,7 +18,6 @@ package sql
 import (
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
-	"github.com/jinzhu/gorm"
 	"testing"
 )
 
@@ -44,12 +43,12 @@ func TestSQL(t *testing.T) {
 	_ = db.reConnect()
 	db.ExecSQL(&user, "select * from user where User=? limit 1", "mysql.sys")
 	db.DB = nil
-	_ = db.Exec(func(db *gorm.DB) {
-		db.Raw(Format(
+	_ = db.Exec(func(sql *SQL) {
+		sql.DB.Raw(Format(
 			"select * from", "user", "where User=? limit 1"), "mysql.session").Scan(&user)
 	})
-	_ = db.Exec(func(db *gorm.DB) {
-		db.Raw(Format(
+	_ = db.Exec(func(sql *SQL) {
+		sql.DB.Raw(Format(
 			"select * from", "user", "where User=? limit 1"), "root").Scan(&user)
 	})
 	log.Common.Info("user Host = " + user.Host + " User = " + user.User)

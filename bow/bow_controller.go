@@ -21,7 +21,7 @@ import (
 )
 
 // Route 网关服务路由
-func Route(engine *gin.Engine, filter func(context *gin.Context, result *response.Result) bool) {
+func Route(engine *gin.Engine, filter func(result *response.Result) bool) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/")
 	for x := range routeServices {

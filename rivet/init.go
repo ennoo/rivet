@@ -38,7 +38,7 @@ var (
 	ud    = false // 是否启用发现服务
 	cp    string  // 启用的发现服务组件类型
 	sn    string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
-	f     func(context *gin.Context, result *response.Result) bool
+	f     func(result *response.Result) bool
 )
 
 // ListenServe 启动监听端口服务对象
@@ -76,7 +76,7 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 // UseBow 开启网关路由
 //
 // filter 自定义过滤方案
-func UseBow(filter func(context *gin.Context, result *response.Result) bool) {
+func UseBow(filter func(result *response.Result) bool) {
 	route = true
 	f = filter
 }
@@ -110,16 +110,19 @@ func UseDiscovery(component, url, serviceName, hostname string, port int) {
 }
 
 // SetupRouter 设置路由器相关选项
-func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
-	engine := gin.Default()
+func SetupRouter(routes ...func(router *response.Router)) *gin.Engine {
+	router := &response.Router{
+		Engine: gin.Default(),
+	}
+
 	if route {
-		bow.Route(engine, f)
+		bow.Route(router.Engine, f)
 	}
 	if hc {
-		Health(engine)
+		Health(router.Engine)
 	}
 	if sm {
-		server.Server(engine)
+		server.Server(router.Engine)
 	}
 	if request.LB {
 		if ud {
@@ -129,9 +132,9 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 		}
 	}
 	for _, route := range routes {
-		route(engine)
+		route(router)
 	}
-	return engine
+	return router.Engine
 }
 
 // ListenAndServe 开始启用 rivet

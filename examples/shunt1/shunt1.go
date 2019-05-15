@@ -20,7 +20,6 @@ import (
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
-	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -46,23 +45,23 @@ func main() {
 	})
 }
 
-func testShunt1(engine *gin.Engine) {
+func testShunt1(router *response.Router) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet")
-	vRepo.GET("/shunt/:serviceName", shunt3)
-	vRepo.POST("/shunt", shunt4)
+	router.Group = router.Engine.Group("/rivet")
+	router.GET("/shunt/:serviceName", shunt3)
+	router.POST("/shunt", shunt4)
 }
 
-func shunt3(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
-		serviceName := context.Param("serviceName")
+func shunt3(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
+		serviceName := router.Context.Param("serviceName")
 		rivet.Shunt().Register(serviceName, shunt.Round)
-		result.SaySuccess(context, "test2")
+		result.SaySuccess(router.Context, "test2")
 	})
 }
 
-func shunt4(context *gin.Context) {
-	rivet.Request().Callback(context, http.MethodPost, "test", "rivet/shunt", func() *response.Result {
+func shunt4(router *response.Router) {
+	rivet.Request().Callback(router.Context, http.MethodPost, "test", "rivet/shunt", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }

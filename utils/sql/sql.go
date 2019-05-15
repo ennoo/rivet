@@ -94,15 +94,15 @@ func (s *SQL) reConnect() error {
 }
 
 // Exec 执行自定义 SQL
-func (s *SQL) Exec(f func(db *gorm.DB)) error {
+func (s *SQL) Exec(f func(s *SQL)) error {
 	if nil == s.DB {
 		if err := s.reConnect(); nil == err {
-			f(s.DB)
+			f(s)
 		} else {
 			return err
 		}
 	}
-	f(s.DB)
+	f(s)
 	return nil
 }
 
@@ -131,7 +131,7 @@ func (s *SQL) dbKeepAlive(db *gorm.DB) {
 	_ = c.AddFunc("*/10 * * * * ?", func() {
 		err := db.DB().Ping()
 		if nil != err {
-			_ = s.Exec(func(db *gorm.DB) {})
+			_ = s.Exec(func(sql *SQL) {})
 		}
 	}) //每10秒执行一次
 	c.Start()

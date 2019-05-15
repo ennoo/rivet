@@ -10,60 +10,42 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package main
 
 import (
+	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
-	"github.com/ennoo/rivet/utils/env"
-	"strings"
 )
 
 func main() {
 	rivet.Initialize(true, false, false)
-
-	rivet.ListenAndServeTLS(&rivet.ListenServe{
-		Engine:      rivet.SetupRouter(testRouterTLS2),
-		DefaultPort: "8092",
-		CertFile:    strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/server/server.crt"}, ""),
-		KeyFile:     strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/server/server.key"}, ""),
+	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "test", "127.0.0.1", 8081)
+	rivet.ListenAndServe(&rivet.ListenServe{
+		Engine:      rivet.SetupRouter(testRouter1),
+		DefaultPort: "8084",
 	})
 }
 
-func testRouterTLS2(router *response.Router) {
+func testRouter1(router *response.Router) {
 	// 仓库相关路由设置
 	router.Group = router.Engine.Group("/rivet")
-	router.GET("/get", getTLS2)
-	router.POST("/post", postTLS2)
-	router.POST("/shunt", shuntTLS2)
+	router.POST("/shunt", shunt1)
 }
 
-func getTLS2(router *response.Router) {
-	rivet.Response().Do(router.Context, func(result *response.Result) {
-		result.SaySuccess(router.Context, "get21")
-	})
-}
-
-func postTLS2(router *response.Router) {
+func shunt1(router *response.Router) {
 	rivet.Response().Do(router.Context, func(result *response.Result) {
 		var test = new(model.Test)
 		if err := router.Context.ShouldBindJSON(test); err != nil {
 			result.SayFail(router.Context, err.Error())
 		}
-		result.SaySuccess(router.Context, test)
-	})
-}
-
-func shuntTLS2(router *response.Router) {
-	rivet.Response().Do(router.Context, func(result *response.Result) {
-		var test = new(model.Test)
-		if err := router.Context.ShouldBindJSON(test); err != nil {
-			result.SayFail(router.Context, err.Error())
-		}
-		test.Name = "trans2"
+		test.Name = "trans1"
+		router.Context.Writer.Header().Add("trans1Token15", "trans1Test15")
+		router.Context.SetCookie("trans1Token16", "trans1Test16", 10, "/", "localhost", false, true)
 		result.SaySuccess(router.Context, test)
 	})
 }
