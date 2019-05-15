@@ -20,34 +20,64 @@ import (
 	"go.uber.org/zap"
 )
 
-var key []byte = []byte("Hello World！This is secret!")
+const (
+	SigningMethodHS256 = iota
+	SigningMethodHS384
+	SigningMethodHS512
+)
 
-func Build(sub, iss, jti string, iat, exp, nbf int64) (string, error) {
-	// "sub": "1",  该JWT所面向的用户
-	// "iss": "http://localhost:8000/user/sign_up", 该JWT的签发者
-	// "iat": 1451888119, 在什么时候签发的token
-	// "exp": 1454516119, token什么时候过期
-	// "nbf": 1451888119, token在此时间之前不能被接收处理
-	// "jti": "37c107e4609ddbcc9c096ea5ee76c667" token提供唯一标识
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Subject:   sub,
-		Issuer:    iss,
-		Id:        jti,
-		IssuedAt:  iat,
-		NotBefore: nbf,
-		ExpiresAt: exp,
-	})
-
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString(key)
-
-	log.Common.Info("result", zap.String("token", tokenString), zap.Error(err))
-	return tokenString, err
+type JWT struct {
+	Token *jwt.Token
 }
 
-func Check(token string) bool {
+// "sub": "1",  该JWT所面向的用户
+// "iss": "http://localhost:8000/user/sign_up", 该JWT的签发者
+// "iat": 1451888119, 在什么时候签发的token
+// "exp": 1454516119, token什么时候过期
+// "nbf": 1451888119, token在此时间之前不能被接收处理
+// "jti": "37c107e4609ddbcc9c096ea5ee76c667" token提供唯一标识
+func Build(method int, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (string, error) {
+	var jwtMethod jwt.SigningMethod
+	switch method {
+	case SigningMethodHS256:
+		jwtMethod = jwt.SigningMethodHS256
+	case SigningMethodHS384:
+		jwtMethod = jwt.SigningMethodHS384
+	case SigningMethodHS512:
+		jwtMethod = jwt.SigningMethodHS512
+	default:
+		jwtMethod = jwt.SigningMethodHS256
+	}
+	return token(jwtMethod, key, sub, iss, jti, iat, nbf, exp)
+}
+
+func token(jwtMethod jwt.SigningMethod, key interface{}, sub, iss, jti string, iat, nbf, exp int64) (tokenString string, err error) {
+	token := &jwt.Token{
+		Header: map[string]interface{}{
+			"typ": "JWT",
+			"alg": jwtMethod.Alg(),
+		},
+		Claims: jwt.StandardClaims{
+			Subject:   sub,
+			Issuer:    iss,
+			Id:        jti,
+			IssuedAt:  iat,
+			NotBefore: nbf,
+			ExpiresAt: exp,
+		},
+		Method: jwtMethod,
+	}
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err = token.SignedString(key)
+
+	log.Common.Info("result", zap.String("token", tokenString), zap.Error(err))
+	return
+}
+
+func Check(key interface{}, token string) bool {
 	_, err := jwt.Parse(token, func(*jwt.Token) (interface{}, error) {
-		return []byte("userMD5"), nil
+		return key, nil
 	})
 	if err != nil {
 		log.Common.Info("parase with claims failed.", zap.Error(err))

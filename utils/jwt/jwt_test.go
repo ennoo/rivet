@@ -21,11 +21,20 @@ import (
 )
 
 func TestBuild(t *testing.T) {
-	token, err := Build("1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
-	if nil == err {
-		bo := Check(token)
-		fmt.Println("bo = ", bo)
-	} else {
-		fmt.Println("err = ", err)
+	key := []byte("Hello World！This is secret!")
+	tokenString1, err1 := Build(SigningMethodHS256, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	tokenString2, err2 := Build(SigningMethodHS384, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	tokenString3, err3 := Build(SigningMethodHS512, key, "1", "rivet", "userMD5", time.Now().Unix(), time.Now().Unix(), time.Now().Unix()+1000)
+	if nil == err1 && nil == err2 && nil == err3 {
+		fmt.Println("tokenString1 = ", tokenString1)
+		fmt.Println("tokenString2 = ", tokenString2)
+		fmt.Println("tokenString3 = ", tokenString3)
+		time.Sleep(1 * time.Second)
+		bo1 := Check(key, tokenString1)
+		bo2 := Check(key, tokenString2)
+		bo3 := Check(key, tokenString3)
+		fmt.Println("bo1 = ", bo1)
+		fmt.Println("bo2 = ", bo2)
+		fmt.Println("bo3 = ", bo3)
 	}
 }
