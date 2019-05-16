@@ -64,16 +64,18 @@ func (t *TPort) Timeout(connectTimeout, keepAlive time.Duration) *TPort {
 //
 // caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
 func (t *TPort) RootCACerts(caCertPaths []string) *TPort {
-	for index := range caCertPaths {
-		caCertPath := caCertPaths[index]
-		if caCrt, err := ioutil.ReadFile(caCertPath); err == nil {
-			//将生成的数字证书添加到数字证书集合中
-			t.Pool.AppendCertsFromPEM(caCrt)
-		} else {
-			log.Trans.Fatal("can't read file with path",
-				zap.String("path", caCertPath),
-				zap.Error(err),
-				zap.Int("code", log.ReadFileForCACertFail))
+	if len(caCertPaths) > 0 {
+		for index := range caCertPaths {
+			caCertPath := caCertPaths[index]
+			if caCrt, err := ioutil.ReadFile(caCertPath); err == nil {
+				//将生成的数字证书添加到数字证书集合中
+				t.Pool.AppendCertsFromPEM(caCrt)
+			} else {
+				log.Trans.Fatal("can't read file with path",
+					zap.String("path", caCertPath),
+					zap.Error(err),
+					zap.Int("code", log.ReadFileForCACertFail))
+			}
 		}
 	}
 	return t

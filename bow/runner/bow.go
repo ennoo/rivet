@@ -67,5 +67,9 @@ func main() {
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(),
 		DefaultPort: "19219",
-	}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
+	})
+	//rivet.ListenAndServe(&rivet.ListenServe{
+	//	Engine:      rivet.SetupRouter(),
+	//	DefaultPort: "19219",
+	//}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
 }
