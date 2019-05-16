@@ -32,6 +32,10 @@ const (
 	ServerManager = "SERVER_MANAGER"
 	// LoadBalance 是否启用负载均衡
 	LoadBalance = "LOAD_BALANCE"
+	// OpenTLS 是否开启 TLS
+	OpenTLS = "OPEN_TLS"
+	// BowConfigPath Bow配置文件路径
+	BowConfigPath = "BOW_CONFIG_PATH"
 	// DiscoveryURL 当前服务注册的发现服务地址
 	DiscoveryURL = "DISCOVERY_URL"
 	// GOPath Go工作路径

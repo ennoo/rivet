@@ -17,8 +17,13 @@ package main
 import (
 	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/bow"
+	"github.com/ennoo/rivet/trans"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
+	"github.com/ennoo/rivet/utils/file"
+	"github.com/ennoo/rivet/utils/log"
+	"go.uber.org/zap"
+	"strings"
 )
 
 func main() {
@@ -28,38 +33,28 @@ func main() {
 	rivet.UseBow(func(result *response.Result) bool {
 		return true
 	})
-	rivet.Bow().Add(
-		&bow.RouteService{
-			Name:      "test1",
-			InURI:     "hello1",
-			OutRemote: "http://localhost:8081",
-			OutURI:    "rivet/shunt",
-			Limit: &bow.Limit{
-				LimitMillisecond:         int64(3 * 1000),
-				LimitCount:               3,
-				LimitIntervalMillisecond: 150,
-				LimitChan:                make(chan int, 10),
-			},
-		},
-		&bow.RouteService{
-			Name:      "test2",
-			InURI:     "hello2",
-			OutRemote: "https://localhost:8092",
-			OutURI:    "rivet/shunt",
-			Limit: &bow.Limit{
-				LimitMillisecond:         int64(3 * 1000),
-				LimitCount:               3,
-				LimitIntervalMillisecond: 150,
-				LimitChan:                make(chan int, 10),
-			},
-		},
-	)
-	rivet.ListenAndServe(&rivet.ListenServe{
-		Engine:      rivet.SetupRouter(),
-		DefaultPort: "19219",
-	})
-	//rivet.ListenAndServe(&rivet.ListenServe{
-	//	Engine:      rivet.SetupRouter(),
-	//	DefaultPort: "19219",
-	//}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
+	bowConfigPath := env.GetEnv(env.BowConfigPath)
+	dataArr, err := file.ReadFileByLine(bowConfigPath)
+	if nil != err {
+		log.Bow.Panic("load bow config yml failed", zap.String("BOW_CONFIG_PATH", bowConfigPath), zap.Error(err))
+	}
+	data := strings.Join(dataArr, "")
+	log.Bow.Debug("yml string", zap.String("data", data))
+	bytes := []byte(data)
+	services := bow.YamlServices(bytes)
+	rivet.Bow().AddServices(services)
+	tls := trans.YmlTLS(bytes)
+	if env.GetEnvBool(env.OpenTLS) {
+		rivet.ListenAndServesTLS(&rivet.ListenServe{
+			Engine:      rivet.SetupRouter(),
+			DefaultPort: env.GetEnvDefault(env.PortEnv, "19219"),
+			CertFile:    tls.TLS.Server.CertFile,
+			KeyFile:     tls.TLS.Server.KeyFile,
+		}, tls.TLS.Clients)
+	} else {
+		rivet.ListenAndServes(&rivet.ListenServe{
+			Engine:      rivet.SetupRouter(),
+			DefaultPort: env.GetEnvDefault(env.PortEnv, "19219"),
+		}, tls.TLS.Clients)
+	}
 }

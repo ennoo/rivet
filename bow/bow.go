@@ -22,6 +22,7 @@ import (
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gopkg.in/yaml.v3"
 	"net/http"
 	"sync"
 )
@@ -46,6 +47,11 @@ type Bow struct {
 	AllWay map[string]*RouteService
 }
 
+// RouteServices 路由对象数组
+type RouteServices struct {
+	Services []*RouteService `yaml:"services"`
+}
+
 // RouteService 路由对象
 type RouteService struct {
 	Name      string `yaml:"Name"`      // 服务名称
@@ -55,8 +61,32 @@ type RouteService struct {
 	Limit     *Limit `yaml:"Limit"`     // 服务限流策略
 }
 
+// YamlServices YML转路由对象数组
+func YamlServices(data []byte) []*RouteService {
+	routeServices := RouteServices{}
+	err := yaml.Unmarshal([]byte(data), &routeServices)
+	if err != nil {
+		log.Bow.Error("cannot unmarshal data: " + err.Error())
+		return nil
+	}
+	return routeServices.Services
+}
+
 // Add 新增路由服务数组
 func (s *Bow) Add(routeServiceArr ...*RouteService) {
+	for index := range routeServiceArr {
+		routeService := routeServiceArr[index]
+		routeServices[routeService.Name] = routeService
+		GetBowInstance().register(routeService)
+		if nil != routeService.Limit {
+			go routeService.Limit.limit()
+		}
+		serviceCount++
+	}
+}
+
+// AddServices 新增路由服务数组
+func (s *Bow) AddServices(routeServiceArr []*RouteService) {
 	for index := range routeServiceArr {
 		routeService := routeServiceArr[index]
 		routeServices[routeService.Name] = routeService

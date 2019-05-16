@@ -33,7 +33,7 @@ import (
 // serviceID 自身服务唯一 id
 var serviceID = xid.New().String()
 
-// ServiceID 服务注册 consul 唯一 id
+// ServiceID 服务唯一 id
 func ServiceID() string {
 	return serviceID
 }

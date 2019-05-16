@@ -16,6 +16,8 @@ package bow
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet/utils/file"
+	"strings"
 	"testing"
 	"time"
 )
@@ -75,5 +77,15 @@ func TestLimitMap(t *testing.T) {
 func loopMap(limit *Limit) {
 	if nil != limit {
 		loop(limit)
+	}
+}
+
+func TestYamlServices(t *testing.T) {
+	dataArr, _ := file.ReadFileByLine("./runner/bow.yml")
+	data := strings.Join(dataArr, "")
+	fmt.Println("data : ", data)
+	services := YamlServices([]byte(data))
+	for index := range services {
+		fmt.Println("service:", services[index])
 	}
 }

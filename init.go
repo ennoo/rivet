@@ -145,12 +145,30 @@ func ListenAndServe(listenServe *ListenServe, caCertPaths ...string) {
 	listenAndServe(listenServe, false, caCertPaths...)
 }
 
+// ListenAndServes 开始启用 rivet
+//
+// listenServe 启动监听端口服务对象
+//
+// caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
+func ListenAndServes(listenServe *ListenServe, caCertPaths []string) {
+	listenAndServe(listenServe, false, caCertPaths...)
+}
+
 // ListenAndServeTLS 开始启用 rivet
 //
 // listenServe 启动监听端口服务对象
 //
 // caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
 func ListenAndServeTLS(listenServe *ListenServe, caCertPaths ...string) {
+	listenAndServe(listenServe, true, caCertPaths...)
+}
+
+// ListenAndServesTLS 开始启用 rivet
+//
+// listenServe 启动监听端口服务对象
+//
+// caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
+func ListenAndServesTLS(listenServe *ListenServe, caCertPaths []string) {
 	listenAndServe(listenServe, true, caCertPaths...)
 }
 
