@@ -6,5 +6,6 @@
 [![CircleCI](https://circleci.com/gh/ennoo/rivet.svg?style=svg)](https://circleci.com/gh/ennoo/rivet)
 [![Coverage Status](https://coveralls.io/repos/github/ennoo/rivet/badge.svg?branch=master)](https://coveralls.io/github/ennoo/rivet?branch=master)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fennoo%2Frivet.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fennoo%2Frivet?ref=badge_shield)
+[![GoDoc](https://godoc.org/github.com/ennoo/rivet?status.svg)](https://godoc.org/github.com/ennoo/rivet)
 
 Microservice components for go development
