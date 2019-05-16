@@ -16,9 +16,9 @@
 package main
 
 import (
+	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/examples/model"
-	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 )
 

@@ -10,7 +10,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package main
@@ -20,20 +19,24 @@ import (
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
+	"github.com/ennoo/rivet/utils/env"
+	"github.com/ennoo/rivet/utils/log"
+	"go.uber.org/zap/zapcore"
 	"net/http"
+	"strings"
 )
 
 func main() {
 	rivet.Initialize(true, true, true)
-	//rivet.Log().Conf(&log.Config{
-	//	FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
-	//	Level:       zapcore.DebugLevel,
-	//	MaxSize:     128,
-	//	MaxBackups:  30,
-	//	MaxAge:      30,
-	//	Compress:    true,
-	//	ServiceName: env.GetEnvDefault("SERVICE_NAME", "shunt1"),
-	//})
+	rivet.Log().Conf(&log.Config{
+		FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
+		Level:       zapcore.DebugLevel,
+		MaxSize:     128,
+		MaxBackups:  30,
+		MaxAge:      30,
+		Compress:    true,
+		ServiceName: env.GetEnvDefault("SERVICE_NAME", "shunt1"),
+	})
 	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
 	rivet.Shunt().Register("test", shunt.Round)
 	rivet.Shunt().Register("test1", shunt.Random)
@@ -41,7 +44,7 @@ func main() {
 	//addAddress()
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testShunt1),
-		DefaultPort: "8083",
+		DefaultPort: "19219",
 	})
 }
 

@@ -17,9 +17,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/examples/model"
-	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/ip"
