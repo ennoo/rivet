@@ -22,9 +22,9 @@ import (
 
 // Limit 限流对象
 type Limit struct {
-	LimitMillisecond         int64    // 请求限定的时间段（毫秒）
-	LimitCount               int      // 请求限定的时间段内允许的请求次数
-	LimitIntervalMillisecond int64    // 请求允许的最小间隔时间（毫秒），0表示不限
+	LimitMillisecond         int64    `yaml:"LimitMillisecond"`         // 请求限定的时间段（毫秒）
+	LimitCount               int      `yaml:"LimitCount"`               // 请求限定的时间段内允许的请求次数
+	LimitIntervalMillisecond int64    `yaml:"LimitIntervalMillisecond"` // 请求允许的最小间隔时间（毫秒），0表示不限
 	LimitChan                chan int // 限流通道
 	Times                    []int64  // 请求时间数组
 }

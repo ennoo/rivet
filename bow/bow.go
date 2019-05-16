@@ -48,11 +48,11 @@ type Bow struct {
 
 // RouteService 路由对象
 type RouteService struct {
-	Name      string // 服务名称
-	InURI     string // 路由入口 URI
-	OutRemote string // 路由出口地址
-	OutURI    string // 路由出口 URI
-	Limit     *Limit // 服务限流策略
+	Name      string `yaml:"Name"`      // 服务名称
+	InURI     string `yaml:"InURI"`     // 路由入口 URI
+	OutRemote string `yaml:"OutRemote"` // 路由出口地址
+	OutURI    string `yaml:"OutURI"`    // 路由出口 URI
+	Limit     *Limit `yaml:"Limit"`     // 服务限流策略
 }
 
 // Add 新增路由服务数组

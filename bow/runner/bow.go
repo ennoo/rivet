@@ -19,22 +19,12 @@ import (
 	"github.com/ennoo/rivet/bow"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
-	"github.com/ennoo/rivet/utils/log"
-	"go.uber.org/zap/zapcore"
-	"strings"
 )
 
 func main() {
-	rivet.Initialize(false, true, false)
-	rivet.Log().Conf(&log.Config{
-		FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
-		Level:       zapcore.DebugLevel,
-		MaxSize:     128,
-		MaxBackups:  30,
-		MaxAge:      30,
-		Compress:    true,
-		ServiceName: env.GetEnvDefault("SERVICE_NAME", "shunt1"),
-	})
+	rivet.Initialize(env.GetEnvBoolDefault(env.HealthCheck, false),
+		env.GetEnvBoolDefault(env.ServerManager, false),
+		env.GetEnvBoolDefault(env.LoadBalance, false))
 	rivet.UseBow(func(result *response.Result) bool {
 		return true
 	})
