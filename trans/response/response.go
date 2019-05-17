@@ -13,7 +13,7 @@
  *
  */
 
-// Package response 处理接受请求后的返回策略
+// Package response 请求返回处理包
 package response
 
 import (

@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+// Package sql SQL操作工具
 package sql
 
 import (

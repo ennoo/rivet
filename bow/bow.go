@@ -13,6 +13,7 @@
  *
  */
 
+// Package bow 网关服务包
 package bow
 
 import (

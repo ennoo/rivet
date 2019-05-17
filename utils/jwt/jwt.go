@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+// Package jwt jwt操作工具
 package jwt
 
 import (
@@ -21,8 +22,11 @@ import (
 )
 
 const (
+	// SigningMethodHS256 HS256
 	SigningMethodHS256 = iota
+	// SigningMethodHS384 HS384
 	SigningMethodHS384
+	// SigningMethodHS512 HS512
 	SigningMethodHS512
 )
 
@@ -75,6 +79,7 @@ func token(jwtMethod jwt.SigningMethod, key interface{}, sub, iss, jti string, i
 	return
 }
 
+// Check 验证传入 token 是否合法
 func Check(key interface{}, token string) bool {
 	_, err := jwt.Parse(token, func(*jwt.Token) (interface{}, error) {
 		return key, nil

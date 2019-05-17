@@ -13,6 +13,7 @@
  *
  */
 
+// Package log 日志操作工具
 package log
 
 import (
