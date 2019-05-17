@@ -18,53 +18,46 @@ import (
 	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/shunt"
-	"github.com/ennoo/rivet/trans/response"
+	"github.com/ennoo/rivet/trans"
 	"github.com/ennoo/rivet/utils/env"
+	"github.com/ennoo/rivet/utils/file"
 	"github.com/ennoo/rivet/utils/log"
-	"go.uber.org/zap/zapcore"
-	"net/http"
+	"go.uber.org/zap"
 	"strings"
 )
 
 func main() {
-	rivet.Initialize(true, true, true)
-	rivet.Log().Conf(&log.Config{
-		FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
-		Level:       zapcore.DebugLevel,
-		MaxSize:     128,
-		MaxBackups:  30,
-		MaxAge:      30,
-		Compress:    true,
-		ServiceName: env.GetEnvDefault("SERVICE_NAME", "shunt1"),
-	})
-	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
-	rivet.Shunt().Register("test", shunt.Round)
-	rivet.Shunt().Register("test1", shunt.Random)
-	rivet.Shunt().Register("test2", shunt.Hash)
-	//addAddress()
-	rivet.ListenAndServe(&rivet.ListenServe{
-		Engine:      rivet.SetupRouter(testShunt1),
-		DefaultPort: "19219",
-	})
-}
+	rivet.Initialize(env.GetEnvBoolDefault(env.HealthCheck, false),
+		env.GetEnvBoolDefault(env.ServerManager, false),
+		env.GetEnvBoolDefault(env.LoadBalance, false))
+	rivet.Log().Init()
+	if env.GetEnvBoolDefault(env.DiscoveryInit, false) {
+		rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
+	}
 
-func testShunt1(router *response.Router) {
-	// 仓库相关路由设置
-	router.Group = router.Engine.Group("/rivet")
-	router.GET("/shunt/:serviceName", shunt3)
-	router.POST("/shunt", shunt4)
-}
+	bowConfigPath := env.GetEnv(env.ConfigPath)
+	dataArr, err := file.ReadFileByLine(bowConfigPath)
+	if nil != err {
+		log.Shunt.Panic("load bow config yml failed", zap.String("BOW_CONFIG_PATH", bowConfigPath), zap.Error(err))
+	}
+	data := strings.Join(dataArr, "")
+	log.Shunt.Debug("yml string", zap.String("data", data))
+	bytes := []byte(data)
 
-func shunt3(router *response.Router) {
-	rivet.Response().Do(router.Context, func(result *response.Result) {
-		serviceName := router.Context.Param("serviceName")
-		rivet.Shunt().Register(serviceName, shunt.Round)
-		result.SaySuccess(router.Context, "test2")
-	})
-}
+	shunt.YamlLBs(bytes)
 
-func shunt4(router *response.Router) {
-	rivet.Request().Callback(router.Context, http.MethodPost, "test", "rivet/shunt", func() *response.Result {
-		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
-	})
+	tls := trans.YmlTLS(bytes)
+	if env.GetEnvBool(env.OpenTLS) {
+		rivet.ListenAndServesTLS(&rivet.ListenServe{
+			Engine:      rivet.SetupRouter(),
+			DefaultPort: "19877",
+			CertFile:    tls.TLS.Server.CertFile,
+			KeyFile:     tls.TLS.Server.KeyFile,
+		}, tls.TLS.Clients)
+	} else {
+		rivet.ListenAndServes(&rivet.ListenServe{
+			Engine:      rivet.SetupRouter(),
+			DefaultPort: "19877",
+		}, tls.TLS.Clients)
+	}
 }

@@ -18,6 +18,7 @@ package bow
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/log"
@@ -31,7 +32,6 @@ import (
 var (
 	instance      *Bow
 	once          sync.Once
-	serviceCount  = 0
 	routeServices = make(map[string]*RouteService)
 )
 
@@ -58,19 +58,17 @@ type RouteService struct {
 	Name      string `yaml:"Name"`      // 服务名称
 	InURI     string `yaml:"InURI"`     // 路由入口 URI
 	OutRemote string `yaml:"OutRemote"` // 路由出口地址
-	OutURI    string `yaml:"OutURI"`    // 路由出口 URI
 	Limit     *Limit `yaml:"Limit"`     // 服务限流策略
 }
 
 // YamlServices YML转路由对象数组
-func YamlServices(data []byte) []*RouteService {
+func YamlServices(data []byte) {
 	routeServices := RouteServices{}
 	err := yaml.Unmarshal([]byte(data), &routeServices)
 	if err != nil {
-		log.Bow.Error("cannot unmarshal data: " + err.Error())
-		return nil
+		log.Bow.Panic("cannot unmarshal data: " + err.Error())
 	}
-	return routeServices.Routes
+	GetBowInstance().AddServices(routeServices.Routes)
 }
 
 // Add 新增路由服务数组
@@ -82,7 +80,6 @@ func (s *Bow) Add(routeServiceArr ...*RouteService) {
 		if nil != routeService.Limit {
 			go routeService.Limit.limit()
 		}
-		serviceCount++
 	}
 }
 
@@ -95,25 +92,21 @@ func (s *Bow) AddServices(routeServiceArr []*RouteService) {
 		if nil != routeService.Limit {
 			go routeService.Limit.limit()
 		}
-		serviceCount++
 	}
 }
 
 // AddService 新增路由服务
-func (s *Bow) AddService(serviceName, inURI, outRemote, outURI string) {
+func (s *Bow) AddService(serviceName, inURI, outRemote string) {
 	routeServices[serviceName] = &RouteService{
 		Name:      serviceName,
 		InURI:     inURI,
 		OutRemote: outRemote,
-		OutURI:    outURI,
 	}
 	GetBowInstance().register(&RouteService{
 		Name:      serviceName,
 		InURI:     inURI,
 		OutRemote: outRemote,
-		OutURI:    outURI,
 	})
-	serviceCount++
 }
 
 // Register 注册新的路由方式
@@ -145,9 +138,21 @@ func RunBowCallback(context *gin.Context, serviceName string, filter func(result
 	if nil != routeService.Limit {
 		routeService.Limit.LimitChan <- 1
 	}
+	outURI := context.Request.RequestURI[len(routeService.InURI)+2:]
+	var OutRemote string
+	if request.LB {
+		service, err := shunt.GetService(routeService.OutRemote)
+		if nil == err {
+			OutRemote = request.FormatURL(context, service)
+		} else {
+			result.Fail(err.Error())
+			context.JSON(http.StatusOK, result)
+			return
+		}
+	}
 	if nil == f {
-		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, routeService.OutURI)
+		request.SyncPoolGetRequest().Call(context, context.Request.Method, OutRemote, outURI)
 	} else {
-		request.SyncPoolGetRequest().Callback(context, context.Request.Method, routeService.OutRemote, routeService.OutURI, f)
+		request.SyncPoolGetRequest().Callback(context, context.Request.Method, OutRemote, outURI, f)
 	}
 }

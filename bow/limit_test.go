@@ -62,7 +62,6 @@ func TestLimitMap(t *testing.T) {
 		Name:      serviceName,
 		InURI:     "hello1",
 		OutRemote: "http://localhost:8081",
-		OutURI:    "rivet/shunt",
 		Limit: &Limit{
 			LimitMillisecond:         int64(1 * 1000),
 			LimitCount:               3,
@@ -84,8 +83,5 @@ func TestYamlServices(t *testing.T) {
 	dataArr, _ := file.ReadFileByLine("../config.yml")
 	data := strings.Join(dataArr, "")
 	fmt.Println("data : ", data)
-	services := YamlServices([]byte(data))
-	for index := range services {
-		fmt.Println("service:", services[index])
-	}
+	YamlServices([]byte(data))
 }

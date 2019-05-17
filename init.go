@@ -20,6 +20,7 @@ import (
 	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/ennoo/rivet/scheduled"
 	"github.com/ennoo/rivet/server"
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
@@ -31,13 +32,12 @@ import (
 )
 
 var (
-	route = false // 是否开启网关路由
-	hc    = false // 是否开启健康检查。开启后为 Get 请求，路径为 /health/check
-	sm    = false // 是否开启外界服务管理功能
-	ud    = false // 是否启用发现服务
-	cp    string  // 启用的发现服务组件类型
-	sn    string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
-	f     func(result *response.Result) bool
+	hc = false // 是否开启健康检查。开启后为 Get 请求，路径为 /health/check
+	sm = false // 是否开启外界服务管理功能
+	ud = false // 是否启用发现服务
+	cp string  // 启用的发现服务组件类型
+	sn string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
+	f  func(result *response.Result) bool
 )
 
 // ListenServe 启动监听端口服务对象
@@ -76,7 +76,7 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 //
 // filter 自定义过滤方案
 func UseBow(filter func(result *response.Result) bool) {
-	route = true
+	request.Route = true
 	f = filter
 }
 
@@ -116,7 +116,7 @@ func SetupRouter(routes ...func(router *response.Router)) *gin.Engine {
 		Engine: gin.Default(),
 	}
 
-	if route {
+	if request.Route {
 		bow.Route(router.Engine, f)
 	}
 	if hc {
@@ -130,6 +130,9 @@ func SetupRouter(routes ...func(router *response.Router)) *gin.Engine {
 			scheduled.CheckService(serviceID, sn, cp)
 		} else {
 			scheduled.CheckService(serviceID, sn, "")
+		}
+		if !request.Route {
+			shunt.Route(router.Engine)
 		}
 	}
 	for _, route := range routes {

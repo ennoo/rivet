@@ -2,7 +2,6 @@ routes:
   - Name: "test1" # 服务名称
     InURI: "hello1" # 路由入口 URI
     OutRemote: "http://localhost:8081" # 路由出口地址
-    OutURI: "rivet/shunt" # 路由出口 URI
     Limit: # 服务限流策略
       LimitMillisecond: 3 # 请求限定的时间段（毫秒）
       LimitCount: 3 # 请求限定的时间段内允许的请求次数
@@ -15,6 +14,15 @@ routes:
       LimitMillisecond: 3
       LimitCount: 3
       LimitIntervalMillisecond: 150
+shunt: # 负载均衡策略
+  - Name: "test" # 负载服务名称
+    InURI: "hello1" # 路由入口 URI
+    OutRemote: "http://localhost:8081" # 路由出口地址
+    Register: 2 # 负载均衡算法，1：随机；2：轮询；3：Hash一致性
+  - Name: "test1"
+    InURI: "hello2" # 路由入口 URI
+    OutRemote: "http://localhost:8081" # 路由出口地址
+    Register: 1
 tls:
   server:
     CertFile: "/src/github.com/ennoo/rivet/examples/tls/server/server1.crt"
@@ -22,8 +30,3 @@ tls:
   clients:
     - "/src/github.com/ennoo/rivet/examples/tls/rootCA1.crt"
     - "/src/github.com/ennoo/rivet/examples/tls/rootCA2.crt"
-shunt: # 负载均衡策略
-  - Name: "test" # 负载服务名称
-    Register: 2 # 负载均衡算法，1：随机；2：轮询；3：Hash一致性
-  - Name: "test1"
-    Register: 1
