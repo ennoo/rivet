@@ -58,7 +58,6 @@ type RouteService struct {
 	Name      string `yaml:"Name"`      // 服务名称
 	InURI     string `yaml:"InURI"`     // 路由入口 URI
 	OutRemote string `yaml:"OutRemote"` // 路由出口地址
-	OutURI    string `yaml:"OutURI"`    // 路由出口 URI
 	Limit     *Limit `yaml:"Limit"`     // 服务限流策略
 }
 
@@ -100,18 +99,16 @@ func (s *Bow) AddServices(routeServiceArr []*RouteService) {
 }
 
 // AddService 新增路由服务
-func (s *Bow) AddService(serviceName, inURI, outRemote, outURI string) {
+func (s *Bow) AddService(serviceName, inURI, outRemote string) {
 	routeServices[serviceName] = &RouteService{
 		Name:      serviceName,
 		InURI:     inURI,
 		OutRemote: outRemote,
-		OutURI:    outURI,
 	}
 	GetBowInstance().register(&RouteService{
 		Name:      serviceName,
 		InURI:     inURI,
 		OutRemote: outRemote,
-		OutURI:    outURI,
 	})
 	serviceCount++
 }
@@ -145,9 +142,10 @@ func RunBowCallback(context *gin.Context, serviceName string, filter func(result
 	if nil != routeService.Limit {
 		routeService.Limit.LimitChan <- 1
 	}
+	outURI := context.Request.RequestURI[len(routeService.InURI)+2:]
 	if nil == f {
-		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, routeService.OutURI)
+		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, outURI)
 	} else {
-		request.SyncPoolGetRequest().Callback(context, context.Request.Method, routeService.OutRemote, routeService.OutURI, f)
+		request.SyncPoolGetRequest().Callback(context, context.Request.Method, routeService.OutRemote, outURI, f)
 	}
 }

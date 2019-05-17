@@ -62,7 +62,6 @@ func TestLimitMap(t *testing.T) {
 		Name:      serviceName,
 		InURI:     "hello1",
 		OutRemote: "http://localhost:8081",
-		OutURI:    "rivet/shunt",
 		Limit: &Limit{
 			LimitMillisecond:         int64(1 * 1000),
 			LimitCount:               3,

@@ -2,7 +2,6 @@ routes:
   - Name: "test1" # 服务名称
     InURI: "hello1" # 路由入口 URI
     OutRemote: "http://localhost:8081" # 路由出口地址
-    OutURI: "rivet/shunt" # 路由出口 URI
     Limit: # 服务限流策略
       LimitMillisecond: 3 # 请求限定的时间段（毫秒）
       LimitCount: 3 # 请求限定的时间段内允许的请求次数

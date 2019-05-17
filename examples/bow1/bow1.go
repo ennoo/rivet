@@ -33,9 +33,9 @@ func main() {
 		//return false
 		return true
 	})
-	rivet.Bow().AddService("test", "hello", "test", "rivet/shunt")
-	rivet.Bow().AddService("test1", "hello1", "http://localhost:8081", "rivet/shunt")
-	rivet.Bow().AddService("test2", "hello2", "https://localhost:8092", "rivet/shunt")
+	rivet.Bow().AddService("test", "hello", "test")
+	rivet.Bow().AddService("test1", "hello1", "http://localhost:8081")
+	rivet.Bow().AddService("test2", "hello2", "https://localhost:8092")
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(),
 		DefaultPort: "19219",

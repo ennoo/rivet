@@ -18,15 +18,16 @@ package bow
 import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 // Route 网关服务路由
 func Route(engine *gin.Engine, filter func(result *response.Result) bool) {
 	// 仓库相关路由设置
 	vRepo := engine.Group("/")
-	for x := range routeServices {
-		bowService := routeServices[x]
-		vRepo.Any(bowService.InURI, func(context *gin.Context) {
+	for index := range routeServices {
+		bowService := routeServices[index]
+		vRepo.Any(strings.Join([]string{bowService.InURI, "/*do"}, ""), func(context *gin.Context) {
 			RunBow(context, bowService.Name, filter)
 		})
 	}

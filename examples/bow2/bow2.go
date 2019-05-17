@@ -33,7 +33,6 @@ func main() {
 			Name:      "test1",
 			InURI:     "hello1",
 			OutRemote: "http://localhost:8081",
-			OutURI:    "rivet/shunt",
 			Limit: &bow.Limit{
 				LimitMillisecond:         int64(3 * 1000),
 				LimitCount:               3,
@@ -45,7 +44,6 @@ func main() {
 			Name:      "test2",
 			InURI:     "hello2",
 			OutRemote: "https://localhost:8092",
-			OutURI:    "rivet/shunt",
 			Limit: &bow.Limit{
 				LimitMillisecond:         int64(3 * 1000),
 				LimitCount:               3,
