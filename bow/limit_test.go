@@ -83,8 +83,5 @@ func TestYamlServices(t *testing.T) {
 	dataArr, _ := file.ReadFileByLine("../config.yml")
 	data := strings.Join(dataArr, "")
 	fmt.Println("data : ", data)
-	services := YamlServices([]byte(data))
-	for index := range services {
-		fmt.Println("service:", services[index])
-	}
+	YamlServices([]byte(data))
 }

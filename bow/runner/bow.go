@@ -46,8 +46,8 @@ func main() {
 	data := strings.Join(dataArr, "")
 	log.Bow.Debug("yml string", zap.String("data", data))
 	bytes := []byte(data)
-	services := bow.YamlServices(bytes)
-	rivet.Bow().AddServices(services)
+
+	bow.YamlServices(bytes)
 
 	lbs := shunt.YamlLBs(bytes)
 	if len(lbs) > 0 {

@@ -62,14 +62,13 @@ type RouteService struct {
 }
 
 // YamlServices YML转路由对象数组
-func YamlServices(data []byte) []*RouteService {
+func YamlServices(data []byte) {
 	routeServices := RouteServices{}
 	err := yaml.Unmarshal([]byte(data), &routeServices)
 	if err != nil {
-		log.Bow.Error("cannot unmarshal data: " + err.Error())
-		return nil
+		log.Bow.Panic("cannot unmarshal data: " + err.Error())
 	}
-	return routeServices.Routes
+	GetBowInstance().AddServices(routeServices.Routes)
 }
 
 // Add 新增路由服务数组
