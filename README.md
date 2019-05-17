@@ -9,3 +9,16 @@
 [![GoDoc](https://godoc.org/github.com/ennoo/rivet?status.svg)](https://godoc.org/github.com/ennoo/rivet)
 
 Microservice components for go development
+
+Component Info
+------------
+
+| Bow            | Gateway developed with golang                                        |
+| :------------- |:-----------------------------------------------------------------|
+| docker build   | [![](https://images.microbadger.com/badges/image/ennoo/bow.svg)](https://microbadger.com/images/ennoo/bow "Get your own image badge on microbadger.com") [![](https://images.microbadger.com/badges/version/ennoo/bow.svg)](https://microbadger.com/images/ennoo/bow "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/license/ennoo/bow.svg)](https://microbadger.com/images/ennoo/bow "Get your own license badge on microbadger.com")|
+
+
+| Shunt          | Load-Balance developed with golang                                   |
+| :------------- |:-----------------------------------------------------------------|
+| docker build   | [![](https://images.microbadger.com/badges/image/ennoo/shunt.svg)](https://microbadger.com/images/ennoo/shunt "Get your own image badge on microbadger.com") [![](https://images.microbadger.com/badges/version/ennoo/shunt.svg)](https://microbadger.com/images/ennoo/shunt "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/license/ennoo/shunt.svg)](https://microbadger.com/images/ennoo/shunt "Get your own license badge on microbadger.com")|
+
