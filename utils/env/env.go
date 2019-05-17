@@ -36,8 +36,14 @@ const (
 	OpenTLS = "OPEN_TLS"
 	// BowConfigPath Bow配置文件路径
 	BowConfigPath = "BOW_CONFIG_PATH"
+	// DiscoveryInit 是否启用发现服务
+	DiscoveryInit = "DISCOVERY_INIT"
+	// DiscoveryComponent 所启用发现服务组件名
+	DiscoveryComponent = "DISCOVERY_COMPONENT"
 	// DiscoveryURL 当前服务注册的发现服务地址
 	DiscoveryURL = "DISCOVERY_URL"
+	// DiscoveryReceiveHost 发现服务收到当前注册服务的地址
+	DiscoveryReceiveHost = "DISCOVERY_RECEIVE_HOST"
 	// GOPath Go工作路径
 	GOPath = "GOPATH"
 	// DBUrl 数据库 URL

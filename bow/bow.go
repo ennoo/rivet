@@ -49,7 +49,7 @@ type Bow struct {
 
 // RouteServices 路由对象数组
 type RouteServices struct {
-	Services []*RouteService `yaml:"services"`
+	Routes []*RouteService `yaml:"routes"`
 }
 
 // RouteService 路由对象
@@ -69,7 +69,7 @@ func YamlServices(data []byte) []*RouteService {
 		log.Bow.Error("cannot unmarshal data: " + err.Error())
 		return nil
 	}
-	return routeServices.Services
+	return routeServices.Routes
 }
 
 // Add 新增路由服务数组

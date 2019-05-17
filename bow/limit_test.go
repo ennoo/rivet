@@ -81,7 +81,7 @@ func loopMap(limit *Limit) {
 }
 
 func TestYamlServices(t *testing.T) {
-	dataArr, _ := file.ReadFileByLine("./runner/bow.yml")
+	dataArr, _ := file.ReadFileByLine("../config.yml")
 	data := strings.Join(dataArr, "")
 	fmt.Println("data : ", data)
 	services := YamlServices([]byte(data))

@@ -23,7 +23,7 @@ import (
 )
 
 func TestYamlTLS(t *testing.T) {
-	dataArr, _ := file.ReadFileByLine("../bow/runner/bow.yml")
+	dataArr, _ := file.ReadFileByLine("../config.yml")
 	data := strings.Join(dataArr, "")
 	fmt.Println("data : ", data)
 	ymlTLS := YmlTLS([]byte(data))

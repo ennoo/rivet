@@ -92,17 +92,19 @@ func UseBow(filter func(result *response.Result) bool) {
 //
 // port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
 func UseDiscovery(component, url, serviceName, hostname string, port int) {
-	cp = component
+	cp = env.GetEnvDefault(env.DiscoveryComponent, component)
 	sn = serviceName
-	switch component {
+	discoveryURL := env.GetEnvDefault(env.DiscoveryURL, url)
+	discoveryReceiveHost := env.GetEnvDefault(env.DiscoveryReceiveHost, hostname)
+	switch cp {
 	case discovery.ComponentConsul:
 		if !ud {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
 			ud = true
 			if request.LB {
-				go consul.Enroll(url, serviceID, ServiceName(), hostname, port)
+				go consul.Enroll(discoveryURL, serviceID, ServiceName(), discoveryReceiveHost, port)
 			} else {
-				go scheduled.ConsulEnroll(url, serviceID, ServiceName(), hostname, port)
+				go scheduled.ConsulEnroll(discoveryURL, serviceID, ServiceName(), discoveryReceiveHost, port)
 			}
 		}
 	}

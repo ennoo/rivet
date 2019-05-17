@@ -17,6 +17,8 @@ package main
 import (
 	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/bow"
+	"github.com/ennoo/rivet/discovery"
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
@@ -33,6 +35,9 @@ func main() {
 	rivet.UseBow(func(result *response.Result) bool {
 		return true
 	})
+	if env.GetEnvBoolDefault(env.DiscoveryInit, false) {
+		rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
+	}
 	bowConfigPath := env.GetEnv(env.BowConfigPath)
 	dataArr, err := file.ReadFileByLine(bowConfigPath)
 	if nil != err {
@@ -43,18 +48,26 @@ func main() {
 	bytes := []byte(data)
 	services := bow.YamlServices(bytes)
 	rivet.Bow().AddServices(services)
+
+	lbs := shunt.YamlLBs(bytes)
+	if len(lbs) > 0 {
+		for index := range lbs {
+			rivet.Shunt().Register(lbs[index].Name, lbs[index].Register)
+		}
+	}
+
 	tls := trans.YmlTLS(bytes)
 	if env.GetEnvBool(env.OpenTLS) {
 		rivet.ListenAndServesTLS(&rivet.ListenServe{
 			Engine:      rivet.SetupRouter(),
-			DefaultPort: env.GetEnvDefault(env.PortEnv, "19219"),
+			DefaultPort: "19219",
 			CertFile:    tls.TLS.Server.CertFile,
 			KeyFile:     tls.TLS.Server.KeyFile,
 		}, tls.TLS.Clients)
 	} else {
 		rivet.ListenAndServes(&rivet.ListenServe{
 			Engine:      rivet.SetupRouter(),
-			DefaultPort: env.GetEnvDefault(env.PortEnv, "19219"),
+			DefaultPort: "19219",
 		}, tls.TLS.Clients)
 	}
 }

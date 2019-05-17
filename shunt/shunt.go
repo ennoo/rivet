@@ -20,6 +20,7 @@ import (
 	"github.com/ennoo/rivet/server"
 	"github.com/ennoo/rivet/utils/log"
 	"go.uber.org/zap"
+	"gopkg.in/yaml.v3"
 	"sync"
 )
 
@@ -48,6 +49,28 @@ func GetShuntInstance() *Shunt {
 // Shunt 负载入口对象
 type Shunt struct {
 	AllWay map[string]int
+}
+
+// LBs 负载对象数组
+type LBs struct {
+	LBs []*LB `yaml:"shunt"`
+}
+
+// LB 负载均衡配置对象
+type LB struct {
+	Name     string `yaml:"Name"`     // 服务名称
+	Register int    `yaml:"Register"` // 负载均衡算法，1：随机；2：轮询；3：Hash一致性
+}
+
+// YamlLBs YML转负载对象数组
+func YamlLBs(data []byte) []*LB {
+	lbs := LBs{}
+	err := yaml.Unmarshal([]byte(data), &lbs)
+	if err != nil {
+		log.Bow.Error("cannot unmarshal data: " + err.Error())
+		return nil
+	}
+	return lbs.LBs
 }
 
 // Register 注册新的负载方式
