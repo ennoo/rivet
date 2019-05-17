@@ -30,10 +30,7 @@ const (
 	SigningMethodHS512
 )
 
-type JWT struct {
-	Token *jwt.Token
-}
-
+// Build 创建一个 jwt token
 // "sub": "1",  该JWT所面向的用户
 // "iss": "http://localhost:8000/user/sign_up", 该JWT的签发者
 // "iat": 1451888119, 在什么时候签发的token

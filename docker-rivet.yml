@@ -1,8 +1,8 @@
 version: "3"
 
 rivet:
-  bow:
-    image: aberic/template:1.0-RC1
+  bow: # 使用 config.yml 中的 routes 和 tls 进行配置
+    image: ennoo/bow:latest
     ports:
       - 19219:19219
     environment:
@@ -11,7 +11,25 @@ rivet:
       - SERVER_MANAGER=true # 是否启用服务管理功能
       - LOAD_BALANCE=true # 是否启用负载均衡
       - OPEN_TLS=true # 是否开启 TLS
-      - BOW_CONFIG_PATH=/data/rivet/config.yml # Bow 配置文件路径
+      - CONFIG_PATH=/data/rivet/config.yml # Bow 配置文件路径
+      - DISCOVERY_INIT=true # 是否启用发现服务
+      - DISCOVERY_COMPONENT=consul # 所启用发现服务组件名
+      - DISCOVERY_URL=127.0.0.1:8500 # 发现服务地址
+      - DISCOVERY_RECEIVE_HOST=127.0.0.1 # 发现服务收到当前注册服务的地址，端口号默认通过 PORT 获取
+    volumes:
+      - /data/rivet:/data/rivet
+
+  shunt: # 使用 config.yml 中的 shunt 和 tls 进行配置
+    image: ennoo/shunt:latest
+    ports:
+      - 19877:19877
+    environment:
+      - PORT=80 # 开放端口，便于其它应用访问
+      - HEALTH_CHECK=true # 是否开启健康检查
+      - SERVER_MANAGER=true # 是否启用服务管理功能
+      - LOAD_BALANCE=true # 是否启用负载均衡
+      - OPEN_TLS=true # 是否开启 TLS
+      - CONFIG_PATH=/data/rivet/config.yml # Bow 配置文件路径
       - DISCOVERY_INIT=true # 是否启用发现服务
       - DISCOVERY_COMPONENT=consul # 所启用发现服务组件名
       - DISCOVERY_URL=127.0.0.1:8500 # 发现服务地址

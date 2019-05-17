@@ -32,13 +32,14 @@ func main() {
 	rivet.Initialize(env.GetEnvBoolDefault(env.HealthCheck, false),
 		env.GetEnvBoolDefault(env.ServerManager, false),
 		env.GetEnvBoolDefault(env.LoadBalance, false))
+	rivet.Log().Init()
 	rivet.UseBow(func(result *response.Result) bool {
 		return true
 	})
 	if env.GetEnvBoolDefault(env.DiscoveryInit, false) {
 		rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
 	}
-	bowConfigPath := env.GetEnv(env.BowConfigPath)
+	bowConfigPath := env.GetEnv(env.ConfigPath)
 	dataArr, err := file.ReadFileByLine(bowConfigPath)
 	if nil != err {
 		log.Bow.Panic("load bow config yml failed", zap.String("BOW_CONFIG_PATH", bowConfigPath), zap.Error(err))
@@ -49,12 +50,7 @@ func main() {
 
 	bow.YamlServices(bytes)
 
-	lbs := shunt.YamlLBs(bytes)
-	if len(lbs) > 0 {
-		for index := range lbs {
-			rivet.Shunt().Register(lbs[index].Name, lbs[index].Register)
-		}
-	}
+	shunt.YamlLBs(bytes)
 
 	tls := trans.YmlTLS(bytes)
 	if env.GetEnvBool(env.OpenTLS) {

@@ -35,8 +35,8 @@ const (
 	LoadBalance = "LOAD_BALANCE"
 	// OpenTLS 是否开启 TLS
 	OpenTLS = "OPEN_TLS"
-	// BowConfigPath Bow配置文件路径
-	BowConfigPath = "BOW_CONFIG_PATH"
+	// ConfigPath Bow配置文件路径
+	ConfigPath = "CONFIG_PATH"
 	// DiscoveryInit 是否启用发现服务
 	DiscoveryInit = "DISCOVERY_INIT"
 	// DiscoveryComponent 所启用发现服务组件名

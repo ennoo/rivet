@@ -94,6 +94,9 @@ func (log *Logger) Conf(config *Config) {
 	log.Config = config
 }
 
+// Init 日志初始化操作，目前什么也不做
+func (log *Logger) Init() {}
+
 // New 新建日志对象
 func (log *Logger) New(filePath string, serviceName string) *zap.Logger {
 	core := newCore(filePath, log.Config.Level, log.Config.MaxSize, log.Config.MaxBackups, log.Config.MaxAge, log.Config.Compress)

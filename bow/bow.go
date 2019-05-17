@@ -18,6 +18,7 @@ package bow
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/log"
@@ -31,7 +32,6 @@ import (
 var (
 	instance      *Bow
 	once          sync.Once
-	serviceCount  = 0
 	routeServices = make(map[string]*RouteService)
 )
 
@@ -80,7 +80,6 @@ func (s *Bow) Add(routeServiceArr ...*RouteService) {
 		if nil != routeService.Limit {
 			go routeService.Limit.limit()
 		}
-		serviceCount++
 	}
 }
 
@@ -93,7 +92,6 @@ func (s *Bow) AddServices(routeServiceArr []*RouteService) {
 		if nil != routeService.Limit {
 			go routeService.Limit.limit()
 		}
-		serviceCount++
 	}
 }
 
@@ -109,7 +107,6 @@ func (s *Bow) AddService(serviceName, inURI, outRemote string) {
 		InURI:     inURI,
 		OutRemote: outRemote,
 	})
-	serviceCount++
 }
 
 // Register 注册新的路由方式
@@ -142,9 +139,20 @@ func RunBowCallback(context *gin.Context, serviceName string, filter func(result
 		routeService.Limit.LimitChan <- 1
 	}
 	outURI := context.Request.RequestURI[len(routeService.InURI)+2:]
+	var OutRemote string
+	if request.LB {
+		service, err := shunt.GetService(routeService.OutRemote)
+		if nil == err {
+			OutRemote = request.FormatURL(context, service)
+		} else {
+			result.Fail(err.Error())
+			context.JSON(http.StatusOK, result)
+			return
+		}
+	}
 	if nil == f {
-		request.SyncPoolGetRequest().Call(context, context.Request.Method, routeService.OutRemote, outURI)
+		request.SyncPoolGetRequest().Call(context, context.Request.Method, OutRemote, outURI)
 	} else {
-		request.SyncPoolGetRequest().Callback(context, context.Request.Method, routeService.OutRemote, outURI, f)
+		request.SyncPoolGetRequest().Callback(context, context.Request.Method, OutRemote, outURI, f)
 	}
 }

@@ -13,24 +13,21 @@
  *
  */
 
-package main
+package shunt
 
 import (
-	"github.com/ennoo/rivet"
-	"github.com/ennoo/rivet/discovery"
-	"github.com/ennoo/rivet/shunt"
+	"github.com/gin-gonic/gin"
+	"strings"
 )
 
-func main() {
-	rivet.Initialize(true, true, true)
-	rivet.Log().Init()
-	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
-	rivet.Shunt().AddService("test", "hello", "test", shunt.Round)
-	rivet.Shunt().AddService("test1", "hello1", "test1", shunt.Random)
-	rivet.Shunt().AddService("test2", "hello2", "test2", shunt.Hash)
-	//addAddress()
-	rivet.ListenAndServe(&rivet.ListenServe{
-		Engine:      rivet.SetupRouter(),
-		DefaultPort: "19877",
-	})
+// Route 网关服务路由
+func Route(engine *gin.Engine) {
+	// 仓库相关路由设置
+	vRepo := engine.Group("/")
+	for key := range lbMap {
+		lb := lbMap[key]
+		vRepo.Any(strings.Join([]string{lb.InURI, "/*do"}, ""), func(context *gin.Context) {
+			RunShunt(context, lb.Name)
+		})
+	}
 }
