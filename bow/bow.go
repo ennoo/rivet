@@ -78,6 +78,7 @@ func (s *Bow) Add(routeServiceArr ...*RouteService) {
 		routeServices[routeService.Name] = routeService
 		GetBowInstance().register(routeService)
 		if nil != routeService.Limit {
+			routeService.Limit.LimitChan = make(chan int, routeService.Limit.LimitCount)
 			go routeService.Limit.limit()
 		}
 	}
@@ -90,6 +91,7 @@ func (s *Bow) AddServices(routeServiceArr []*RouteService) {
 		routeServices[routeService.Name] = routeService
 		GetBowInstance().register(routeService)
 		if nil != routeService.Limit {
+			routeService.Limit.LimitChan = make(chan int, routeService.Limit.LimitCount)
 			go routeService.Limit.limit()
 		}
 	}

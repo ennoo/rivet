@@ -82,7 +82,7 @@ func Check(key interface{}, token string) bool {
 		return key, nil
 	})
 	if err != nil {
-		log.Common.Info("parase with claims failed.", zap.Error(err))
+		log.Common.Warn("parase with claims failed.", zap.Error(err))
 		return false
 	}
 	return true

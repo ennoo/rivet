@@ -48,7 +48,7 @@ func cross(c chan int) {
 	for b >= a {
 		fmt.Println("阻塞", b, "秒")
 		time.Sleep(time.Second)
-		b -= 1
+		b--
 	}
 
 	fmt.Println("释放一个通行证")
