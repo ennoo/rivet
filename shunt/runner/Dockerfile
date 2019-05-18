@@ -4,16 +4,13 @@ ENV REPO=$GOPATH/src/github.com/ennoo/rivet
 WORKDIR $REPO
 RUN git clone https://github.com/ennoo/rivet.git ../rivet && \
  go build -o $REPO/shunt/runner/shunt $REPO/shunt/runner/shunt.go
-FROM centos:latest
+FROM centos:7
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/ennoo/rivet/shunt/runner/shunt .
 EXPOSE 19219
 CMD ./shunt
 
 # https://microbadger.com/labels
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VERSION
 LABEL io.github.ennoo.name="Rivet Shunt Image" \
       io.github.ennoo.description="Load-Balance developed with golang" \
       io.github.ennoo.url="https://github.com/ennoo/rivet" \

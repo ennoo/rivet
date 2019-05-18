@@ -23,6 +23,8 @@ import (
 )
 
 const (
+	// LogPath 日志文件输出路径
+	LogPath = "LOG_PATH"
 	// ServiceName 当前启动服务名
 	ServiceName = "SERVICE_NAME"
 	// PortEnv 当前服务启动端口号
