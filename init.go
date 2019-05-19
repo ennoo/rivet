@@ -194,9 +194,9 @@ func listenAndServe(listenServe *ListenServe, isTLS bool, caCertPaths ...string)
 	log.Rivet.Info("listening http port bind")
 	var err error
 	if isTLS {
-		err = listenServe.Engine.RunTLS(":"+env.GetEnvDefault(env.PortEnv, listenServe.DefaultPort), listenServe.CertFile, listenServe.KeyFile)
+		err = listenServe.Engine.RunTLS(":"+env.GetEnvDefault(env.Port, listenServe.DefaultPort), listenServe.CertFile, listenServe.KeyFile)
 	} else {
-		err = listenServe.Engine.Run(":" + env.GetEnvDefault(env.PortEnv, listenServe.DefaultPort))
+		err = listenServe.Engine.Run(":" + env.GetEnvDefault(env.Port, listenServe.DefaultPort))
 	}
 	if nil != err {
 		log.Rivet.Info("exit because {}" + err.Error())

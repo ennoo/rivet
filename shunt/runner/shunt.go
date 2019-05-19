@@ -28,8 +28,7 @@ import (
 
 func main() {
 	rivet.Initialize(env.GetEnvBoolDefault(env.HealthCheck, false),
-		env.GetEnvBoolDefault(env.ServerManager, false),
-		env.GetEnvBoolDefault(env.LoadBalance, false))
+		env.GetEnvBoolDefault(env.ServerManager, false), true)
 	rivet.Log().Init()
 	if env.GetEnvBoolDefault(env.DiscoveryInit, false) {
 		rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
