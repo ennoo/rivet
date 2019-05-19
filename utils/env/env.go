@@ -27,8 +27,8 @@ const (
 	LogPath = "LOG_PATH"
 	// ServiceName 当前启动服务名
 	ServiceName = "SERVICE_NAME"
-	// PortEnv 当前服务启动端口号
-	PortEnv = "PORT"
+	// Port 当前服务启动端口号
+	Port = "PORT"
 	// HealthCheck 是否开启健康检查
 	HealthCheck = "HEALTH_CHECK"
 	// ServerManager 是否启用服务管理功能

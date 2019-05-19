@@ -6,7 +6,7 @@ rivet:
     ports:
       - 19219:19219
     environment:
-      - PORT=80 # 开放端口，便于其它应用访问
+      - PORT=19219 # 开放端口，便于其它应用访问
       - LOG_PATH=/data/rivet/logs # 日志文件输出路径
       - HEALTH_CHECK=true # 是否开启健康检查
       - SERVER_MANAGER=true # 是否启用服务管理功能
@@ -25,11 +25,10 @@ rivet:
     ports:
       - 19877:19877
     environment:
-      - PORT=80 # 开放端口，便于其它应用访问
+      - PORT=19877 # 开放端口，便于其它应用访问
       - LOG_PATH=/data/rivet/logs # 日志文件输出路径
       - HEALTH_CHECK=true # 是否开启健康检查
       - SERVER_MANAGER=true # 是否启用服务管理功能
-      - LOAD_BALANCE=true # 是否启用负载均衡
       - OPEN_TLS=true # 是否开启 TLS
       - CONFIG_PATH=/data/rivet/config.yml # Bow 配置文件路径
       - DISCOVERY_INIT=true # 是否启用发现服务

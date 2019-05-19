@@ -37,7 +37,7 @@ func main() {
 		return true
 	})
 	if env.GetEnvBoolDefault(env.DiscoveryInit, false) {
-		rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
+		rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "bow", "127.0.0.1", 8083)
 	}
 	bowConfigPath := env.GetEnv(env.ConfigPath)
 	dataArr, err := file.ReadFileByLine(bowConfigPath)
