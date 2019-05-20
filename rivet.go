@@ -30,6 +30,9 @@ import (
 	"github.com/rs/xid"
 )
 
+// Version rivet version
+const Version = "0.1"
+
 // serviceID 自身服务唯一 id
 var serviceID = xid.New().String()
 

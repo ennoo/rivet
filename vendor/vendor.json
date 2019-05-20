@@ -87,6 +87,18 @@
 			"revisionTime": "2019-04-29T19:26:42Z"
 		},
 		{
+			"checksumSHA1": "8fDK53Czr6IWx6KyeYfCptNeCjE=",
+			"path": "github.com/spf13/cobra",
+			"revision": "67fc4837d267bc9bfd6e47f77783fcc3dffc68de",
+			"revisionTime": "2019-03-21T00:05:52Z"
+		},
+		{
+			"checksumSHA1": "VK+UsykzUMkaKl2ankiyutolraE=",
+			"path": "github.com/spf13/pflag",
+			"revision": "24fa6976df40757dce6aea913e7b81ade90530e1",
+			"revisionTime": "2018-12-23T18:29:23Z"
+		},
+		{
 			"checksumSHA1": "ZwPtcZjrfrOLvm8ufw50Hmyl2NU=",
 			"path": "github.com/ugorji/go/codec",
 			"revision": "1d7ab5c50b36701116070c4c612259f93c262367",
