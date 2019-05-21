@@ -47,17 +47,15 @@ var (
 	Trans, _ = zap.NewDevelopment()
 	// Scheduled 定时任务日志对象
 	Scheduled, _ = zap.NewDevelopment()
+	// Self 当前使用该框架服务日志对象
+	Self, _ = zap.NewDevelopment()
 )
 
-const (
-	// DebugLevel 日志级别为 debug
-	DebugLevel = "debug"
-	// InfoLevel 日志级别为 info
-	InfoLevel = "info"
+var (
+	instance *Logger
+	once     sync.Once
+	logPath  string
 )
-
-var instance *Logger
-var once sync.Once
 
 // Logger 日志入口对象
 type Logger struct {
@@ -67,11 +65,11 @@ type Logger struct {
 // GetLogInstance 获取日志管理对象 Log 单例
 func GetLogInstance() *Logger {
 	once.Do(func() {
-		logPath := env.GetEnvDefault(env.LogPath, "./logs")
+		logPath = env.GetEnvDefault(env.LogPath, "./logs")
 		instance = &Logger{
 			&Config{
 				FilePath:   strings.Join([]string{logPath, "rivet.log"}, "/"),
-				Level:      zapcore.DebugLevel,
+				Level:      DebugLevel,
 				MaxSize:    128,
 				MaxBackups: 30,
 				MaxAge:     30,
@@ -87,6 +85,7 @@ func GetLogInstance() *Logger {
 		Shunt = instance.New(strings.Join([]string{logPath, "shunt.log"}, "/"), "shunt")
 		Trans = instance.New(strings.Join([]string{logPath, "trans.log"}, "/"), "trans")
 		Scheduled = instance.New(strings.Join([]string{logPath, "scheduled.log"}, "/"), "scheduled")
+		Self = instance.New(strings.Join([]string{logPath, "self.log"}, "/"), "self")
 	})
 	return instance
 }
@@ -99,22 +98,40 @@ func (log *Logger) Conf(config *Config) {
 // Init 日志初始化操作，目前什么也不做
 func (log *Logger) Init() {}
 
+func (log *Logger) Self(serviceName string) {
+	Self = instance.New(strings.Join([]string{logPath, "/", serviceName, ".log"}, ""), "serviceName")
+}
+
+// New 新建日志对象
+func (log *Logger) New1(name string, serviceName string) *zap.Logger {
+	return log.NewCustom(strings.Join([]string{logPath, name, ".log"}, "/"), log.Config.Level, log.Config.MaxSize, log.Config.MaxBackups, log.Config.MaxAge, log.Config.Compress, serviceName)
+}
+
 // New 新建日志对象
 func (log *Logger) New(filePath string, serviceName string) *zap.Logger {
-	core := newCore(filePath, log.Config.Level, log.Config.MaxSize, log.Config.MaxBackups, log.Config.MaxAge, log.Config.Compress)
-	// 开启开发模式，堆栈跟踪
-	caller := zap.AddCaller()
-	// 开启文件及行号
-	development := zap.Development()
-	// 设置初始化字段
-	filed := zap.Fields(zap.String("serviceName", serviceName))
-	// 返回构造日志
-	return zap.New(core, caller, development, filed)
+	return log.NewCustom(filePath, log.Config.Level, log.Config.MaxSize, log.Config.MaxBackups, log.Config.MaxAge, log.Config.Compress, serviceName)
 }
 
 // NewCustom 新建自定义日志对象
-func (log *Logger) NewCustom(filePath string, level zapcore.Level, maxSize int, maxBackups int, maxAge int, compress bool, serviceName string) *zap.Logger {
-	core := newCore(filePath, level, maxSize, maxBackups, maxAge, compress)
+func (log *Logger) NewCustom(filePath string, level Level, maxSize int, maxBackups int, maxAge int, compress bool, serviceName string) *zap.Logger {
+	var zapLevel zapcore.Level
+	switch log.Config.Level {
+	case DebugLevel:
+		zapLevel = zapcore.DebugLevel
+	case InfoLevel:
+		zapLevel = zapcore.InfoLevel
+	case WarnLevel:
+		zapLevel = zapcore.WarnLevel
+	case ErrorLevel:
+		zapLevel = zapcore.ErrorLevel
+	case DPanicLevel:
+		zapLevel = zapcore.DPanicLevel
+	case PanicLevel:
+		zapLevel = zapcore.PanicLevel
+	case FatalLevel:
+		zapLevel = zapcore.FatalLevel
+	}
+	core := newCore(filePath, zapLevel, maxSize, maxBackups, maxAge, compress)
 	// 开启开发模式，堆栈跟踪
 	caller := zap.AddCaller()
 	// 开启文件及行号
