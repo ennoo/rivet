@@ -17,6 +17,9 @@
 package str
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -90,4 +93,18 @@ func TrimN(str string) string {
 	// 去除换行符
 	str = strings.Replace(str, "\n", "", -1)
 	return str
+}
+
+// ToString 将对象格式化成字符串
+func ToString(i interface{}) string {
+	b, err := json.Marshal(i)
+	if err != nil {
+		return fmt.Sprintf("%+v", i)
+	}
+	var out bytes.Buffer
+	err = json.Indent(&out, b, "", "    ")
+	if err != nil {
+		return fmt.Sprintf("%+v", i)
+	}
+	return out.String()
 }
