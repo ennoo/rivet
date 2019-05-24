@@ -29,6 +29,7 @@ type Router struct {
 // Use 路由 Use 请求方法
 func (router *Router) Use(relativePath string, f func(router *Router)) {
 	router.Group.Use(func(context *gin.Context) {
+		router.Context = context
 		f(router)
 	})
 }
@@ -45,6 +46,7 @@ func (router *Router) Use(relativePath string, f func(router *Router)) {
 // communication with a proxy).
 func (router *Router) Handle(relativePath string, f func(router *Router)) {
 	router.Group.Use(func(context *gin.Context) {
+		router.Context = context
 		f(router)
 	})
 }
@@ -52,6 +54,7 @@ func (router *Router) Handle(relativePath string, f func(router *Router)) {
 // Any 路由 Any 请求方法
 func (router *Router) Any(relativePath string, f func(router *Router)) {
 	router.Group.GET(relativePath, func(context *gin.Context) {
+		router.Context = context
 		f(router)
 	})
 }
@@ -59,6 +62,7 @@ func (router *Router) Any(relativePath string, f func(router *Router)) {
 // GET 路由 GET 请求方法
 func (router *Router) GET(relativePath string, f func(router *Router)) {
 	router.Group.GET(relativePath, func(context *gin.Context) {
+		router.Context = context
 		f(router)
 	})
 }

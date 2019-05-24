@@ -88,7 +88,7 @@ func Trim(str string) string {
 	return TrimN(str)
 }
 
-// TrimN 去除字符串中的空格和换行符
+// TrimN 去除字符串中的换行符
 func TrimN(str string) string {
 	// 去除换行符
 	str = strings.Replace(str, "\n", "", -1)
@@ -107,4 +107,16 @@ func ToString(i interface{}) string {
 		return fmt.Sprintf("%+v", i)
 	}
 	return out.String()
+}
+
+// SingleSpace 将字符串内所有连续空格替换为单个空格
+func SingleSpace(res string) string {
+	for skip := false; !skip; {
+		resNew := strings.Replace(res, "  ", " ", -1)
+		if res == resNew {
+			skip = true
+		}
+		res = resNew
+	}
+	return res
 }

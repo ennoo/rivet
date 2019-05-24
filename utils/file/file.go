@@ -37,35 +37,33 @@ func PathExists(path string) (bool, error) {
 
 // ReadFileFirstLine 从文件中逐行读取并返回字符串数组
 func ReadFileFirstLine(filePath string) (string, error) {
-	fileIn, fileInErr := os.Open(filePath)
-	if fileInErr != nil {
-		return "", fileInErr
+	fileIn, err := os.Open(filePath)
+	if err != nil {
+		return "", err
 	}
 	defer fileIn.Close()
 	finReader := bufio.NewReader(fileIn)
-	inputString, readerError := finReader.ReadString('\n')
-	if readerError == io.EOF {
-		return "", readerError
-	}
+	inputString, err := finReader.ReadString('\n')
 	return str.TrimN(inputString), nil
 }
 
 // ReadFileByLine 从文件中逐行读取并返回字符串数组
 func ReadFileByLine(filePath string) ([]string, error) {
-	fileIn, fileInErr := os.Open(filePath)
-	if fileInErr != nil {
-		return nil, fileInErr
+	fileIn, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
 	}
 	defer fileIn.Close()
 	finReader := bufio.NewReader(fileIn)
 	var fileList []string
 	for {
-		inputString, readerError := finReader.ReadString('\n')
+		inputString, err := finReader.ReadString('\n')
 		//fmt.Println(inputString)
-		if readerError == io.EOF {
+		if err == io.EOF {
+			fileList = append(fileList, str.TrimN(inputString))
 			break
 		}
-		fileList = append(fileList, inputString)
+		fileList = append(fileList, str.TrimN(inputString))
 	}
 	//fmt.Println("fileList",fileList)
 	return fileList, nil

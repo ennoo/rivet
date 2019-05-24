@@ -85,6 +85,11 @@ func (result *Result) FailErr(err error) {
 
 }
 
+// Say response 返回自身
+func (result *Result) Say(context *gin.Context) {
+	context.JSON(http.StatusOK, &result)
+}
+
 // SaySuccess response 返回请求成功对象
 func (result *Result) SaySuccess(context *gin.Context, obj interface{}) {
 	result.Success(obj)
