@@ -43,7 +43,7 @@ func ReadFileFirstLine(filePath string) (string, error) {
 	}
 	defer fileIn.Close()
 	finReader := bufio.NewReader(fileIn)
-	inputString, err := finReader.ReadString('\n')
+	inputString, _ := finReader.ReadString('\n')
 	return str.TrimN(inputString), nil
 }
 
