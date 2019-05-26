@@ -30,3 +30,8 @@ func WS(router *response.Router) {
 		Keepers = append(Keepers, keeps.Start(id, conn))
 	})
 }
+
+// remove Service 服务器对象集合内移除
+//func remove(position int) {
+//	Keepers = append(Keepers[:position], Keepers[position+1:]...)
+//}

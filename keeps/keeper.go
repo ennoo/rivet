@@ -38,7 +38,7 @@ func (keeper *Keeper) Read() (data []byte, err error) {
 	case data = <-keeper.inChan:
 		log.Self.Debug("data = " + string(data))
 	case <-keeper.closeChan:
-		err = errors.New("connection is closed")
+		err = errors.New("id " + keeper.ID + "connection is closed")
 	}
 	return
 }
@@ -48,7 +48,7 @@ func (keeper *Keeper) Write(data []byte) (err error) {
 	select {
 	case keeper.outChan <- data:
 	case <-keeper.closeChan:
-		err = errors.New("connection is closed")
+		err = errors.New("id " + keeper.ID + "connection is closed")
 	}
 	return
 }
