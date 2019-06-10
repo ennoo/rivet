@@ -17,14 +17,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/examples/model"
-	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/ip"
 	"github.com/ennoo/rivet/utils/slip"
-	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -37,40 +36,40 @@ func main() {
 	})
 }
 
-func testRouter1(engine *gin.Engine) {
+func testRouter1(router *response.Router) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet")
-	vRepo.GET("/get", shunt1get1)
-	vRepo.POST("/post", shunt1post1)
-	vRepo.POST("/post2", shunt1post2)
-	vRepo.POST("/shunt", shunt1)
+	router.Group = router.Engine.Group("/rivet")
+	router.GET("/get", shunt1get1)
+	router.POST("/post", shunt1post1)
+	router.POST("/post2", shunt1post2)
+	router.POST("/shunt", shunt1)
 }
 
-func shunt1get1(context *gin.Context) {
-	rivet.Request().Call(context, http.MethodGet, "http://localhost:8082", "rivet/get")
+func shunt1get1(router *response.Router) {
+	rivet.Request().Call(router.Context, http.MethodGet, "http://localhost:8082", "rivet/get")
 }
 
-func shunt1post1(context *gin.Context) {
-	fmt.Println("ip = ", ip.Get(context.Request))
-	rivet.Request().Callback(context, http.MethodPost, "http://localhost:8082", "rivet/post", func() *response.Result {
+func shunt1post1(router *response.Router) {
+	fmt.Println("ip = ", ip.Get(router.Context.Request))
+	rivet.Request().Callback(router.Context, http.MethodPost, "http://localhost:8082", "rivet/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }
 
-func shunt1(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
+func shunt1(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
 		var test = new(model.Test)
-		if err := context.ShouldBindJSON(test); err != nil {
-			result.SayFail(context, err.Error())
+		if err := router.Context.ShouldBindJSON(test); err != nil {
+			result.SayFail(router.Context, err.Error())
 		}
 		test.Name = "trans1"
-		context.Writer.Header().Add("trans1Token15", "trans1Test15")
-		context.SetCookie("trans1Token16", "trans1Test16", 10, "/", "localhost", false, true)
-		result.SaySuccess(context, test)
+		router.Context.Writer.Header().Add("trans1Token15", "trans1Test15")
+		router.Context.SetCookie("trans1Token16", "trans1Test16", 10, "/", "localhost", false, true)
+		result.SaySuccess(router.Context, test)
 	})
 }
 
-func shunt1post2(context *gin.Context) {
+func shunt1post2(router *response.Router) {
 	method := http.MethodGet
 	remote := "http://127.0.0.1:8500"
 	uri := "v1/agent/health/service/name/test"

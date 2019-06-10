@@ -65,7 +65,7 @@ func agentRegister(consulURL, serviceID, serviceName, hostname string, port int)
 	method := http.MethodPut
 	remote := strings.Join([]string{"http://", env.GetEnvDefault(env.DiscoveryURL, consulURL)}, "")
 	uri := "v1/agent/service/register"
-	if envPort := env.GetEnv(env.PortEnv); str.IsNotEmpty(envPort) {
+	if envPort := env.GetEnv(env.Port); str.IsNotEmpty(envPort) {
 		envPortInt, err := strconv.Atoi(envPort)
 		if err != nil {
 			port = envPortInt

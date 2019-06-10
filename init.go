@@ -10,7 +10,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package rivet
@@ -21,6 +20,7 @@ import (
 	"github.com/ennoo/rivet/discovery/consul"
 	"github.com/ennoo/rivet/scheduled"
 	"github.com/ennoo/rivet/server"
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/request"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
@@ -32,13 +32,12 @@ import (
 )
 
 var (
-	route = false // 是否开启网关路由
-	hc    = false // 是否开启健康检查。开启后为 Get 请求，路径为 /health/check
-	sm    = false // 是否开启外界服务管理功能
-	ud    = false // 是否启用发现服务
-	cp    string  // 启用的发现服务组件类型
-	sn    string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
-	f     func(context *gin.Context, result *response.Result) bool
+	hc = false // 是否开启健康检查。开启后为 Get 请求，路径为 /health/check
+	sm = false // 是否开启外界服务管理功能
+	ud = false // 是否启用发现服务
+	cp string  // 启用的发现服务组件类型
+	sn string  // 注册到发现服务的服务名称（优先通过环境变量 SERVICE_NAME 获取）
+	f  func(result *response.Result) bool
 )
 
 // ListenServe 启动监听端口服务对象
@@ -76,8 +75,8 @@ func Initialize(healthCheck bool, serverManager bool, loadBalance bool) {
 // UseBow 开启网关路由
 //
 // filter 自定义过滤方案
-func UseBow(filter func(context *gin.Context, result *response.Result) bool) {
-	route = true
+func UseBow(filter func(result *response.Result) bool) {
+	request.Route = true
 	f = filter
 }
 
@@ -93,33 +92,38 @@ func UseBow(filter func(context *gin.Context, result *response.Result) bool) {
 //
 // port：注册到 consul 的服务端口（优先通过环境变量 PORT 获取）
 func UseDiscovery(component, url, serviceName, hostname string, port int) {
-	cp = component
+	cp = env.GetEnvDefault(env.DiscoveryComponent, component)
 	sn = serviceName
-	switch component {
+	discoveryURL := env.GetEnvDefault(env.DiscoveryURL, url)
+	discoveryReceiveHost := env.GetEnvDefault(env.DiscoveryReceiveHost, hostname)
+	switch cp {
 	case discovery.ComponentConsul:
 		if !ud {
 			log.Rivet.Info("use discovery service {}" + discovery.ComponentConsul)
 			ud = true
 			if request.LB {
-				go consul.Enroll(url, serviceID, ServiceName(), hostname, port)
+				go consul.Enroll(discoveryURL, serviceID, ServiceName(), discoveryReceiveHost, port)
 			} else {
-				go scheduled.ConsulEnroll(url, serviceID, ServiceName(), hostname, port)
+				go scheduled.ConsulEnroll(discoveryURL, serviceID, ServiceName(), discoveryReceiveHost, port)
 			}
 		}
 	}
 }
 
 // SetupRouter 设置路由器相关选项
-func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
-	engine := gin.Default()
-	if route {
-		bow.Route(engine, f)
+func SetupRouter(routes ...func(router *response.Router)) *gin.Engine {
+	router := &response.Router{
+		Engine: gin.Default(),
+	}
+
+	if request.Route {
+		bow.Route(router.Engine, f)
 	}
 	if hc {
-		Health(engine)
+		Health(router.Engine)
 	}
 	if sm {
-		server.Server(engine)
+		server.Server(router.Engine)
 	}
 	if request.LB {
 		if ud {
@@ -127,11 +131,14 @@ func SetupRouter(routes ...func(*gin.Engine)) *gin.Engine {
 		} else {
 			scheduled.CheckService(serviceID, sn, "")
 		}
+		if !request.Route {
+			shunt.Route(router.Engine)
+		}
 	}
 	for _, route := range routes {
-		route(engine)
+		route(router)
 	}
-	return engine
+	return router.Engine
 }
 
 // ListenAndServe 开始启用 rivet
@@ -143,12 +150,30 @@ func ListenAndServe(listenServe *ListenServe, caCertPaths ...string) {
 	listenAndServe(listenServe, false, caCertPaths...)
 }
 
+// ListenAndServes 开始启用 rivet
+//
+// listenServe 启动监听端口服务对象
+//
+// caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
+func ListenAndServes(listenServe *ListenServe, caCertPaths []string) {
+	listenAndServe(listenServe, false, caCertPaths...)
+}
+
 // ListenAndServeTLS 开始启用 rivet
 //
 // listenServe 启动监听端口服务对象
 //
 // caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
 func ListenAndServeTLS(listenServe *ListenServe, caCertPaths ...string) {
+	listenAndServe(listenServe, true, caCertPaths...)
+}
+
+// ListenAndServesTLS 开始启用 rivet
+//
+// listenServe 启动监听端口服务对象
+//
+// caCertPaths 作为客户端发起 HTTPS 请求时所需客户端证书路径数组
+func ListenAndServesTLS(listenServe *ListenServe, caCertPaths []string) {
 	listenAndServe(listenServe, true, caCertPaths...)
 }
 
@@ -169,9 +194,9 @@ func listenAndServe(listenServe *ListenServe, isTLS bool, caCertPaths ...string)
 	log.Rivet.Info("listening http port bind")
 	var err error
 	if isTLS {
-		err = listenServe.Engine.RunTLS(":"+env.GetEnvDefault(env.PortEnv, listenServe.DefaultPort), listenServe.CertFile, listenServe.KeyFile)
+		err = listenServe.Engine.RunTLS(":"+env.GetEnvDefault(env.Port, listenServe.DefaultPort), listenServe.CertFile, listenServe.KeyFile)
 	} else {
-		err = listenServe.Engine.Run(":" + env.GetEnvDefault(env.PortEnv, listenServe.DefaultPort))
+		err = listenServe.Engine.Run(":" + env.GetEnvDefault(env.Port, listenServe.DefaultPort))
 	}
 	if nil != err {
 		log.Rivet.Info("exit because {}" + err.Error())

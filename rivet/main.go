@@ -13,22 +13,10 @@
  *
  */
 
-package rivet
+package main
 
-import (
-	"github.com/ennoo/rivet/trans/response"
-	"github.com/gin-gonic/gin"
-)
+import "github.com/ennoo/rivet/command"
 
-// Health 健康检查服务路由
-func Health(engine *gin.Engine) {
-	// 仓库相关路由设置
-	vRepo := engine.Group("/health")
-	vRepo.GET("/check", health)
-}
-
-func health(context *gin.Context) {
-	Response().Do(context, func(result *response.Result) {
-		result.SaySuccess(context, "status ok")
-	})
+func main() {
+	command.Execute()
 }

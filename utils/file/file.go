@@ -13,6 +13,7 @@
  *
  */
 
+// Package file 文件操作工具
 package file
 
 import (

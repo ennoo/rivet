@@ -17,7 +17,7 @@ package model
 
 // Test 请求测试对象
 type Test struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Age  int    `json:"age"`
 }

@@ -10,9 +10,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
+// Package rivet implements micro service components for Go development
+//
+// Source code and other details for the project are available at GitHub:
+//
+// https://github.com/ennoo/rivet
 package rivet
 
 import (
@@ -22,13 +26,17 @@ import (
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
+	"github.com/ennoo/rivet/utils/sql"
 	"github.com/rs/xid"
 )
+
+// Version rivet version
+const Version = "0.1"
 
 // serviceID 自身服务唯一 id
 var serviceID = xid.New().String()
 
-// ServiceID 服务注册 consul 唯一 id
+// ServiceID 服务唯一 id
 func ServiceID() string {
 	return serviceID
 }
@@ -61,4 +69,9 @@ func Request() *request.Request {
 // Bow 提供实例化调用路由，并内置返回策略
 func Bow() *bow.Bow {
 	return bow.GetBowInstance()
+}
+
+// SQL 提供实例化调用数据库连接对象
+func SQL() *sql.SQL {
+	return sql.GetSQLInstance()
 }

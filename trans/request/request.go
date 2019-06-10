@@ -13,13 +13,13 @@
  *
  */
 
+// Package request 请求接受处理包
 package request
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/ennoo/rivet/server"
-	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/log"
 	"github.com/gin-gonic/gin"
@@ -34,8 +34,10 @@ import (
 
 var (
 	// LB 是否开启负载均衡
-	LB  = false
-	req = sync.Pool{
+	LB = false
+	// Route 是否开启网关路由
+	Route = false
+	req   = sync.Pool{
 		New: func() interface{} {
 			return &Request{}
 		},
@@ -245,16 +247,6 @@ func (request *Request) Callback(context *gin.Context, method string, remote str
 //
 // callback *response.Result 请求转发降级后返回请求方结果对象
 func (request *Request) call(context *gin.Context, method string, remote string, uri string, callback func() *response.Result) {
-	if LB {
-		service, err := shunt.RunShunt(remote)
-		if nil == err {
-			remote = request.formatURL(context, service)
-		} else {
-			request.result.Fail(err.Error())
-			context.JSON(http.StatusOK, request.result)
-			return
-		}
-	}
 	request.callReal(context, method, remote, uri, callback)
 }
 
@@ -350,7 +342,7 @@ func done(context *gin.Context, resp *http.Response, request *Request, body []by
 }
 
 // FormatURL 将注册到服务的 service host 和 port 组装成完成的 URL
-func (request *Request) formatURL(context *gin.Context, service *server.Service) string {
+func FormatURL(context *gin.Context, service *server.Service) string {
 	switch context.Request.Proto {
 	case "HTTP/1.1":
 		return strings.Join([]string{"http://", service.Host, ":", strconv.Itoa(service.Port)}, "")

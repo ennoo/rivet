@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+// Package slip 自定义错误信息
 package slip
 
 import (

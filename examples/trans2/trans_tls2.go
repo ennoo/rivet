@@ -15,11 +15,10 @@
 package main
 
 import (
+	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/examples/model"
-	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
-	"github.com/gin-gonic/gin"
 	"strings"
 )
 
@@ -34,37 +33,37 @@ func main() {
 	})
 }
 
-func testRouterTLS2(engine *gin.Engine) {
+func testRouterTLS2(router *response.Router) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet")
-	vRepo.GET("/get", getTLS2)
-	vRepo.POST("/post", postTLS2)
-	vRepo.POST("/shunt", shuntTLS2)
+	router.Group = router.Engine.Group("/rivet")
+	router.GET("/get", getTLS2)
+	router.POST("/post", postTLS2)
+	router.POST("/shunt", shuntTLS2)
 }
 
-func getTLS2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
-		result.SaySuccess(context, "get21")
+func getTLS2(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
+		result.SaySuccess(router.Context, "get21")
 	})
 }
 
-func postTLS2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
+func postTLS2(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
 		var test = new(model.Test)
-		if err := context.ShouldBindJSON(test); err != nil {
-			result.SayFail(context, err.Error())
+		if err := router.Context.ShouldBindJSON(test); err != nil {
+			result.SayFail(router.Context, err.Error())
 		}
-		result.SaySuccess(context, test)
+		result.SaySuccess(router.Context, test)
 	})
 }
 
-func shuntTLS2(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
+func shuntTLS2(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
 		var test = new(model.Test)
-		if err := context.ShouldBindJSON(test); err != nil {
-			result.SayFail(context, err.Error())
+		if err := router.Context.ShouldBindJSON(test); err != nil {
+			result.SayFail(router.Context, err.Error())
 		}
 		test.Name = "trans2"
-		result.SaySuccess(context, test)
+		result.SaySuccess(router.Context, test)
 	})
 }

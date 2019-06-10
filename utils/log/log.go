@@ -13,9 +13,11 @@
  *
  */
 
+// Package log 日志操作工具
 package log
 
 import (
+	"github.com/ennoo/rivet/utils/env"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -45,8 +47,6 @@ var (
 	Trans, _ = zap.NewDevelopment()
 	// Scheduled 定时任务日志对象
 	Scheduled, _ = zap.NewDevelopment()
-	// SQL 数据库日志对象
-	SQL, _ = zap.NewDevelopment()
 )
 
 const (
@@ -67,9 +67,10 @@ type Logger struct {
 // GetLogInstance 获取日志管理对象 Log 单例
 func GetLogInstance() *Logger {
 	once.Do(func() {
+		logPath := env.GetEnvDefault(env.LogPath, "./logs")
 		instance = &Logger{
 			&Config{
-				FilePath:   strings.Join([]string{"./logs/rivet.log"}, ""),
+				FilePath:   strings.Join([]string{logPath, "rivet.log"}, "/"),
 				Level:      zapcore.DebugLevel,
 				MaxSize:    128,
 				MaxBackups: 30,
@@ -77,16 +78,15 @@ func GetLogInstance() *Logger {
 				Compress:   true,
 			},
 		}
-		Common = instance.New("./logs/common.log", "common")
-		Discovery = instance.New("./logs/discovery.log", "discovery")
-		Examples = instance.New("./logs/examples.log", "examples")
-		Rivet = instance.New("./logs/rivet.log", "rivet")
-		Server = instance.New("./logs/server.log", "server")
-		Bow = instance.New("./logs/bow.log", "bow")
-		Shunt = instance.New("./logs/shunt.log", "shunt")
-		Trans = instance.New("./logs/trans.log", "trans")
-		Scheduled = instance.New("./logs/scheduled.log", "scheduled")
-		SQL = instance.New("./logs/sql.log", "sql")
+		Common = instance.New(strings.Join([]string{logPath, "common.log"}, "/"), "common")
+		Discovery = instance.New(strings.Join([]string{logPath, "discovery.log"}, "/"), "discovery")
+		Examples = instance.New(strings.Join([]string{logPath, "examples.log"}, "/"), "examples")
+		Rivet = instance.New(strings.Join([]string{logPath, "rivet.log"}, "/"), "rivet")
+		Server = instance.New(strings.Join([]string{logPath, "server.log"}, "/"), "server")
+		Bow = instance.New(strings.Join([]string{logPath, "bow.log"}, "/"), "bow")
+		Shunt = instance.New(strings.Join([]string{logPath, "shunt.log"}, "/"), "shunt")
+		Trans = instance.New(strings.Join([]string{logPath, "trans.log"}, "/"), "trans")
+		Scheduled = instance.New(strings.Join([]string{logPath, "scheduled.log"}, "/"), "scheduled")
 	})
 	return instance
 }
@@ -95,6 +95,9 @@ func GetLogInstance() *Logger {
 func (log *Logger) Conf(config *Config) {
 	log.Config = config
 }
+
+// Init 日志初始化操作，目前什么也不做
+func (log *Logger) Init() {}
 
 // New 新建日志对象
 func (log *Logger) New(filePath string, serviceName string) *zap.Logger {

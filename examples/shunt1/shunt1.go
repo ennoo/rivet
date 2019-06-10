@@ -16,53 +16,21 @@
 package main
 
 import (
+	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/discovery"
-	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/shunt"
-	"github.com/ennoo/rivet/trans/response"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func main() {
 	rivet.Initialize(true, true, true)
-	//rivet.Log().Conf(&log.Config{
-	//	FilePath:    strings.Join([]string{"./logs/rivet.log"}, ""),
-	//	Level:       zapcore.DebugLevel,
-	//	MaxSize:     128,
-	//	MaxBackups:  30,
-	//	MaxAge:      30,
-	//	Compress:    true,
-	//	ServiceName: env.GetEnvDefault("SERVICE_NAME", "shunt1"),
-	//})
+	rivet.Log().Init()
 	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
-	rivet.Shunt().Register("test", shunt.Round)
-	rivet.Shunt().Register("test1", shunt.Random)
-	rivet.Shunt().Register("test2", shunt.Hash)
+	rivet.Shunt().AddService("test", "hello", "test", shunt.Round)
+	rivet.Shunt().AddService("test1", "hello1", "test1", shunt.Random)
+	rivet.Shunt().AddService("test2", "hello2", "test2", shunt.Hash)
 	//addAddress()
 	rivet.ListenAndServe(&rivet.ListenServe{
-		Engine:      rivet.SetupRouter(testShunt1),
-		DefaultPort: "8083",
-	})
-}
-
-func testShunt1(engine *gin.Engine) {
-	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet")
-	vRepo.GET("/shunt/:serviceName", shunt3)
-	vRepo.POST("/shunt", shunt4)
-}
-
-func shunt3(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
-		serviceName := context.Param("serviceName")
-		rivet.Shunt().Register(serviceName, shunt.Round)
-		result.SaySuccess(context, "test2")
-	})
-}
-
-func shunt4(context *gin.Context) {
-	rivet.Request().Callback(context, http.MethodPost, "test", "rivet/shunt", func() *response.Result {
-		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
+		Engine:      rivet.SetupRouter(),
+		DefaultPort: "19877",
 	})
 }

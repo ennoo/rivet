@@ -16,23 +16,28 @@
 package main
 
 import (
-	"github.com/ennoo/rivet/rivet"
+	"github.com/ennoo/rivet"
+	"github.com/ennoo/rivet/discovery"
+	"github.com/ennoo/rivet/shunt"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
-	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 func main() {
-	rivet.Initialize(false, true, false)
-	rivet.UseBow(func(context *gin.Context, result *response.Result) bool {
-		result.Fail("test fail")
-		return false
+	rivet.Initialize(true, true, true)
+	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "bow", "127.0.0.1", 19219)
+	rivet.Shunt().Register("test", shunt.Round)
+	rivet.UseBow(func(result *response.Result) bool {
+		//result.Fail("test fail")
+		//return false
+		return true
 	})
-	rivet.Bow().AddService("test1", "hello1", "http://localhost:8081", "rivet/shunt")
-	rivet.Bow().AddService("test2", "hello2", "https://localhost:8092", "rivet/shunt")
+	rivet.Bow().AddService("test", "hello", "test")
+	rivet.Bow().AddService("test1", "hello1", "http://localhost:8081")
+	rivet.Bow().AddService("test2", "hello2", "https://localhost:8092")
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(),
-		DefaultPort: "8084",
+		DefaultPort: "19219",
 	}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
 }

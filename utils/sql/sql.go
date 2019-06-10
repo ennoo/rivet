@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+// Package sql SQL操作工具
 package sql
 
 import (
@@ -37,6 +38,8 @@ type SQL struct {
 	DBUser string   // dbUser 数据库用户名
 	DBPass string   // dbPass 数据库用户密码
 	DBName string   // dbName 数据库名称
+	// LogMode set log mode, `true` for detailed logs, `false` for no log, default, will only print error logs
+	LogModeEnable bool
 }
 
 // GetSQLInstance 获取 SQL 单例
@@ -48,23 +51,34 @@ func GetSQLInstance() *SQL {
 }
 
 // Connect 链接数据库服务
-func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string) error {
+//
+// dbURL 数据库 URL
+//
+// dbUser 数据库用户名
+//
+// dbPass 数据库用户密码
+//
+// dbName 数据库名称
+//
+// logModeEnable set log mode, `true` for detailed logs, `false` for no log, default, will only print error logs
+func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string, logModeEnable bool) error {
 	if nil == s.DB {
 		s.DBUrl = env.GetEnvDefault(env.DBUrl, dbURL)
 		s.DBUser = env.GetEnvDefault(env.DBUser, dbUser)
 		s.DBPass = env.GetEnvDefault(env.DBPass, dbPass)
 		s.DBName = env.GetEnvDefault(env.DBName, dbName)
-		log.SQL.Info("init DB Manager")
+		s.LogModeEnable = logModeEnable
+		log.Common.Info("init DB Manager")
 		dbValue := strings.Join([]string{s.DBUser, ":", s.DBPass, "@tcp(", s.DBUrl, ")/", s.DBName,
 			"?charset=utf8&parseTime=True&loc=Local"}, "")
-		log.SQL.Debug("dbValue = " + dbValue)
+		log.Common.Debug("dbValue = " + dbValue)
 		var err error
 		s.DB, err = gorm.Open("mysql", dbValue)
 		if err != nil {
-			log.SQL.Error("failed to connect database, err = " + err.Error())
+			log.Common.Error("failed to connect database, err = " + err.Error())
 			return err
 		}
-		s.DB.LogMode(false)
+		s.DB.LogMode(logModeEnable)
 		// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 		s.DB.DB().SetMaxIdleConns(10)
 		// SetMaxOpenConns sets the maximum number of open connections to the database.
@@ -77,19 +91,19 @@ func (s *SQL) Connect(dbURL, dbUser, dbPass, dbName string) error {
 }
 
 func (s *SQL) reConnect() error {
-	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName)
+	return s.Connect(s.DBUrl, s.DBUser, s.DBPass, s.DBName, s.LogModeEnable)
 }
 
 // Exec 执行自定义 SQL
-func (s *SQL) Exec(f func(db *gorm.DB)) error {
+func (s *SQL) Exec(f func(s *SQL)) error {
 	if nil == s.DB {
 		if err := s.reConnect(); nil == err {
-			f(s.DB)
+			f(s)
 		} else {
 			return err
 		}
 	}
-	f(s.DB)
+	f(s)
 	return nil
 }
 
@@ -118,7 +132,7 @@ func (s *SQL) dbKeepAlive(db *gorm.DB) {
 	_ = c.AddFunc("*/10 * * * * ?", func() {
 		err := db.DB().Ping()
 		if nil != err {
-			_ = s.Exec(func(db *gorm.DB) {})
+			_ = s.Exec(func(sql *SQL) {})
 		}
 	}) //每10秒执行一次
 	c.Start()

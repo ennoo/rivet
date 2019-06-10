@@ -30,3 +30,16 @@ func TestGetEnvDefault(t *testing.T) {
 	fmt.Println("HELLO =", GetEnvDefault("HELLO", "my"))
 	fmt.Println("WORLD =", GetEnvDefault("WORLD", "god"))
 }
+
+func TestGetEnvBool(t *testing.T) {
+	_ = os.Setenv("HELLO", "true")
+	fmt.Println("HELLO =", GetEnvBool("HELLO"))
+	_ = os.Setenv("HELLO", "false")
+	fmt.Println("HELLO =", GetEnvBool("HELLO"))
+}
+
+func TestGetEnvBoolDefault(t *testing.T) {
+	fmt.Println("HELLO =", GetEnvBoolDefault("HELLO", true))
+	_ = os.Setenv("HELLO", "false")
+	fmt.Println("HELLO =", GetEnvBoolDefault("HELLO", true))
+}

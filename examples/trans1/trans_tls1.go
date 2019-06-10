@@ -15,11 +15,10 @@
 package main
 
 import (
+	"github.com/ennoo/rivet"
 	"github.com/ennoo/rivet/examples/model"
-	"github.com/ennoo/rivet/rivet"
 	"github.com/ennoo/rivet/trans/response"
 	"github.com/ennoo/rivet/utils/env"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 	"time"
@@ -37,31 +36,31 @@ func main() {
 	}, strings.Join([]string{env.GetEnv(env.GOPath), "/src/github.com/ennoo/rivet/examples/tls/rootCA.crt"}, ""))
 }
 
-func testRouterTLS1(engine *gin.Engine) {
+func testRouterTLS1(router *response.Router) {
 	// 仓库相关路由设置
-	vRepo := engine.Group("/rivet")
-	vRepo.GET("/get", getTLS1)
-	vRepo.POST("/post", postTLS1)
-	vRepo.POST("/shunt", shuntTLS1)
+	router.Group = router.Engine.Group("/rivet")
+	router.GET("/get", getTLS1)
+	router.POST("/post", postTLS1)
+	router.POST("/shunt", shuntTLS1)
 }
 
-func getTLS1(context *gin.Context) {
-	rivet.Request().Call(context, http.MethodGet, "https://localhost:8092", "rivet/get")
+func getTLS1(router *response.Router) {
+	rivet.Request().Call(router.Context, http.MethodGet, "https://localhost:8092", "rivet/get")
 }
 
-func postTLS1(context *gin.Context) {
-	rivet.Request().Callback(context, http.MethodPost, "https://localhost:8092", "rivet/post", func() *response.Result {
+func postTLS1(router *response.Router) {
+	rivet.Request().Callback(router.Context, http.MethodPost, "https://localhost:8092", "rivet/post", func() *response.Result {
 		return &response.Result{ResultCode: response.Success, Msg: "降级处理"}
 	})
 }
 
-func shuntTLS1(context *gin.Context) {
-	rivet.Response().Do(context, func(result *response.Result) {
+func shuntTLS1(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
 		var test = new(model.Test)
-		if err := context.ShouldBindJSON(test); err != nil {
-			result.SayFail(context, err.Error())
+		if err := router.Context.ShouldBindJSON(test); err != nil {
+			result.SayFail(router.Context, err.Error())
 		}
 		test.Name = "trans1"
-		result.SaySuccess(context, test)
+		result.SaySuccess(router.Context, test)
 	})
 }

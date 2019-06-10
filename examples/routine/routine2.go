@@ -27,6 +27,7 @@ func main() {
 	//提前将队列放满
 	c <- 1
 	c <- 2
+	fmt.Println("c len = ", len(c))
 	fmt.Println("开始尝试执行")
 	go cross(c)
 	process(c)
@@ -47,10 +48,14 @@ func cross(c chan int) {
 	for b >= a {
 		fmt.Println("阻塞", b, "秒")
 		time.Sleep(time.Second)
-		b -= 1
+		b--
 	}
 
 	fmt.Println("释放一个通行证")
-	<-c //取出元素，则chan可以继续放入数据，将唤醒**行代码
+	fmt.Println("<-c 1 = ", <-c)
+	fmt.Println("<-c 2 = ", <-c)
+	fmt.Println("<-c 3 = ", <-c)
+	fmt.Println("<-c 4 = ", <-c)
+	//取出元素，则chan可以继续放入数据，将唤醒**行代码
 
 }

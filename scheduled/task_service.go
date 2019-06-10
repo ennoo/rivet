@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+// Package scheduled 定时服务包
 package scheduled
 
 import (
@@ -32,6 +33,7 @@ var (
 
 // CheckService 检查可用负载服务列表
 func CheckService(serviceID, serviceName, component string) {
+	log.Scheduled.Info("CheckService 检查可用负载服务列表")
 	selfServiceID = serviceID
 	selfServiceName = serviceName
 	selfDiscoveryComponent = component

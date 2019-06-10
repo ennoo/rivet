@@ -18,7 +18,6 @@ package sql
 import (
 	"github.com/ennoo/rivet/utils/env"
 	"github.com/ennoo/rivet/utils/log"
-	"github.com/jinzhu/gorm"
 	"testing"
 )
 
@@ -29,28 +28,28 @@ type User struct {
 
 func TestSQL(t *testing.T) {
 	dbURL := env.GetEnvDefault(env.DBUrl, "127.0.0.1:3306")
-	dbPass := env.GetEnvDefault(env.DBPass, "secret")
+	dbPass := env.GetEnvDefault(env.DBPass, "")
 	dbName := env.GetEnvDefault(env.DBName, "mysql")
 	db := GetSQLInstance()
-	_ = db.Connect(dbURL, "root", dbPass, dbName)
+	_ = db.Connect(dbURL, "root", dbPass, dbName, false)
 
-	_ = db.Connect(dbURL, "root", dbPass, dbName)
-	log.SQL.Info("dbURL = " + db.DBUrl)
+	_ = db.Connect(dbURL, "root", dbPass, dbName, false)
+	log.Common.Info("dbURL = " + db.DBUrl)
 	var user User
 	db.ExecSQL(&user, "select * from user where User=? limit 1", "root")
-	log.SQL.Info("user Host = " + user.Host + " User = " + user.User)
+	log.Common.Info("user Host = " + user.Host + " User = " + user.User)
 
 	db.DB = nil
 	_ = db.reConnect()
 	db.ExecSQL(&user, "select * from user where User=? limit 1", "mysql.sys")
 	db.DB = nil
-	_ = db.Exec(func(db *gorm.DB) {
-		db.Raw(Format(
+	_ = db.Exec(func(sql *SQL) {
+		sql.DB.Raw(Format(
 			"select * from", "user", "where User=? limit 1"), "mysql.session").Scan(&user)
 	})
-	_ = db.Exec(func(db *gorm.DB) {
-		db.Raw(Format(
+	_ = db.Exec(func(sql *SQL) {
+		sql.DB.Raw(Format(
 			"select * from", "user", "where User=? limit 1"), "root").Scan(&user)
 	})
-	log.SQL.Info("user Host = " + user.Host + " User = " + user.User)
+	log.Common.Info("user Host = " + user.Host + " User = " + user.User)
 }
