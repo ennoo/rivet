@@ -100,3 +100,11 @@ func TestReadFileByLine(t *testing.T) {
 		fmt.Println("hello =", hello)
 	}
 }
+
+func TestCreateAndWrite(t *testing.T) {
+	if err := CreateAndWrite("/etc/yes/go/test.txt", []byte("haha"), false); nil != err {
+		t.Error(err)
+	} else {
+		t.Log("success")
+	}
+}
