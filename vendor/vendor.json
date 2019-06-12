@@ -51,6 +51,12 @@
 			"revisionTime": "2019-04-09T05:09:43Z"
 		},
 		{
+			"checksumSHA1": "3ORLCzeT6ci2RkN0jo1bY6bmE8A=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "80c2d40e9b91f2ef7a9c1a403aeec64d1b89a9a6",
+			"revisionTime": "2019-04-27T04:03:06Z"
+		},
+		{
 			"checksumSHA1": "cGQumTyZMk2jBu314CJ1MGFQ9DY=",
 			"path": "github.com/jinzhu/gorm",
 			"revision": "7bc35615034c1d6994088c2cc925086fba6f565e",
@@ -153,10 +159,22 @@
 			"revisionTime": "2019-04-30T15:52:29Z"
 		},
 		{
+			"checksumSHA1": "F+tqxPGFt5x7DKZakbbMmENX1oQ=",
+			"path": "golang.org/x/net/websocket",
+			"revision": "3ec19112720433827bbce8be9342797f5a6aaaf9",
+			"revisionTime": "2019-05-12T12:16:34Z"
+		},
+		{
 			"checksumSHA1": "BW0KOqvgOUoyFwEQKWTdoEJrR6c=",
 			"path": "golang.org/x/sys/unix",
 			"revision": "9b800f95dbbc54abff0acf7ee32d88ba4e328c89",
 			"revisionTime": "2018-10-31T12:20:39Z"
+		},
+		{
+			"checksumSHA1": "S+3OSpo8uqeKnh6rWpx/Bntnvaw=",
+			"path": "golang.org/x/tools/go/ssa/interp/testdata/src/errors",
+			"revision": "2d16b83fe98cd1bed9e2ce9fdc86bd438d14aab7",
+			"revisionTime": "2019-05-05T17:44:54Z"
 		},
 		{
 			"checksumSHA1": "P/k5ZGf0lEBgpKgkwy++F7K1PSg=",
