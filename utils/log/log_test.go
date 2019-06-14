@@ -17,7 +17,6 @@ package log
 
 import (
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"strings"
 	"testing"
 	"time"
@@ -27,7 +26,7 @@ func TestNewLogger(t *testing.T) {
 	logImpl := Logger{
 		Config: &Config{
 			FilePath:    strings.Join([]string{"/data/logs/oo.log"}, ""),
-			Level:       zapcore.DebugLevel,
+			Level:       DebugLevel,
 			MaxSize:     128,
 			MaxBackups:  30,
 			MaxAge:      30,
@@ -35,12 +34,12 @@ func TestNewLogger(t *testing.T) {
 			ServiceName: "yo",
 		}}
 
-	testLogger := logImpl.NewCustom("./logs/ho.log", zap.DebugLevel, 128, 30, 30, true, "ho")
+	testLogger := logImpl.NewCustom("./logs/ho.log", DebugLevel, 128, 30, 30, true, "ho")
 	testLogger.Info("log 初始化成功1")
 
 	logImpl.Conf(&Config{
 		FilePath:    strings.Join([]string{"/data/logs/oo.log"}, ""),
-		Level:       zapcore.DebugLevel,
+		Level:       DebugLevel,
 		MaxSize:     128,
 		MaxBackups:  30,
 		MaxAge:      30,

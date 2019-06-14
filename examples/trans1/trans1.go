@@ -43,6 +43,7 @@ func testRouter1(router *response.Router) {
 	router.POST("/post", shunt1post1)
 	router.POST("/post2", shunt1post2)
 	router.POST("/shunt", shunt1)
+	router.DELETE("/del", del)
 }
 
 func shunt1get1(router *response.Router) {
@@ -66,6 +67,12 @@ func shunt1(router *response.Router) {
 		router.Context.Writer.Header().Add("trans1Token15", "trans1Test15")
 		router.Context.SetCookie("trans1Token16", "trans1Test16", 10, "/", "localhost", false, true)
 		result.SaySuccess(router.Context, test)
+	})
+}
+
+func del(router *response.Router) {
+	rivet.Response().Do(router.Context, func(result *response.Result) {
+		result.SaySuccess(router.Context, "test")
 	})
 }
 

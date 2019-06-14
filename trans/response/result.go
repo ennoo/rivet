@@ -85,6 +85,11 @@ func (result *Result) FailErr(err error) {
 
 }
 
+// Say response 返回自身
+func (result *Result) Say(context *gin.Context) {
+	context.JSON(http.StatusOK, &result)
+}
+
 // SaySuccess response 返回请求成功对象
 func (result *Result) SaySuccess(context *gin.Context, obj interface{}) {
 	result.Success(obj)
@@ -95,6 +100,11 @@ func (result *Result) SaySuccess(context *gin.Context, obj interface{}) {
 func (result *Result) SayFail(context *gin.Context, msg string) {
 	result.Fail(msg)
 	context.JSON(http.StatusOK, &result)
+}
+
+// Write response 字节
+func (result *Result) Write(context *gin.Context, byte []byte) (int, error) {
+	return context.Writer.Write(byte)
 }
 
 // catchErr 捕获所有异常信息并放入json到context，便于controller直接调用

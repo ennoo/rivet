@@ -18,9 +18,12 @@ package file
 
 import (
 	"bufio"
+	"errors"
+	"github.com/ennoo/rivet/utils/log"
 	"github.com/ennoo/rivet/utils/string"
 	"io"
 	"os"
+	"strings"
 )
 
 // PathExists 判断路径是否存在
@@ -37,36 +40,60 @@ func PathExists(path string) (bool, error) {
 
 // ReadFileFirstLine 从文件中逐行读取并返回字符串数组
 func ReadFileFirstLine(filePath string) (string, error) {
-	fileIn, fileInErr := os.Open(filePath)
-	if fileInErr != nil {
-		return "", fileInErr
+	fileIn, err := os.Open(filePath)
+	if err != nil {
+		return "", err
 	}
 	defer fileIn.Close()
 	finReader := bufio.NewReader(fileIn)
-	inputString, readerError := finReader.ReadString('\n')
-	if readerError == io.EOF {
-		return "", readerError
-	}
+	inputString, _ := finReader.ReadString('\n')
 	return str.TrimN(inputString), nil
 }
 
 // ReadFileByLine 从文件中逐行读取并返回字符串数组
 func ReadFileByLine(filePath string) ([]string, error) {
-	fileIn, fileInErr := os.Open(filePath)
-	if fileInErr != nil {
-		return nil, fileInErr
+	fileIn, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
 	}
 	defer fileIn.Close()
 	finReader := bufio.NewReader(fileIn)
 	var fileList []string
 	for {
-		inputString, readerError := finReader.ReadString('\n')
+		inputString, err := finReader.ReadString('\n')
 		//fmt.Println(inputString)
-		if readerError == io.EOF {
+		if err == io.EOF {
+			fileList = append(fileList, str.TrimN(inputString))
 			break
 		}
-		fileList = append(fileList, inputString)
+		fileList = append(fileList, str.TrimN(inputString))
 	}
 	//fmt.Println("fileList",fileList)
 	return fileList, nil
+}
+
+// CreateAndWrite 创建并写入内容到文件中
+func CreateAndWrite(filePath string, data []byte, force bool) error {
+	if exist, _ := PathExists(filePath); exist && !force {
+		return errors.New("file exist")
+	}
+	lastIndex := strings.LastIndex(filePath, "/")
+	parentPath := filePath[0:lastIndex]
+	if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
+		return err
+	}
+	// 创建文件，如果文件已存在，会将文件清空
+	if file, err := os.Create(filePath); err != nil {
+		return err
+	} else {
+		defer file.Close()
+		// 将数据写入文件中
+		//file.WriteString(string(data)) //写入字符串
+		if n, err := file.Write(data); nil != err { // 写入byte的slice数据
+			return err
+		} else {
+			log.Rivet.Debug("write", log.Int("byte count", n))
+			return nil
+		}
+	}
 }
