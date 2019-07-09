@@ -30,6 +30,12 @@ func MD5(text string) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
+func MD516(text string) string {
+	md5 := MD5(text)
+	md516 := string([]rune(md5)[8:24])
+	return md516
+}
+
 func Sha1(text string) string {
 	hash := sha1.New()
 	hash.Write([]byte(text))

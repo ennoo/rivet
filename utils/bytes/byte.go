@@ -17,9 +17,11 @@ package bytes
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/gob"
 )
 
+// GetBytes 获取接口字节数组
 func GetBytes(key interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
@@ -28,4 +30,39 @@ func GetBytes(key interface{}) ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+// IntToBytes 整形转换成字节
+func IntToBytes(n int) ([]byte, error) {
+	x := int32(n)
+
+	bytesBuffer := bytes.NewBuffer([]byte{})
+	if err := binary.Write(bytesBuffer, binary.BigEndian, x); nil != err {
+		return nil, err
+	}
+	return bytesBuffer.Bytes(), nil
+}
+
+// BytesToInt 字节转换成整形
+func BytesToInt(b []byte) (int, error) {
+	bytesBuffer := bytes.NewBuffer(b)
+
+	var x int32
+	if err := binary.Read(bytesBuffer, binary.BigEndian, &x); nil != err {
+		return 0, err
+	}
+
+	return int(x), nil
+}
+
+// Int64ToBytes 整形64转换成字节
+func Int64ToBytes(i int64) []byte {
+	var buf = make([]byte, 8)
+	binary.BigEndian.PutUint64(buf, uint64(i))
+	return buf
+}
+
+// BytesToInt64 字节转换成整形64
+func BytesToInt64(buf []byte) int64 {
+	return int64(binary.BigEndian.Uint64(buf))
 }

@@ -17,14 +17,13 @@ package main
 
 import (
 	"github.com/ennoo/rivet"
-	"github.com/ennoo/rivet/discovery"
 	"github.com/ennoo/rivet/examples/model"
 	"github.com/ennoo/rivet/trans/response"
 )
 
 func main() {
 	rivet.Initialize(true, false, false)
-	rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "test", "127.0.0.1", 8082)
+	//rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "test", "127.0.0.1", 8082)
 	rivet.ListenAndServe(&rivet.ListenServe{
 		Engine:      rivet.SetupRouter(testRouter2),
 		DefaultPort: "8082",
