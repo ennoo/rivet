@@ -24,6 +24,7 @@ import (
 	"github.com/ennoo/rivet/utils/string"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -160,55 +161,81 @@ func compress(file *os.File, prefix string, zw *zip.Writer) error {
 	return nil
 }
 
-//解压
-func DeCompress(zipFile, dest string) error {
-	reader, err := zip.OpenReader(zipFile)
+/**
+@tarFile：压缩文件路径
+@dest：解压文件夹
+*/
+func DeCompressTar(tarFile, dest string) error {
+	srcFile, err := os.Open(tarFile)
 	if err != nil {
+		log.Self.Error("DeCompressTar", log.Error(err))
 		return err
 	}
+	defer srcFile.Close()
+	reader, err := zip.OpenReader(srcFile.Name())
+	return deCompress(reader, dest)
+}
+
+//解压
+func DeCompressZip(zipFile, dest string) error {
+	var (
+		reader *zip.ReadCloser
+		err    error
+	)
+	if reader, err = zip.OpenReader(zipFile); nil != err {
+		log.Self.Error("DeCompressZip", log.Error(err))
+		return err
+	}
+	return deCompress(reader, dest)
+}
+
+/**
+@zipFile：压缩文件
+*/
+func deCompress(reader *zip.ReadCloser, dest string) error {
 	defer func() { _ = reader.Close() }()
-	for _, file := range reader.File {
-		rc, err := file.Open()
+	for _, innerFile := range reader.File {
+		info := innerFile.FileInfo()
+		if info.IsDir() {
+			err := os.MkdirAll(innerFile.Name, os.ModePerm)
+			if err != nil {
+				log.Self.Error("deCompress1", log.Error(err))
+				return err
+			}
+			continue
+		}
+		srcFile, err := innerFile.Open()
 		if err != nil {
+			continue
+		}
+		err = os.MkdirAll(dest, 0755)
+		if err != nil {
+			log.Self.Error("deCompress2", log.Error(err))
 			return err
 		}
-		filename := dest + file.Name
-		err = os.MkdirAll(getDir(filename), 0755)
+		filePath := filepath.Join(dest, innerFile.Name)
+		if exist, err := PathExists(filePath); !exist || nil != err {
+			lastIndex := strings.LastIndex(filePath, "/")
+			parentPath := filePath[0:lastIndex]
+			if err := os.MkdirAll(parentPath, os.ModePerm); nil != err {
+				log.Self.Error("deCompress3", log.Error(err))
+				return err
+			}
+		}
+		newFile, err := os.Create(filePath)
 		if err != nil {
-			rc.Close()
+			log.Self.Error("deCompress4", log.Error(err))
+			srcFile.Close()
+			continue
+		}
+		if _, err = io.Copy(newFile, srcFile); nil != err {
+			newFile.Close()
+			srcFile.Close()
+			log.Self.Error("deCompress5", log.Error(err))
 			return err
 		}
-		w, err := os.Create(filename)
-		if err != nil {
-			rc.Close()
-			return err
-		}
-		_, err = io.Copy(w, rc)
-		if err != nil {
-			rc.Close()
-			return err
-		}
-		w.Close()
-		rc.Close()
+		newFile.Close()
+		srcFile.Close()
 	}
 	return nil
-}
-
-func getDir(path string) string {
-	return subString(path, 0, strings.LastIndex(path, "/"))
-}
-
-func subString(str string, start, end int) string {
-	rs := []rune(str)
-	length := len(rs)
-
-	if start < 0 || start > length {
-		panic("start is wrong")
-	}
-
-	if end < start || end > length {
-		panic("end is wrong")
-	}
-
-	return string(rs[start:end])
 }

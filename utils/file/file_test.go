@@ -132,7 +132,7 @@ func TestCompress(t *testing.T) {
 
 func TestDeCompress(t *testing.T) {
 	rootPath := "../../examples/file"
-	err := DeCompress(strings.Join([]string{rootPath, "test1/aa.zip"}, "/"), strings.Join([]string{rootPath, "test1/aa"}, "/"))
+	err := DeCompressZip(strings.Join([]string{rootPath, "test1/归档.zip"}, "/"), strings.Join([]string{rootPath, "test1/aa"}, "/"))
 	if err != nil {
 		t.Fatal(err)
 	}
