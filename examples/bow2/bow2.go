@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	rivet.Initialize(false, true, false)
+	rivet.Initialize(false, true, false, false)
 	rivet.UseBow(func(result *response.Result) bool {
 		return true
 	})

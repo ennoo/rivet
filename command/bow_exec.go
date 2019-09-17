@@ -26,7 +26,7 @@ import (
 )
 
 func startBow(ymlBow *Bow) error {
-	rivet.Initialize(ymlBow.HealthCheck, ymlBow.ServerManager, ymlBow.LoadBalance)
+	rivet.Initialize(ymlBow.HealthCheck, ymlBow.ServerManager, ymlBow.LoadBalance, false)
 	//rivet.Log().Init()
 	rivet.UseBow(func(result *response.Result) bool {
 		return true

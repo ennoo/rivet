@@ -24,7 +24,7 @@ import (
 )
 
 func startShunt(ymlShunt *Shunt) error {
-	rivet.Initialize(ymlShunt.HealthCheck, ymlShunt.ServerManager, true)
+	rivet.Initialize(ymlShunt.HealthCheck, ymlShunt.ServerManager, true, false)
 	//rivet.Log().Init()
 	if ymlShunt.DiscoveryInit {
 		rivet.UseDiscovery(ymlShunt.DiscoveryComponent, ymlShunt.DiscoveryURL, "shunt", ymlShunt.DiscoveryReceiveHost, ymlShunt.Port)
