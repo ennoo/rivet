@@ -17,6 +17,7 @@ package file
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -106,5 +107,33 @@ func TestCreateAndWrite(t *testing.T) {
 		t.Skip(err)
 	} else {
 		t.Log("success")
+	}
+}
+
+func TestCompress(t *testing.T) {
+	rootPath := "../../examples/file"
+	f1, err := os.Open(strings.Join([]string{rootPath, "test1/a.aberic"}, "/"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f1.Close()
+	f2, err := os.Open(strings.Join([]string{rootPath, "test1/a.ennoo"}, "/"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f2.Close()
+	var files1 = []*os.File{f1, f2}
+	dest1 := strings.Join([]string{rootPath, "test1/aa.zip"}, "/")
+	err = Compress(files1, dest1)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestDeCompress(t *testing.T) {
+	rootPath := "../../examples/file"
+	err := DeCompressZip(strings.Join([]string{rootPath, "test1/归档.zip"}, "/"), strings.Join([]string{rootPath, "test1/aa"}, "/"))
+	if err != nil {
+		t.Fatal(err)
 	}
 }
