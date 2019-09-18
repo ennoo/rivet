@@ -31,8 +31,25 @@ import (
 func main() {
 	rivet.Initialize(env.GetEnvBoolDefault(env.HealthCheck, false),
 		env.GetEnvBoolDefault(env.ServerManager, false),
-		env.GetEnvBoolDefault(env.LoadBalance, false))
-	rivet.Log().Init()
+		env.GetEnvBoolDefault(env.LoadBalance, false), false)
+	var level log.Level
+	switch env.GetEnv(env.LogLevel) {
+	case "debug":
+		level = log.DebugLevel
+	case "info":
+		level = log.InfoLevel
+	case "warn":
+		level = log.WarnLevel
+	case "error":
+		level = log.ErrorLevel
+	}
+	rivet.Log().Init(env.GetEnv(env.LogPath), "raft", &log.Config{
+		Level:      level,
+		MaxSize:    128,
+		MaxBackups: 30,
+		MaxAge:     30,
+		Compress:   true,
+	}, false)
 	rivet.UseBow(func(result *response.Result) bool {
 		return true
 	})

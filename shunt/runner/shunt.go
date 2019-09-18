@@ -28,8 +28,25 @@ import (
 
 func main() {
 	rivet.Initialize(env.GetEnvBoolDefault(env.HealthCheck, false),
-		env.GetEnvBoolDefault(env.ServerManager, false), true)
-	rivet.Log().Init()
+		env.GetEnvBoolDefault(env.ServerManager, false), true, false)
+	var level log.Level
+	switch env.GetEnv(env.LogLevel) {
+	case "debug":
+		level = log.DebugLevel
+	case "info":
+		level = log.InfoLevel
+	case "warn":
+		level = log.WarnLevel
+	case "error":
+		level = log.ErrorLevel
+	}
+	rivet.Log().Init(env.GetEnv(env.LogPath), "raft", &log.Config{
+		Level:      level,
+		MaxSize:    128,
+		MaxBackups: 30,
+		MaxAge:     30,
+		Compress:   true,
+	}, false)
 	if env.GetEnvBoolDefault(env.DiscoveryInit, false) {
 		rivet.UseDiscovery(discovery.ComponentConsul, "127.0.0.1:8500", "shunt", "127.0.0.1", 8083)
 	}
